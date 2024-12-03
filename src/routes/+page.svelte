@@ -1,2 +1,19 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script>
+    import Hero from './components/Hero.svelte';
+    import Navigation from './components/Navigation.svelte';
+    import ProductShowcase from './components/ProductShowcase.svelte';
+    // import BestSelling from './components/BestSelling.svelte';
+    // import Testimonials from './components/Testimonials.svelte';
+    // import Blog from './components/Blog.svelte';
+    // import Footer from './components/Footer.svelte';
+  </script>
+  
+  <div class="font-sans">
+    <Hero />
+    <Navigation />
+    <ProductShowcase />
+    <!-- <BestSelling />
+    <Testimonials />
+    <Blog />
+    <Footer /> -->
+  </div>
