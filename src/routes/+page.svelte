@@ -1,19 +1,23 @@
 <script>
-    import Hero from './components/Hero.svelte';
-    import Navigation from './components/Navigation.svelte';
-    import ProductShowcase from './components/ProductShowcase.svelte';
-    // import BestSelling from './components/BestSelling.svelte';
-    // import Testimonials from './components/Testimonials.svelte';
-    // import Blog from './components/Blog.svelte';
-    // import Footer from './components/Footer.svelte';
+    import Hero from '../lib/components/Hero.svelte';
+    import Navigation from '../lib/components/Navigation.svelte';
+    import ProductShowcase from '../lib/components/ProductShowcase.svelte';
+    import ProductSection from '../lib/components/ProductSection.svelte';
+    import CompanySection from '../lib/components/CompanySection.svelte';
+    import BestSelling from '../lib/components/BestSelling.svelte';
+    import Carousel from '../lib/components/Carousel.svelte';
+    import Testimonials from '../lib/components/Testimonials.svelte';
+    import Footer from '../lib/components/Footer.svelte';
   </script>
   
   <div class="font-sans">
     <Hero />
     <Navigation />
     <ProductShowcase />
-    <!-- <BestSelling />
+    <ProductSection />
+    <CompanySection />
+    <BestSelling />
+    <Carousel />
     <Testimonials />
-    <Blog />
-    <Footer /> -->
+    <Footer />
   </div>

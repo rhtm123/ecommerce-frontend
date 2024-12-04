@@ -45,7 +45,7 @@
   </script>
   
   <section class="py-12   bg-yellow-50 ">
-    <div class="text-center mb-12">
+    <div class="text-center ">
       <p class="text-red-500 text-sm mb-2">Our Category</p>
       <h2 class="text-2xl font-bold text-[#2D2D2D]">CATEGORIES YOU'LL LOVE</h2>
     </div>
