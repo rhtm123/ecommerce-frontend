@@ -84,7 +84,7 @@
               in:fade="{{ duration: 1000, delay: 800 }}"
             >
               <img
-                src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=500&h=500&fit=crop"
+                src="src/assets/Toy-Names-For-Kids.webp"
                 alt="Featured toy"
                 class="w-full rounded-lg shadow-xl transform transition-transform duration-500 hover:scale-105"
               />

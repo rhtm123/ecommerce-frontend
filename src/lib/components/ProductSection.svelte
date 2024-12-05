@@ -15,28 +15,28 @@
         name: "BABY'S FIRST BLOCKS SET",
         price: 23.60,
         rating: 4,
-        image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=500&h=500&fit=crop"
+        image: "src/assets/Toy-Names-For-Kids.webp"
       },
       {
         id: 2, 
         name: "MULTICOLOR 3 IN 1 WALKER",
         price: 24.00,
         rating: 0,
-        image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=500&h=500&fit=crop"
+        image: "src/assets/Toy-Names-For-Kids.webp"
       },
       {
         id: 3,
         name: "PLUSH PIG 30 CM",
         price: 14.70,
         rating: 0,
-        image: "https://images.unsplash.com/photo-1593085512500-5d55148d6f0d?w=500&h=500&fit=crop"
+        image: "src/assets/Toy-Names-For-Kids.webp"
       },
       {
         id: 4,
         name: "WHALE MUSICAL FOUNTAIN",
         price: 45.60,
         rating: 0,
-        image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=500&h=500&fit=crop"
+        image: "src/assets/Toy-Names-For-Kids.webp"
       }
     ];
   
@@ -72,7 +72,7 @@
         <div class="bg-white rounded-lg p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-2">
           <div class="relative aspect-square mb-4 overflow-hidden rounded-lg">
             <img 
-              src={product.image} 
+              src="{product.image}"
               alt={product.name}
               class="w-full h-full object-cover transform transition-transform duration-300 hover:scale-110"
             />
