@@ -3,21 +3,21 @@
       {
         name: "DEANNA ROSE",
         role: "Consultant",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+        image: "/img/Toy-Names-For-Kids.webp",
         quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
         rating: 3
       },
       {
         name: "DEANNA ROSE",
         role: "Consultant",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+        image: "/img/Toy-Names-For-Kids.webp",
         quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
         rating: 3
       },
       {
         name: "DEANNA ROSE",
         role: "Consultant",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+        image: "/img/Toy-Names-For-Kids.webp",
         quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
         rating: 3
       },

@@ -84,7 +84,7 @@
               in:fade="{{ duration: 1000, delay: 800 }}"
             >
               <img
-                src="src/assets/Toy-Names-For-Kids.webp"
+                src="src/img/Toy-Names-For-Kids.webp"
                 alt="Featured toy"
                 class="w-full rounded-lg shadow-xl transform transition-transform duration-500 hover:scale-105"
               />

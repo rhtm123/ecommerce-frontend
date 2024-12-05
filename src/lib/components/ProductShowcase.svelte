@@ -68,7 +68,7 @@
       <!-- Voucher Card -->
       <div class="bg-gray-100 rounded-lg p-6 text-center relative overflow-hidden">
         <img
-          src="src\assets\Toy-Names-For-Kids.webp"
+          src="/img/Toy-Names-For-Kids.webp"
           alt="Teddy Bear with Gifts"
           class="w-full h-48 object-cover rounded-lg mb-4"
         />
@@ -80,7 +80,7 @@
       <!-- Educational Toys Card -->
       <div class="bg-gray-100 rounded-lg p-6 text-center relative overflow-hidden">
         <img
-          src="src\assets\Toy-Names-For-Kids.webp"
+          src="/img/Toy-Names-For-Kids.webp"
           alt="Educational Toys"
           class="w-full h-48 object-cover rounded-lg mb-4"
         />
@@ -91,7 +91,7 @@
       <!-- Educational Toys Card -->
       <div class="bg-gray-100 rounded-lg p-6 text-center relative overflow-hidden">
         <img
-          src="src\assets\Toy-Names-For-Kids.webp"
+          src="/img/Toy-Names-For-Kids.webp"
           alt="Educational Toys"
           class="w-full h-48 object-cover rounded-lg mb-4"
         />

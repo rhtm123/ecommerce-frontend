@@ -15,28 +15,28 @@
         name: "BABY'S FIRST BLOCKS SET",
         price: 23.60,
         rating: 4,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       },
       {
         id: 2, 
         name: "MULTICOLOR 3 IN 1 WALKER",
         price: 24.00,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       },
       {
         id: 3,
         name: "PLUSH PIG 30 CM",
         price: 14.70,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       },
       {
         id: 4,
         name: "WHALE MUSICAL FOUNTAIN",
         price: 45.60,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       }
     ];
   

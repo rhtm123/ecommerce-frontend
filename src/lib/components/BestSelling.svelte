@@ -6,7 +6,7 @@
         name: "BUZZ LIGHTYEAR TALKING FIGURE",
         price: 25.20,
         rating: 4,
-        image: "src/assets/Toy-Names-For-Kids.webp",
+        image: "/img/Toy-Names-For-Kids.webp",
         hasQuickButtons: true
       },
       {
@@ -14,7 +14,7 @@
         name: "SPIDEY WEB TRANSPORTER VEHICLE",
         price: 23.40,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp",
+        image: "/img/Toy-Names-For-Kids.webp",
         hasQuickButtons: true
       },
       {
@@ -22,14 +22,14 @@
         name: "WHALE MUSICAL FOUNTAIN",
         price: 45.60,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       },
       {
         id: 4,
         name: "PLUSH PIG 30 CM",
         price: 14.70,
         rating: 0,
-        image: "src/assets/Toy-Names-For-Kids.webp"
+        image: "/img/Toy-Names-For-Kids.webp"
       }
     ];
   
