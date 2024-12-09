@@ -47,25 +47,24 @@
 
   <div class="container mx-auto px-4 h-full">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
-      <!-- Text content -->
       <div class="z-10 space-y-6">
-        <p class="text-red-500 text-xl font-medium tracking-wide">Play & Learn</p>
+        <p class="text-red-500 text-xl font-medium">Best Education</p>
         <h1 class="text-[#1a237e] text-5xl md:text-6xl font-bold leading-tight">
-          BEST EDUCATION<br />FOR KIDS
+          FOR KIDS
         </h1>
-        <button class="btn bg-red-500 hover:bg-red-600 text-white border-none rounded-full px-8 py-3 transform hover:scale-105 transition-transform">
+        <button class="btn bg-red-500 hover:bg-red-600 text-white border-none rounded-full px-8">
           SHOP NOW
         </button>
       </div>
 
-      <!-- Image section with curved border -->
+      <!-- Update the image section -->
       <div class="relative">
         <div class="absolute inset-0 -left-32 bg-red-500 rounded-l-[100px]" style="clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);"></div>
         {#each slides as src, i}
           <img
             src={src}
             alt="Kids playing with educational toys"
-            class="relative z-10 w-full h-full object-cover transition-opacity duration-500"
+            class="relative z-10 w-full h-full object-cover rounded-lg transition-opacity duration-500"
             style="opacity: {currentSlide === i ? '1' : '0'}; position: {i === 0 ? 'relative' : 'absolute'}; top: 0; left: 0;"
           />
         {/each}
