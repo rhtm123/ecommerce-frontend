@@ -100,7 +100,7 @@
         </div>
   
         <!-- Newsletter Signup -->
-        <div class="max-w-md mx-auto animate-fade-in-up">
+        <!-- <div class="max-w-md mx-auto animate-fade-in-up">
           <form 
             on:submit|preventDefault={handleSubscribe}
             class="flex gap-2"
@@ -118,7 +118,7 @@
               Notify Me
             </button>
           </form>
-        </div>
+        </div> -->
   
         <!-- Social Links -->
         <div class="mt-12 flex justify-center gap-6 animate-fade-in-up">
