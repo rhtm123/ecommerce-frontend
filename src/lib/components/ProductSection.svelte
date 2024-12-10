@@ -22,33 +22,21 @@
         name: "MULTICOLOR 3 IN 1 WALKER",
         price: 24.00,
         rating: 0,
-<<<<<<< Updated upstream
         image: "/img/Toy-Names-For-Kids.webp"
-=======
-        image: "/assets/Toy-Names-For-Kids.webp"
->>>>>>> Stashed changes
       },
       {
         id: 3,
         name: "PLUSH PIG 30 CM",
         price: 14.70,
         rating: 0,
-<<<<<<< Updated upstream
         image: "/img/Toy-Names-For-Kids.webp"
-=======
-        image: "/assets/Toy-Names-For-Kids.webp"
->>>>>>> Stashed changes
       },
       {
         id: 4,
         name: "WHALE MUSICAL FOUNTAIN",
         price: 45.60,
         rating: 0,
-<<<<<<< Updated upstream
         image: "/img/Toy-Names-For-Kids.webp"
-=======
-        image: "/assets/Toy-Names-For-Kids.webp"
->>>>>>> Stashed changes
       }
     ];
   
