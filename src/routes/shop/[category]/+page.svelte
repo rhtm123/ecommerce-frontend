@@ -1,14 +1,16 @@
 <script>
+    import { page } from '$app/stores';
   import { fade, fly } from 'svelte/transition';
-  import { page } from '$app/stores';
-  import { getProductsByCategory } from '$lib/utils/product';
+  import { goto } from '$app/navigation';
+  import { getProductsByCategory, getAllCategories } from '$lib/utils/product';
+
   
   // Get category from URL params
   $: category = $page.params.category;
   
   // View mode state
   let viewMode = 'grid'; // 'grid' or 'list'
-  
+  const categories = getAllCategories();
   // Sorting state
   let sortOption = 'default';
   $: products = getProductsByCategory(category);
@@ -57,6 +59,17 @@
   let selectedPriceRange = [0, 100];
   let selectedColors = [];
   let selectedAgeRanges = [];
+
+  $: colors = [...new Set(products.map(p => p.color))];
+  $: ageRanges = [...new Set(products.map(p => p.ageRange))];
+
+  // Handle category change
+  function handleCategoryClick(categorySlug) {
+    if (categorySlug !== category) {
+      goto(`/shop/${categorySlug}`);
+    }
+  }
+
   
   $: filteredProducts = products.filter(product => {
     const priceInRange = product.price >= selectedPriceRange[0] && product.price <= selectedPriceRange[1];
@@ -101,14 +114,14 @@
   <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
     <div class="container mx-auto px-4">
       <div class="flex flex-col items-center space-y-2">
-        <h1 class="text-2xl font-bold text-gray-800 capitalize">
-          {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+        <h1 class="text-2xl font-bold text-gray-800">
+          {categories.find(c => c.slug === category)?.name || 'Shop'}
         </h1>
         <div class="text-sm breadcrumbs text-gray-600">
           <ul>
-            <li><a href="/home"><i class="fas fa-home"></i></a></li>
+            <li><a href="/home">Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li>{category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</li>
+            <li>{categories.find(c => c.slug === category)?.name}</li>
           </ul>
         </div>
       </div>
@@ -119,7 +132,7 @@
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Filters -->
       <div class="w-full lg:w-1/4" in:fly="{{ x: -50, duration: 500 }}">
-        <div class="bg-white p-6 rounded-lg shadow-sm">
+        <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
           <h2 class="text-lg font-semibold mb-4">Filters</h2>
           
           <!-- Price Range Filter -->

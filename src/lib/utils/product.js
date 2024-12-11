@@ -1,5 +1,9 @@
 import productData from '../data/product.json';
 
+export function getAllProducts() {
+    return productData.products;
+}
+
 export function getProductsByCategory(category) {
   return productData.products.filter(product => product.category === category);
 }
