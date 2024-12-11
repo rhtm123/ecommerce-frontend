@@ -1,53 +1,13 @@
 <script>
-    let selectedAge = "0 TO 12 MONTHS";
-    
-    const ageCategories = [
-      "0 TO 12 MONTHS",
-      "12 TO 18 MONTHS", 
-      "18 TO 24 MONTHS",
-      "2 TO 5 YEARS",
-      "5 TO 8 YEARS"
-    ];
+  import { getAgeCategories, getProductsByAge } from '$lib/utils/product';
   
-    const products = [
-      {
-        id: 1,
-        name: "BABY'S FIRST BLOCKS SET",
-        price: 23.60,
-        rating: 4,
-        image: "/img/Toy-Names-For-Kids.webp"
-      },
-      {
-        id: 2, 
-        name: "MULTICOLOR 3 IN 1 WALKER",
-        price: 24.00,
-        rating: 0,
-        image: "/img/Toy-Names-For-Kids.webp"
-      },
-      {
-        id: 3,
-        name: "PLUSH PIG 30 CM",
-        price: 14.70,
-        rating: 0,
-        image: "/img/Toy-Names-For-Kids.webp"
-      },
-      {
-        id: 4,
-        name: "WHALE MUSICAL FOUNTAIN",
-        price: 45.60,
-        rating: 0,
-        image: "/img/Toy-Names-For-Kids.webp"
-      }
-    ];
+  const ageCategories = getAgeCategories();
+  let selectedAge = ageCategories[0];
   
-    let showToast = true;
-    
-    const addToCart = (product) => {
-      // Add to cart logic here
-    };
-  </script>
+  $: products = getProductsByAge(selectedAge);
+</script>
   
-  <section class="mx-auto bg-yellow-50 px-4 py-16">
+  <section class="mx-auto bg-amber-50 px-4 py-16">
     <!-- Section Headers -->
     <div class="text-center mb-12">
       <h3 class="text-red-500 font-medium mb-2">Our Products</h3>
