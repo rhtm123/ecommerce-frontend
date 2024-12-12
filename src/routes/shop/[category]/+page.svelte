@@ -238,7 +238,8 @@
         "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : 
         "flex flex-col gap-4"}
       >
-        {#each sortedProducts as product (product.id)}
+      {#each sortedProducts as product (product.id)}
+      <a href="/product/{product.id}">
           <div
             class="bg-white rounded-lg shadow-sm overflow-hidden transform transition-transform hover:scale-105"
             class:flex={viewMode === 'list'}
@@ -266,8 +267,9 @@
               </div>
             </div>
           </div>
-        {/each}
-      </div>
+        </a>
+          {/each}
+        </div>
       </div>
     </div>
   </div>

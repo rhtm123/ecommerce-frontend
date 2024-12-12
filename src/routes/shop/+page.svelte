@@ -61,7 +61,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Shop</h1>
         <div class="text-sm breadcrumbs text-gray-600">
           <ul>
-            <li><a href="/"><i class="fas fa-home"></i></a></li>
+            <li><a href="/home"><i class="fas fa-home"></i></a></li>
             <li>Shop</li>
           </ul>
         </div>
@@ -183,13 +183,13 @@
             </select>
           </div>
         </div>
-  
         <!-- Products Grid/List -->
         <div class={viewMode === 'grid' ? 
           'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 
           'space-y-6'
         }>
           {#each sortedProducts as product (product.id)}
+          <a href="/product/{product.id}">
             <div class={viewMode === 'grid' ? 
               'bg-white rounded-lg p-4 hover:shadow-xl transition-shadow' :
               'bg-white rounded-lg p-4 hover:shadow-xl transition-shadow flex gap-6'
@@ -225,6 +225,7 @@
                 </button>
               </div>
             </div>
+          </a>
           {/each}
         </div>
       </div>
