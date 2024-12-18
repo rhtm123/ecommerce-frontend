@@ -1,31 +1,32 @@
-
 <script>
-    import "../app.css";
-    import Footer from "$lib/components/Footer.svelte";
-    // import Navbar from "../components/Navbar.svelte";
-    import NProgress from 'nprogress';
-    import Navigation from '$lib/components/Navigation.svelte';
-    import 'nprogress/nprogress.css';
-    import { navigating } from "$app/stores";
+  import "../app.css";
+  import Footer from "$lib/components/Footer.svelte";
+  import Navigation from '$lib/components/Navigation.svelte';
+  import NProgress from 'nprogress';
+  import 'nprogress/nprogress.css';
+  import { navigating } from "$app/stores";
+  import { page } from '$app/stores';
 
-    $: {
-		if ($navigating) {
-			NProgress.start();
-		}
-		if (!$navigating) {
-			NProgress.done();
-		}
-	}
+  $: isMainPage = $page.url.pathname === '/';
 
-
+  $: {
+      if ($navigating) {
+          NProgress.start();
+      }
+      if (!$navigating) {
+          NProgress.done();
+      }
+  }
 </script>
 
+{#if !isMainPage}
+  <Navigation />
+{/if}
 
-<Navigation />
-
-<div class="pt-20"> <!-- Added padding-top to prevent content from hiding under fixed navbar -->
+<div class={!isMainPage ? "pt-20" : ""}> <!-- Only add padding when Navigation is present -->
   <slot />
 </div>
 
-<Footer />
-
+{#if !isMainPage}
+  <Footer />
+{/if}
