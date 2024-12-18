@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { fade, fly } from 'svelte/transition';
     import { cart } from '$lib/stores/cart';
+    import { goto } from '$app/navigation';
   
     let selectedItems = [];
     let totalPrice = 0;
@@ -32,9 +33,8 @@
     }
   
     function proceedToCheckout() {
-      // Implement checkout logic here
-      console.log('Proceeding to checkout with items:', selectedItems);
-    }
+  goto('/checkout');
+}
   </script>
   
   <svelte:head>
@@ -43,7 +43,7 @@
   
   <!-- Breadcrumb -->
    <div class="bg-[#FDF6F4]">
-  <div class="bg-[#FDF6F4] py-16">
+  <div class="bg-[#f7e4de] py-16">
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold text-center text-[#1A1A1A] mb-4">CART</h1>
       <div class="flex justify-center items-center gap-2 text-sm">
