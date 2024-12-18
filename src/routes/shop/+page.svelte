@@ -2,6 +2,7 @@
     import { fade, fly } from 'svelte/transition';
     import { goto } from '$app/navigation';
     import { getAllProducts, getAllCategories } from '$lib/utils/product';
+    import { addToCart } from '$lib/stores/cart';
   
     // Get all products and categories
     const products = getAllProducts();
@@ -220,7 +221,7 @@
                   {/each}
                 </div>
                 <p class="text-red-500 font-bold mb-4">${product.price.toFixed(2)}</p>
-                <button class="btn btn-sm btn-primary rounded-full w-full">
+                <button class="btn btn-sm btn-primary rounded-full w-full" on:click|stopPropagation={() => addToCart(product)}>
                   ADD TO CART
                 </button>
               </div>

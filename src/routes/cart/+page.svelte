@@ -1,0 +1,228 @@
+<script>
+    import { onMount } from 'svelte';
+    import { fade, fly } from 'svelte/transition';
+    import { cart } from '$lib/stores/cart';
+  
+    let selectedItems = [];
+    let totalPrice = 0;
+    let couponCode = '';
+  
+    $: {
+      selectedItems = $cart;
+      totalPrice = selectedItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    }
+  
+    function updateQuantity(id, newQuantity) {
+      cart.update(items => {
+        const index = items.findIndex(item => item.id === id);
+        if (index !== -1) {
+          items[index].quantity = Math.max(1, newQuantity);
+        }
+        return items;
+      });
+    }
+  
+    function removeItem(id) {
+      cart.update(items => items.filter(item => item.id !== id));
+    }
+  
+    function applyCoupon() {
+      // Implement coupon logic here
+      console.log('Applying coupon:', couponCode);
+    }
+  
+    function proceedToCheckout() {
+      // Implement checkout logic here
+      console.log('Proceeding to checkout with items:', selectedItems);
+    }
+  </script>
+  
+  <svelte:head>
+    <title>CART</title>
+  </svelte:head>
+  
+  <!-- Breadcrumb -->
+   <div class="bg-[#FDF6F4]">
+  <div class="bg-[#FDF6F4] py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold text-center text-[#1A1A1A] mb-4">CART</h1>
+      <div class="flex justify-center items-center gap-2 text-sm">
+        <a href="/" class="text-[#1A1A1A] hover:text-red-500">Home</a>
+        <span class="text-red-500">></span>
+        <span class="text-red-500">Cart</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Progress Steps -->
+  <div class="container mx-auto bg-[#FDF6F4] px-4 py-8">
+    <div class="flex items-center justify-between max-w-3xl mx-auto mb-12">
+      <div class="flex-1 relative">
+        <div class="h-1 bg-red-500">
+          <div class="w-full h-full bg-red-500"></div>
+        </div>
+        <div class="absolute top-0 -ml-4 mt-[-10px]">
+          <div class="bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold">01</div>
+          <div class="text-xs mt-2 text-red-500 font-medium">SHOPPING CART</div>
+        </div>
+      </div>
+      <div class="flex-1 relative">
+        <div class="h-1 bg-gray-200">
+          <div class="w-0 h-full bg-red-500"></div>
+        </div>
+        <div class="absolute top-0 left-1/2 -ml-4 mt-[-10px]">
+          <div class="bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold">02</div>
+          <div class="text-xs mt-2 text-gray-600 font-medium">CHECKOUT</div>
+        </div>
+      </div>
+      <div class="flex-1 relative">
+        <div class="h-1 bg-gray-200">
+          <div class="w-0 h-full bg-red-500"></div>
+        </div>
+        <div class="absolute top-0 right-0 -mr-4 mt-[-10px]">
+          <div class="bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold">03</div>
+          <div class="text-xs mt-2 text-gray-600 font-medium">ORDER COMPLETED</div>
+        </div>
+      </div>
+    </div>
+  
+    {#if selectedItems.length > 0}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Cart Items -->
+        <div class="lg:col-span-2">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="py-4 text-left">IMAGE</th>
+                <th class="py-4 text-left">PRODUCT NAME</th>
+                <th class="py-4 text-left">PRICE</th>
+                <th class="py-4 text-left">QUANTITY</th>
+                <th class="py-4 text-left">TOTAL</th>
+                <th class="py-4"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each selectedItems as item (item.id)}
+                <tr class="border-b" in:fly="{{ y: 20, duration: 300 }}" out:fade>
+                  <td class="py-4">
+                    <img class="h-16 w-16 object-contain" src={item.image} alt={item.name} />
+                  </td>
+                  <td class="py-4 font-medium">{item.name}</td>
+                  <td class="py-4">${item.price.toFixed(2)}</td>
+                  <td class="py-4">
+                    <div class="flex items-center border rounded-md w-24">
+                      <button 
+                        on:click={() => updateQuantity(item.id, item.quantity - 1)}
+                        class="px-2 py-1 hover:bg-gray-100"
+                      >-</button>
+                      <input 
+                        type="number" 
+                        value={item.quantity}
+                        min="1"
+                        class="w-12 text-center border-x bg-white text-black"
+                        on:change={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                      />
+                      <button 
+                        on:click={() => updateQuantity(item.id, item.quantity + 1)}
+                        class="px-2 py-1 hover:bg-gray-100"
+                      >+</button>
+                    </div>
+                  </td>
+                  <td class="py-4">${(item.price * item.quantity).toFixed(2)}</td>
+                  <td class="py-4">
+                    <button 
+                      on:click={() => removeItem(item.id)}
+                      class="text-red-500 hover:text-red-700"
+                    >×</button>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+  
+          <!-- Coupon Section -->
+          <div class="flex gap-4 mt-8 ">
+            <input
+              type="text"
+              bind:value={couponCode}
+              placeholder="Coupon code"
+              class="flex-1 border rounded bg-white px-4 py-2"
+            />
+            <button 
+              on:click={applyCoupon}
+              class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors"
+            >
+              APPLY COUPON
+            </button>
+            <!-- <button 
+              on:click={() => cart.update(() => [])}
+              class="bg-[#1A1A1A] text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors"
+            >
+              UPDATE CART
+            </button> -->
+          </div>
+        </div>
+  
+        <!-- Cart Totals -->
+        <div class="lg:col-span-1">
+          <div class="bg-white p-6 rounded shadow-sm">
+            <h2 class="text-lg font-bold mb-4">CART TOTALS</h2>
+            <div class="border-b pb-4 mb-4">
+              <div class="flex justify-between mb-2">
+                <span>Subtotal</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between font-bold">
+                <span>Total</span>
+                <span class="text-red-500">${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            <button 
+              on:click={proceedToCheckout}
+              class="w-full bg-red-500 text-white py-3 rounded hover:bg-red-600 transition-colors"
+            >
+              PROCEED TO CHECKOUT
+            </button>
+          </div>
+        </div>
+      </div>
+    {:else}
+      <div class="text-center py-12" in:fade>
+        <p>Your cart is empty.</p>
+        <a 
+          href="/shop" 
+          class="inline-block mt-4 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors"
+        >
+          Continue Shopping
+        </a>
+      </div>
+    {/if}
+  </div>
+</div>
+  
+  <style>
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  
+    /* Add smooth transitions */
+    button {
+      transition: all 0.2s ease-in-out;
+    }
+  
+    button:active {
+      transform: scale(0.95);
+    }
+  
+    .container {
+      max-width: 1200px;
+    }
+  </style>

@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { goto } from '$app/navigation';
   import { getProductsByCategory, getAllCategories } from '$lib/utils/product';
+  import { addToCart } from '$lib/stores/cart';
 
   
   // Get category from URL params
@@ -263,7 +264,7 @@
                 <span class="text-lg font-bold text-primary">
                   {formatPrice(product.price)}
                 </span>
-                <button class="btn btn-primary btn-sm">Add to Cart</button>
+                <button class="btn btn-primary btn-sm" on:click|stopPropagation={() => addToCart(product)}>Add to Cart</button>
               </div>
             </div>
           </div>

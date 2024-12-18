@@ -1,7 +1,9 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { getBestSellingProducts } from '$lib/utils/product';
+  import { addToCart } from '$lib/stores/cart';
   
+
   const products = getBestSellingProducts();
   let currentIndex = 0;
   let interval;
@@ -46,6 +48,11 @@
   onDestroy(() => {
     clearInterval(interval);
   });
+
+
+  function handleAddToCart(product) {
+  addToCart(product);
+}
 </script>
 
 <section class="bg-yellow-50 mx-auto px-4 py-12">
@@ -114,9 +121,7 @@
                   {/each}
                 </div>
                 <p class="text-red-500 font-bold mb-4">${product.price.toFixed(2)}</p>
-                <button class="btn btn-sm btn-primary rounded-full w-full">
-                  ADD TO CART
-                </button>
+                <button class="btn btn-primary" on:click={() =>  handleAddToCart(product)}>ADD TO CART</button>
               </div>
             </div>
           </div>

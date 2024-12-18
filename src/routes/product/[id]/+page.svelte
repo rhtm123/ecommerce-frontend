@@ -1,6 +1,7 @@
 <script>
     import { page } from '$app/stores';
     import { fade, slide } from 'svelte/transition';
+    import { addToCart } from '$lib/stores/cart';
     // export let data;
     //  const { product, relatedProducts } = data;
      
@@ -26,6 +27,13 @@
     function formatPrice(price) {
       return `$${price.toFixed(2)}`;
     }
+
+
+    function handleAddToCart() {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+  }
   </script>
   <div class="min-h-screen bg-gray-50">
     <!-- Breadcrumb -->
@@ -134,7 +142,7 @@
               on:click={() => updateQuantity(1)}
             >+</button>
           </div>
-          <button class="btn btn-primary">ADD TO CART</button>
+          <button class="btn btn-primary" on:click={handleAddToCart}>ADD TO CART</button>
         </div>
   
         <!-- Additional Info -->

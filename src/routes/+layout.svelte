@@ -1,9 +1,10 @@
 
 <script>
     import "../app.css";
-    // import Footer from "../components/Footer.svelte";
+    import Footer from "$lib/components/Footer.svelte";
     // import Navbar from "../components/Navbar.svelte";
     import NProgress from 'nprogress';
+    import Navigation from '$lib/components/Navigation.svelte';
     import 'nprogress/nprogress.css';
     import { navigating } from "$app/stores";
 
@@ -20,4 +21,11 @@
 </script>
 
 
-<slot />
+<Navigation />
+
+<div class="pt-20"> <!-- Added padding-top to prevent content from hiding under fixed navbar -->
+  <slot />
+</div>
+
+<Footer />
+

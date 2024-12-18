@@ -1,5 +1,6 @@
 <script>
   import { getAgeCategories, getProductsByAge } from '$lib/utils/product';
+  import { addToCart } from '$lib/stores/cart';
   
   const ageCategories = getAgeCategories();
   let selectedAge = ageCategories[0];
@@ -57,11 +58,11 @@
           </div>
           
           <button 
-            on:click={() => addToCart(product)}
-            class="w-full btn btn-primary text-white py-2 rounded-full transform transition-all duration-300 hover:bg-navy-800 hover:scale-105 active:scale-95"
-          >
-            ADD TO CART
-          </button>
+  on:click|stopPropagation={() => addToCart(product)}
+  class="w-full btn btn-primary text-white py-2 rounded-full transform transition-all duration-300 hover:bg-navy-800 hover:scale-105 active:scale-95"
+>
+  ADD TO CART
+</button>
         </div>
       {/each}
     </div>
