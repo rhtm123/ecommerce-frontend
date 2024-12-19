@@ -1,10 +1,19 @@
 <script>
   import { cart } from '$lib/stores/cart';
-
-  let isMenuOpen = false;
   
+  let isMenuOpen = false;
+  let isProfileDropdownOpen = false;
+
+  function toggleProfileDropdown() {
+    isProfileDropdownOpen = !isProfileDropdownOpen;
+  }
+
+  function closeProfileDropdown() {
+    isProfileDropdownOpen = false;
+  }
+
   const menuItems = [
-    { label: 'HOME', href: '/' },
+    { label: 'HOME', href: '/home' },
     { label: 'SHOP', href: '/shop' },
     { label: 'PRODUCT', href: '/product' },
     { label: 'BLOG', href: '/blog' },
@@ -43,11 +52,56 @@
           </svg>
         </button>
         
-        <button class="text-gray-700 hover:text-red-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        </button>
+        <div class="dropdown dropdown-hover dropdown-end ">
+          <label 
+            tabindex="0" 
+            class="btn btn-ghost btn-circle avatar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </label>
+          
+          <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] p-2 shadow  rounded-box w-52 text-black bg-white">
+            <li>
+              <a href="/profile/settings" class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>View Profile</span>
+              </a>
+            </li>
+            
+            <li>
+              <a href="/profile/orders" class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>My Orders</span>
+              </a>
+            </li>
+            
+            <li>
+              <a href="/profile/wishlist" class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span>Wishlist</span>
+              </a>
+            </li>
+            
+            <div class="divider my-0"></div>
+            
+            <li>
+              <button class="flex items-center space-x-2 text-red-500 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Logout</span>
+              </button>
+            </li>
+          </ul>
+        </div>
 
         <div class="relative">
           <a href="/cart" class="text-gray-700 hover:text-red-500">
@@ -89,3 +143,25 @@
     </div>
   {/if}
 </nav>
+
+<style>
+  /* Add hover effect for dropdown */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  /* Smooth transition for hover effects */
+  .btn-ghost:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  /* Style menu items */
+  .menu li > * {
+    padding: 0.75rem 1rem;
+  }
+  
+  .menu li > *:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+</style>
