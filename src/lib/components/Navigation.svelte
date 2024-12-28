@@ -16,8 +16,7 @@
     { label: 'HOME', href: '/home' },
     { label: 'SHOP', href: '/shop' },
     { label: 'PRODUCT', href: '/product' },
-    { label: 'BLOG', href: '/blog' },
-    { label: 'PAGES', href: '/pages' }
+    { label: 'BLOG', href: '/blog' }
   ];
 
   $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);

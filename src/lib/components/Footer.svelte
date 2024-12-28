@@ -85,21 +85,29 @@
         </div>
   
         <!-- Policies -->
-        <div>
-          <h3 class="text-white font-semibold mb-4">POLICIES</h3>
-          <ul class="space-y-2">
-            {#each ['FAQs', 'Custom Service', 'Ordering Tracking', 'Delivery Information', 'Order Status', 'Shipping Options'] as item}
-              <li>
-                <a 
-                  href="#{item.toLowerCase().replace(' ', '-')}"
-                  class="hover:text-white transition-colors"
-                >
-                  {item}
-                </a>
-              </li>
-            {/each}
-          </ul>
-        </div>
+<div>
+  <h3 class="text-white font-semibold mb-4">POLICIES</h3>
+  <ul class="space-y-2">
+    {#each [
+      { name: 'Privacy Policy', href: '/privacy-policy' },
+      { name: 'Terms and Conditions', href: '/terms' },
+      { name: 'About Us', href: '/about' },
+      { name: 'FAQs', href: '#faqs' },
+      { name: 'Order Tracking', href: '#order-tracking' },
+      { name: 'Delivery Information', href: '#delivery-information' },
+      { name: 'Order Status', href: '#order-status' }
+    ] as item}
+      <li>
+        <a 
+          href={item.href}
+          class="hover:text-white transition-colors"
+        >
+          {item.name}
+        </a>
+      </li>
+    {/each}
+  </ul>
+</div>
   
         <!-- Newsletter -->
         <div>
