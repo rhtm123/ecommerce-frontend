@@ -2,6 +2,13 @@
   import { onMount, onDestroy } from 'svelte';
   import { getBestSellingProducts } from '$lib/utils/product';
   import { addToCart } from '$lib/stores/cart';
+  import { myFetch } from '$lib/utils/myFetch';
+
+
+  import { PUBLIC_API_URL } from '$env/static/public';
+
+
+
   
 
   const products = getBestSellingProducts();
@@ -40,9 +47,22 @@
       currentIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
     }
   }
+
+  async function fetchProductListings() {
+    console.log(PUBLIC_API_URL);
+    let url = PUBLIC_API_URL + "product/product_listings/"
+    try {
+        let data = await myFetch(url);
+        console.log(data);
+        } catch (e) { 
+            console.log(e, "Error fetching data")
+        } finally{
+        }
+  }
   
   onMount(() => {
     resumeScroll();
+    fetchProductListings();
   });
   
   onDestroy(() => {
@@ -67,7 +87,7 @@
   >
     <!-- Navigation Buttons -->
     <button 
-      class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
+      class="absolute left-0 top-1/2  z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
       on:click={() => navigate('prev')}
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,7 +96,7 @@
     </button>
     
     <button 
-      class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
+      class="absolute right-0 top-1/2  z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
       on:click={() => navigate('next')}
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
