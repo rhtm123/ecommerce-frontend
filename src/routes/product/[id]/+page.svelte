@@ -8,7 +8,7 @@
     
     // Get product data from page data
     export let data;
-    const { product, relatedProducts } = data;
+    const { product, relatedProducts, category, categoryId } = data;
     
     // Tabs state
     let activeTab = 'DESCRIPTION';
@@ -42,9 +42,9 @@
           <div class="flex flex-col items-left space-y-2">
             <div class="text-sm breadcrumbs text-gray-600">
                 <ul>
-                    <li><a href="/">Home</a></li>
+                    <li><a href="/home">Home</a></li>
                     <li><a href="/shop">Shop</a></li>
-                    <li><a href="/shop/{product.category}">{product.category}</a></li>
+                    <li><a href="/shop/{categoryId}">{category}</a></li>
                     <li>{product.name}</li>
                   </ul>
             </div>
@@ -153,7 +153,7 @@
           </div>
           <div class="flex gap-2">
             <span class="font-medium">CATEGORY:</span>
-            <span class="text-gray-600">{product.category}</span>
+            <span class="text-gray-600">{category}</span>
           </div>
           <div class="flex gap-4">
             <span class="font-medium">SHARE LINK:</span>
@@ -198,7 +198,7 @@
       <div class="py-8" in:fade={{ duration: 300 }}>
         {#if activeTab === 'DESCRIPTION'}
           <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
-            <p class="text-gray-600">{product.description}</p>
+            <p class="text-gray-600">{product.product.description}</p>
           </div>
         {:else if activeTab === 'ADDITIONAL INFORMATION'}
           <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
@@ -236,7 +236,7 @@
                   {#if product.brand}
                     <tr>
                       <td class="font-medium text-gray-600 w-1/3 border-l">BRAND</td>
-                      <td class="italic text-gray-500 border-l border-r">{product.brand}</td>
+                      <td class="italic text-gray-500 border-l border-r">{product.brand.name}</td>
                     </tr>
                   {/if}
       

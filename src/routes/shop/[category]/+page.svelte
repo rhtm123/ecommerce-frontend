@@ -1,128 +1,154 @@
 <script>
-    import { page } from '$app/stores';
+  import { page } from '$app/stores';
   import { fade, fly } from 'svelte/transition';
   import { goto } from '$app/navigation';
-  import { getProductsByCategory, getAllCategories } from '$lib/utils/product';
+  import { productApi } from '$lib/services/api';
   import { addToCart } from '$lib/stores/cart';
 
+  export let data;
+
+  let products = [];
+  const {  category, categoryId } = data;
+  console.log(category);
+  console.log(categoryId);
+  let categories = [];
+  let filters = {};
+  let totalProducts = 0;
+  let currentCategoryId = parseInt($page.params.category);
   
-  // Get category from URL params
-  $: category = $page.params.category;
-  
-  // View mode state
-  let viewMode = 'grid'; // 'grid' or 'list'
-  const categories = getAllCategories();
-  // Sorting state
+  // State management
+  let loading = false;
+  let error = null;
+  let currentPage = 1;
   let sortOption = 'default';
-  $: products = getProductsByCategory(category);
-  // let products = [
-  //   // Action Toys
-  //   { id: 1, name: "Superhero Action Figure", price: 15.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "red", ageRange: "3-5 Years" },
-  //   { id: 2, name: "Ninja Warrior Set", price: 24.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "black", ageRange: "5-7 Years" },
-  //   { id: 3, name: "Dinosaur Battle Pack", price: 19.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "green", ageRange: "3-5 Years" },
-  //   { id: 4, name: "Space Explorer Kit", price: 29.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "white", ageRange: "5-7 Years" },
-  //   { id: 5, name: "Pirate Adventure Set", price: 22.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "brown", ageRange: "3-5 Years" },
-  //   { id: 6, name: "Robot Fighter Squad", price: 27.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "action-toys", color: "silver", ageRange: "5-7 Years" },
+  
+  // Filter states
+  let selectedPriceRange = [
+    filters.price_range?.min_price || 0,
+    filters.price_range?.max_price || 100
+  ];
+  let selectedBrands = [];
 
-  //   // Pre-school Toys
-  //   { id: 7, name: "Shape Sorter Cube", price: 12.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "multicolor", ageRange: "1-2 Years" },
-  //   { id: 8, name: "Stacking Rings", price: 9.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "rainbow", ageRange: "0-12 Months" },
-  //   { id: 9, name: "Musical Xylophone", price: 17.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "yellow", ageRange: "2-3 Years" },
-  //   { id: 10, name: "Soft Building Blocks", price: 14.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "pastel", ageRange: "1-2 Years" },
-  //   { id: 11, name: "Toddler Puzzle Set", price: 11.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "blue", ageRange: "2-3 Years" },
-  //   { id: 12, name: "Play-Doh Starter Pack", price: 8.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "pre-school-toys", color: "multicolor", ageRange: "3-5 Years" },
+  // Get current category and its hierarchy
+  $: currentCategory = categories.find(c => c.id === currentCategoryId);
+  $: parentCategory = currentCategory?.level > 1 ? 
+    categories.find(c => c.level === currentCategory.level - 1 && 
+      c.id === findParentCategoryId(currentCategory)) : null;
 
-  //   // Electronic Toys
-  //   { id: 13, name: "Remote Control Car", price: 39.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "red", ageRange: "5-7 Years" },
-  //   { id: 14, name: "Interactive Pet Robot", price: 49.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "white", ageRange: "5-7 Years" },
-  //   { id: 15, name: "Kids Digital Camera", price: 29.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "blue", ageRange: "3-5 Years" },
-  //   { id: 16, name: "Electronic Drum Pad", price: 34.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "black", ageRange: "5-7 Years" },
-  //   { id: 17, name: "Learning Tablet", price: 59.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "green", ageRange: "3-5 Years" },
-  //   { id: 18, name: "Voice Changing Microphone", price: 19.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "electronic-toys", color: "purple", ageRange: "5-7 Years" },
+  // Function to find parent category ID
+  function findParentCategoryId(category) {
+    if (!category || category.level <= 1) return null;
+    const parentLevel = category.level - 1;
+    return categories.find(c => 
+      c.level === parentLevel && category.name.startsWith(c.name)
+    )?.id;
+  }
 
-  //   // Educational Toys
-  //   { id: 19, name: "Magnetic Letters Set", price: 14.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "multicolor", ageRange: "3-5 Years" },
-  //   { id: 20, name: "Science Experiment Kit", price: 24.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "green", ageRange: "5-7 Years" },
-  //   { id: 21, name: "World Map Puzzle", price: 19.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "blue", ageRange: "5-7 Years" },
-  //   { id: 22, name: "Math Learning Cube", price: 16.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "yellow", ageRange: "3-5 Years" },
-  //   { id: 23, name: "Coding for Kids Set", price: 29.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "orange", ageRange: "5-7 Years" },
-  //   { id: 24, name: "Solar System Mobile", price: 22.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "educational-toys", color: "black", ageRange: "5-7 Years" },
+  // Load initial data
+  async function loadInitialData() {
+    try {
+      loading = true;
+      const [categoriesData, filtersData] = await Promise.all([
+        productApi.getCategories(),
+        productApi.getFilters({ category_id: currentCategoryId })
+      ]);
 
-  //   // Transport & Car Toys
-  //   { id: 25, name: "Wooden Train Set", price: 34.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "brown", ageRange: "3-5 Years" },
-  //   { id: 26, name: "Die-Cast Car Collection", price: 19.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "multicolor", ageRange: "3-5 Years" },
-  //   { id: 27, name: "Police Car Playset", price: 24.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "blue", ageRange: "3-5 Years" },
-  //   { id: 28, name: "Fire Truck with Ladder", price: 29.99, rating: 4, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "red", ageRange: "3-5 Years" },
-  //   { id: 29, name: "Construction Vehicle Set", price: 27.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "yellow", ageRange: "3-5 Years" },
-  //   { id: 30, name: "Race Car Track", price: 39.99, rating: 5, image: "/img/Toy-Names-For-Kids.webp?height=300&width=300", category: "transport-car-toys", color: "orange", ageRange: "5-7 Years" },
-  // ];
+      categories = categoriesData.results || [];
+      filters = filtersData;
 
-  let selectedPriceRange = [0, 100];
-  let selectedColors = [];
-  let selectedAgeRanges = [];
+      // Set initial price range
+      selectedPriceRange = [
+        filters.price_range?.min_price || 0,
+        filters.price_range?.max_price || 100
+      ];
 
-  $: colors = [...new Set(products.map(p => p.color))];
-  $: ageRanges = [...new Set(products.map(p => p.ageRange))];
-
-  // Handle category change
-  function handleCategoryClick(categorySlug) {
-    if (categorySlug !== category) {
-      goto(`/shop/${categorySlug}`);
+      await applyFilters();
+    } catch (err) {
+      console.error('Failed to load initial data:', err);
+      error = 'Failed to load data';
+    } finally {
+      loading = false;
     }
   }
 
-  
-  $: filteredProducts = products.filter(product => {
-    const priceInRange = product.price >= selectedPriceRange[0] && product.price <= selectedPriceRange[1];
-    const categoryMatch = product.category === category;
-    const colorMatch = selectedColors.length === 0 || selectedColors.includes(product.color);
-    const ageRangeMatch = selectedAgeRanges.length === 0 || selectedAgeRanges.includes(product.ageRange);
-    return priceInRange && categoryMatch && colorMatch && ageRangeMatch;
-  });
+  // Apply filters with category ID
+  async function applyFilters() {
+    try {
+      loading = true;
+      error = null;
 
-   // Combine filtering and sorting
-   $: sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch(sortOption) {
-      case 'popularity':
-      case 'rating':
-        return b.rating - a.rating;
-      case 'latest':
-        return b.id - a.id;
-      case 'price_asc':
-        return a.price - b.price;
-      case 'price_desc':
-        return b.price - a.price;
-      default:
-        return 0;
+      const params = {
+        category_id: currentCategoryId,
+        page: currentPage,
+        min_price: selectedPriceRange[0],
+        max_price: selectedPriceRange[1],
+        brand_ids: selectedBrands.join(','),
+        ordering: getSortOrder(sortOption)
+      };
+
+      const response = await productApi.getProducts(params);
+      products = response.results;
+      totalProducts = response.count;
+    } catch (err) {
+      error = 'Failed to apply filters';
+      console.error(err);
+    } finally {
+      loading = false;
     }
-  });
-
-  function formatPrice(price) {
-    return `$${price.toFixed(2)}`;
   }
 
+  // Watch for category ID changes
+  $: if (currentCategoryId) {
+    loadInitialData();
+  }
 
-  
+  function getSortOrder(option) {
+    switch(option) {
+      case 'price_asc': return 'price';
+      case 'price_desc': return '-price';
+      case 'popularity': return '-popularity';
+      case 'rating': return '-rating';
+      default: return '';
+    }
+  }
 
+  // Watch for changes in filters or sorting
+  // $: {
+  //   if (!loading) {
+  //     applyFilters();
+  //   }
+  // }
+
+  function handleProductClick(productId) {
+    goto(`/product/${productId}`);
+  }
+
+  // Handle category navigation
+  function handleCategoryClick(categoryId) {
+    if (categoryId !== currentCategoryId) {
+      goto(`/shop/${categoryId}`);
+    }
+  }
+
+  // onMount(() => {
+  //   loadInitialData();
+  // });
 </script>
 
-<svelte:head>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</svelte:head>
-
+<!-- Template -->
 <div class="min-h-screen bg-gray-50">
   <!-- Header Section -->
   <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
     <div class="container mx-auto px-4">
       <div class="flex flex-col items-center space-y-2">
         <h1 class="text-2xl font-bold text-gray-800">
-          {categories.find(c => c.slug === category)?.name || 'Shop'}
+          {currentCategory?.name || 'Shop'}
         </h1>
         <div class="text-sm breadcrumbs text-gray-600">
           <ul>
             <li><a href="/home">Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li>{categories.find(c => c.slug === category)?.name}</li>
+            <li>{category}</li>
           </ul>
         </div>
       </div>
@@ -133,144 +159,177 @@
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Filters -->
       <div class="w-full lg:w-1/4" in:fly="{{ x: -50, duration: 500 }}">
+        <!-- Categories -->
         <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
-          <h2 class="text-lg font-semibold mb-4">Filters</h2>
-          
-          <!-- Price Range Filter -->
-          <div class="mb-6">
-            <h3 class="text-sm font-medium mb-2">Price Range</h3>
+          <h3 class="font-bold text-lg mb-4">Categories</h3>
+          <div class="space-y-2">
+            {#if currentCategory}
+              <!-- Show sibling categories (same level) -->
+              {#each categories.filter(c => c.level === currentCategory.level) as category}
+                <button 
+                  class="w-full text-left px-4 py-2 rounded hover:bg-amber-50 transition-colors"
+                  class:bg-amber-100={category.id === currentCategoryId}
+                  on:click={() => handleCategoryClick(category.id)}
+                >
+                  {category.name}
+                  {#if category.productCount !== undefined}
+                    <span class="text-sm text-gray-500">({category.productCount})</span>
+                  {/if}
+                </button>
+              {/each}
+
+              <!-- Show child categories if any -->
+              {#if currentCategory.level < 3}
+                <div class="mt-4 ml-4">
+                  {#each categories.filter(c => 
+                    c.level === currentCategory.level + 1 && 
+                    c.name.startsWith(currentCategory.name)
+                  ) as childCategory}
+                    <button 
+                      class="w-full text-left px-4 py-2 rounded hover:bg-amber-50 transition-colors"
+                      on:click={() => handleCategoryClick(childCategory.id)}
+                    >
+                      {childCategory.name}
+                      {#if childCategory.productCount !== undefined}
+                        <span class="text-sm text-gray-500">({childCategory.productCount})</span>
+                      {/if}
+                    </button>
+                  {/each}
+                </div>
+              {/if}
+            {/if}
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <h3 class="text-sm font-medium mb-2">Price Range</h3>
+          <div class="flex flex-col gap-4">
             <input
               type="range"
-              min="0"
-              max="100"
+              min={filters.price_range?.min_price || 0}
+              max={filters.price_range?.max_price || 100}
               bind:value={selectedPriceRange[1]}
+              on:change={applyFilters}
               class="range range-primary"
             />
-            <div class="text-sm text-gray-600">
-              {formatPrice(selectedPriceRange[0])} - {formatPrice(selectedPriceRange[1])}
-            </div>
-          </div>
-
-          <!-- Color Filter -->
-          <div class="mb-6">
-            <h3 class="text-sm font-medium mb-2">Color</h3>
-            <div class="flex flex-wrap gap-2">
-              {#each ['red', 'blue', 'green', 'yellow', 'black', 'white', 'brown', 'orange', 'purple', 'multicolor'] as color}
-                <button
-                  class="w-6 h-6 rounded-full border-2"
-                  style="background-color: {color}"
-                  class:border-primary={selectedColors.includes(color)}
-                  on:click={() => {
-                    if (selectedColors.includes(color)) {
-                      selectedColors = selectedColors.filter(c => c !== color);
-                    } else {
-                      selectedColors = [...selectedColors, color];
-                    }
-                  }}
-                />
-              {/each}
-            </div>
-          </div>
-
-          <!-- Age Range Filter -->
-          <div class="mb-6">
-            <h3 class="text-sm font-medium mb-2">Age Range</h3>
-            <div class="space-y-2">
-              {#each ['0-12 Months', '1-2 Years', '2-3 Years', '3-5 Years', '5-7 Years'] as range}
-                <label class="flex items-center">
-                  <input
-                    type="checkbox"
-                    class="checkbox checkbox-primary"
-                    bind:group={selectedAgeRanges}
-                    value={range}
-                  />
-                  <span class="ml-2 text-sm">{range}</span>
-                </label>
-              {/each}
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>${selectedPriceRange[0]}</span>
+              <span>${selectedPriceRange[1]}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Products Section -->
-    <div class="w-full lg:w-3/4">
-      <!-- Results and Sorting Bar -->
-      <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-sm mb-6">
-        <div class="text-sm text-gray-600 mb-2 sm:mb-0">
-          Showing {filteredProducts.length} products
-        </div>
-        
-        <div class="flex items-center gap-4">
-          <!-- View Toggle -->
-          <div class="flex gap-2">
-            <button 
-              class="p-2 {viewMode === 'grid' ? 'text-primary' : 'text-gray-400'} hover:text-primary"
-              on:click={() => viewMode = 'grid'}
-              title="Grid View"
-            >
-              <i class="fas fa-th-large text-lg"></i>
-            </button>
-            <button 
-              class="p-2 {viewMode === 'list' ? 'text-primary' : 'text-gray-400'} hover:text-primary"
-              on:click={() => viewMode = 'list'}
-              title="List View"
-            >
-              <i class="fas fa-list text-lg"></i>
-            </button>
-          </div>
-    
-          <!-- Sort Dropdown -->
-          <select 
-            class="select select-bordered select-sm bg-inherit text-base-300 w-full max-w-[200px]"
-            bind:value={sortOption}
-          >
-            <option value="default">Default Sorting</option>
-            <option value="popularity">Sort by Popularity</option>
-            <option value="rating">Sort by Average Rating</option>
-            <option value="latest">Sort by Latest</option>
-            <option value="price_asc">Sort by Price: Low to High</option>
-            <option value="price_desc">Sort by Price: High to Low</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Product Grid/List View -->
-      <div class={viewMode === 'grid' ? 
-        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : 
-        "flex flex-col gap-4"}
-      >
-      {#each sortedProducts as product (product.id)}
-      <a href="/product/{product.id}">
-          <div
-            class="bg-white rounded-lg shadow-sm overflow-hidden transform transition-transform hover:scale-105"
-            class:flex={viewMode === 'list'}
-            in:fade="{{ duration: 300 }}"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              class={viewMode === 'grid' ? 
-                "w-full h-48 object-cover" : 
-                "w-48 h-48 object-cover"}
-            />
-            <div class="p-4 flex-1">
-              <h3 class="font-medium text-gray-800 mb-2">{product.name}</h3>
-              <div class="flex items-center mb-2">
-                {#each Array(5) as _, i}
-                  <i class="fas fa-star {i < product.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>
-                {/each}
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-lg font-bold text-primary">
-                  {formatPrice(product.price)}
-                </span>
-                <button class="btn btn-primary btn-sm" on:click|stopPropagation={() => addToCart(product)}>Add to Cart</button>
-              </div>
-            </div>
-          </div>
-        </a>
+        <!-- Brands -->
+        <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <h3 class="font-bold text-lg mb-4">Brands</h3>
+          {#each filters.brands || [] as brand}
+            <label class="flex items-center gap-2 mb-2">
+              <input 
+                type="checkbox" 
+                bind:group={selectedBrands} 
+                value={brand.brand__id}
+                class="checkbox checkbox-primary"
+                on:change={applyFilters}
+              />
+              {brand.brand__name} ({brand.count})
+            </label>
           {/each}
         </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="w-full lg:w-3/4">
+        <!-- Sort Bar -->
+        <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex justify-between items-center">
+          <span class="text-sm text-gray-600">
+            Showing {products.length} of {totalProducts} products
+          </span>
+          <select 
+            class="select select-bordered select-sm bg-white text-gray-600"
+            bind:value={sortOption}
+            on:change={applyFilters}
+          >
+            <option value="default">Default Sorting</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="popularity">Sort by Popularity</option>
+            <option value="rating">Sort by Rating</option>
+          </select>
+        </div>
+
+        <!-- Products Grid -->
+        {#if loading}
+          <div class="flex justify-center py-8">
+            <span class="loading loading-spinner loading-lg"></span>
+          </div>
+        {:else if error}
+          <div class="alert alert-error">
+            {error}
+          </div>
+        {:else}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {#each products as product (product.id)}
+              <div 
+                class="card bg-white shadow-sm hover:shadow-lg transition-shadow "
+                on:click={() => handleProductClick(product.id)}
+                role="button"
+                in:fade
+              >
+                <figure class="px-4 pt-4">
+                  <img 
+                    src={product.main_image} 
+                    alt={product.name}
+                    class="rounded-xl h-48 w-full object-contain"
+                  />
+                </figure>
+                <div class="card-body">
+                  <h2 class="card-title text-sm">{product.name}</h2>
+                  <div class="rating rating-sm">
+                    {#each Array(5) as _, i}
+                      <input 
+                        type="radio" 
+                        class="mask mask-star-2 bg-orange-400" 
+                        checked={i < product.rating} 
+                        disabled
+                      />
+                    {/each}
+                  </div>
+                  <p class="text-primary font-bold">${product.price}</p>
+                  <div class="card-actions justify-end">
+                    <button 
+                      class="btn btn-primary btn-sm"
+                      on:click|stopPropagation={() => addToCart(product)}
+                      disabled={product.stock === 0}
+                    >
+                      {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- Pagination -->
+        {#if totalProducts > products.length}
+          <div class="flex justify-center mt-8">
+            <div class="join">
+              {#each Array(Math.ceil(totalProducts / 10)) as _, i}
+                <button 
+                  class="join-item btn"
+                  class:btn-active={currentPage === i + 1}
+                  on:click={() => {
+                    currentPage = i + 1;
+                    applyFilters();
+                  }}
+                >
+                  {i + 1}
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
       </div>
     </div>
   </div>

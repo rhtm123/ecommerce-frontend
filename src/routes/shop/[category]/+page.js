@@ -1,14 +1,34 @@
-import { error } from '@sveltejs/kit';
-import productData from '../../../lib/data/product.json';
+import { productApi } from '$lib/services/api';
 
-export function load({ params }) {
-  const validCategories = productData.categories.map(cat => cat.slug);
+export async function load({ params }) {
+  try {
+    // Get initial data
+    console.log("params.category", params.category);
+    const [productsData, categoriesData, filtersData] = await Promise.all([
+      productApi.getProduct( params.category ),
+      productApi.getCategories(),
+      productApi.getFilters( params.category )
+    ]);
 
-  if (!validCategories.includes(params.category)) {
-    throw error(404, 'Category not found');
+    console.log(categoriesData);
+    // console.log(params.category);
+    // console.log(params.category_id);  
+    return {
+      products: productsData.results,
+      totalProducts: productsData.count,
+      category: productsData.category?.name,
+      categoryId: productsData.category?.id,
+      filters: filtersData,
+      currentCategory: params.category_id
+    };
+  } catch (error) {
+    console.error('Error loading shop data:', error);
+    return {
+      products: [],
+      totalProducts: 0,
+      categories: [],
+      filters: {},
+      currentCategory: params.category_id
+    };
   }
-
-  return {
-    category: params.category
-  };
 }
