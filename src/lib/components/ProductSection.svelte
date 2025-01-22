@@ -8,7 +8,7 @@
   $: products = getProductsByAge(selectedAge);
 </script>
   
-  <section class="mx-auto bg-base-100 px-4 py-16">
+  <section class="mx-auto bg-base-100 px-4 md:px-8 py-16">
     <!-- Section Headers -->
     <div class="text-center mb-12">
       <h3 class="text-red-500 font-medium mb-2">Our Products</h3>

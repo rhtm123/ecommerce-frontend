@@ -15,8 +15,11 @@
       email = '';
     }
   </script>
+
+
+
   
-  <footer class="bg-[#1a1f3c] text-gray-300 py-12 relative overflow-hidden">
+  <footer class="bg-primary py-12 relative overflow-hidden">
     <!-- Decorative Stars -->
     {#if mounted}
       <div class="absolute top-4 right-4" in:fly="{{ y: -20, duration: 1000, delay: 200 }}">
@@ -36,7 +39,7 @@
       </div>
     {/if}
   
-    <div class="container mx-auto px-4">
+    <div class="mx-auto px-4 md:px-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <!-- Company Info -->
         <div class="space-y-4">
@@ -45,8 +48,8 @@
             alt="KB Logo" 
             class="h-10 hover:scale-105 transition-transform"
           />
-          <a href="mailto:Support@example.com" class="block text-red-500 hover:text-red-400 transition-colors">
-            Support@example.com
+          <a href="mailto:Support@example.com" class="block transition-colors">
+            support@example.com
           </a>
           <div class="text-xl font-semibold">+ (1800)-88-66-99</div>
           <address class="not-italic">

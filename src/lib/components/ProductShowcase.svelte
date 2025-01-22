@@ -15,7 +15,7 @@
     <h2 class="text-2xl font-bold">CATEGORIES YOU'LL LOVE</h2>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 px-4">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 px-4 md:px-8">
     {#each categories as category}
       <button
         on:click={() => handleCategoryClick(category.slug)}
