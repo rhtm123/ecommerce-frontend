@@ -9,17 +9,17 @@
   }
 </script>
 
-<section class="py-12 bg-yellow-50">
+<section class="py-12 bg-base-200">
   <div class="text-center mb-8">
-    <p class="text-red-500 text-sm mb-2">Our Category</p>
-    <h2 class="text-2xl font-bold text-[#2D2D2D]">CATEGORIES YOU'LL LOVE</h2>
+    <p class="text-primary text-sm mb-2">Our Category</p>
+    <h2 class="text-2xl font-bold">CATEGORIES YOU'LL LOVE</h2>
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 px-4">
     {#each categories as category}
       <button
         on:click={() => handleCategoryClick(category.slug)}
-        class="flex flex-col items-center bg-amber-100 p-4 rounded-lg hover:shadow-lg transition-all transform hover:scale-105"
+        class="flex flex-col items-center bg-base-300 py-8 px-4 rounded-lg hover:shadow-lg transition-all transform hover:scale-105"
       >
         <div class="w-16 h-16 flex items-center justify-center mb-4 text-gray-600">
           {@html category.icon}

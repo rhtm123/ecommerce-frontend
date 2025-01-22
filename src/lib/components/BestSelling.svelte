@@ -51,6 +51,7 @@
   async function fetchProductListings() {
     console.log(PUBLIC_API_URL);
     let url = PUBLIC_API_URL + "product/product_listings/"
+    console.log(url);
     try {
         let data = await myFetch(url);
         console.log(data);

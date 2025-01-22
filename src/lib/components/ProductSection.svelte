@@ -8,18 +8,18 @@
   $: products = getProductsByAge(selectedAge);
 </script>
   
-  <section class="mx-auto bg-amber-50 px-4 py-16">
+  <section class="mx-auto bg-base-100 px-4 py-16">
     <!-- Section Headers -->
     <div class="text-center mb-12">
       <h3 class="text-red-500 font-medium mb-2">Our Products</h3>
-      <h2 class="text-3xl font-bold text-navy-900">PRODUCTS BY AGE</h2>
+      <h2 class="text-3xl font-bold">PRODUCTS BY AGE</h2>
     </div>
   
     <!-- Age Categories -->
     <div class="flex flex-wrap justify-center gap-4 mb-12">
       {#each ageCategories as age}
         <button 
-          class="px-6 py-2 rounded-full transition-all duration-300 hover:scale-105 {selectedAge === age ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+          class="px-6 py-2 rounded-full transition-all duration-300 hover:scale-105 {selectedAge === age ? 'bg-primary' : 'bg-base-200 hover:bg-base-300'}"
           on:click={() => selectedAge = age}
         >
           {age}
@@ -30,7 +30,7 @@
     <!-- Product Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {#each products as product}
-        <div class="bg-white rounded-lg p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-2">
+        <div class="bg-base-300 rounded-lg p-6 shadow-lg transform transition-all duration-300 hover:-translate-y-2">
           <div class="relative aspect-square mb-4 overflow-hidden rounded-lg">
             <img 
               src="{product.image}"
@@ -59,7 +59,7 @@
           
           <button 
   on:click|stopPropagation={() => addToCart(product)}
-  class="w-full btn btn-primary text-white py-2 rounded-full transform transition-all duration-300 hover:bg-navy-800 hover:scale-105 active:scale-95"
+  class="w-full btn btn-primary py-2 rounded-full transform transition-all duration-300 hover:bg-navy-800 hover:scale-105 active:scale-95"
 >
   ADD TO CART
 </button>

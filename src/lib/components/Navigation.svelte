@@ -23,8 +23,8 @@
 </script>
 
 <!-- Navigation Bar -->
-<nav class="bg-white shadow-sm fixed top-0 w-full z-50">
-  <div class="container mx-auto px-4">
+<nav class="bg-base-200 shadow-sm fixed top-0 w-full z-50">
+  <div class="mx-auto md:px-8 px-4">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
       <a href="/" class="flex-shrink-0">
@@ -36,7 +36,7 @@
         {#each menuItems as item}
           <a 
             href={item.href}
-            class="text-gray-700 hover:text-red-500 font-medium"
+            class="text-primary font-medium"
           >
             {item.label}
           </a>
@@ -45,7 +45,7 @@
 
       <!-- Right Icons -->
       <div class="flex items-center space-x-6">
-        <button class="text-gray-700 hover:text-red-500">
+        <button class="text-primary">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -54,7 +54,7 @@
         <div class="dropdown dropdown-hover dropdown-end ">
           <label 
             tabindex="0" 
-            class="btn btn-ghost btn-circle avatar"
+            class="btn btn-ghost btn-circle avatar text-primary"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -103,12 +103,12 @@
         </div>
 
         <div class="relative">
-          <a href="/cart" class="text-gray-700 hover:text-red-500">
+          <a href="/cart" class="text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             {#if cartCount > 0}
-              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span class="absolute -top-2 -right-2 bg-red-500  text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {cartCount}
               </span>
             {/if}
@@ -117,7 +117,7 @@
 
         <!-- Mobile Menu Button -->
         <button 
-          class="md:hidden text-gray-700 hover:text-red-500"
+          class="md:hidden text-primary"
           on:click={() => isMenuOpen = !isMenuOpen}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

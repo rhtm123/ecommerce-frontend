@@ -10,7 +10,7 @@
     // import Footer from '../../lib/components/Footer.svelte';
   </script>
   
-  <div class="font-sans">
+  <div class="bg-base-100">
     <Hero />
     <!-- <Navigation /> -->
     <ProductShowcase />
