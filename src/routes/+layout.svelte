@@ -23,7 +23,7 @@
   <Navigation />
 {/if}
 
-<div class={!isMainPage ? "pt-20 bg-yellow-50" : ""}> <!-- Only add padding when Navigation is present -->
+<div class={!isMainPage ? "pt-20 bg-base-100" : ""}> <!-- Only add padding when Navigation is present -->
   <slot />
 </div>
 

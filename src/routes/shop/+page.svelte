@@ -1,9 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { goto } from '$app/navigation';
   import { productApi } from '$lib/services/api';
-  import { addToCart } from '$lib/stores/cart';
+  import Product from '$lib/components/Product.svelte';
 
   // State
   let products = [];
@@ -163,9 +162,7 @@
 
 
   // Handle product click
-  function handleProductClick(productId) {
-    goto(`/product/${productId}`);
-  }
+
 
   // Safe rating display function
   function renderRatingStars(rating) {
@@ -185,14 +182,22 @@
   }
 
   // Safe star rendering function
-  function getStars(rating = 0) {
-    return new Array(5).fill(false).map((_, i) => i < rating);
-  }
+
 </script>
 
-<div class="min-h-screen bg-gray-50">
+<div class="mx-4 md:mx-8">
+
+
+  <div class="breadcrumbs text-sm">
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li>Shop</li>
+    </ul>
+  </div>
+
+
   <!-- Header Section -->
-  <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
+  <!-- <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
     <div class="container mx-auto px-4">
       <div class="flex flex-col items-center space-y-2">
         <h1 class="text-2xl font-bold text-gray-800">Shop</h1>
@@ -204,9 +209,9 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
 
-  <div class="container mx-auto px-4 py-8">
+  <div class="">
     {#if loading}
       <div class="flex justify-center items-center h-64">
         <div class="loading loading-spinner loading-lg"></div>
@@ -337,42 +342,7 @@
           <!-- Products Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {#each products as product (product.id)}
-              <div 
-                class="bg-white rounded-lg p-4 hover:shadow-xl transition-shadow cursor-pointer"
-                on:click={() => handleProductClick(product.id)}
-              >
-                <div class="relative mb-4">
-                  <img 
-                    src={product.main_image || '/placeholder-image.jpg'} 
-                    alt={product.name}
-                    class="w-full h-48 object-contain"
-                  />
-                </div>
-                <div class="text-center">
-                  <h3 class="font-medium text-sm mb-2">{product.name}</h3>
-                  <!-- Rating Stars -->
-                  <div class="rating rating-sm mb-2">
-                    {#each getStars(product.rating) as isActive}
-                      <input 
-                        type="radio" 
-                        class="mask mask-star-2 bg-orange-400" 
-                        {isActive}
-                        disabled
-                      />
-                    {/each}
-                  </div>
-                  <p class="text-primary font-bold mb-4">
-                    ${typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
-                  </p>
-                  <button 
-                    class="btn btn-primary btn-sm w-full"
-                    on:click|stopPropagation={() => addToCart(product)}
-                    disabled={!product.stock || product.stock <= 0}
-                  >
-                    {!product.stock || product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
-                  </button>
-                </div>
-              </div>
+              <Product product={product} />
             {/each}
           </div>
 
@@ -398,6 +368,9 @@
               </div>
             </div>
           {/if}
+
+          <br />
+
         </div>
       </div>
     {/if}

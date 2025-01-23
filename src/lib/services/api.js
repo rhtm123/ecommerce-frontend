@@ -75,8 +75,8 @@ export const productApi = {
     },
   
     // Get single product
-    getProduct: async (id) => {
-      const response = await fetch(`${API_BASE_URL}/product/product_listings/${id}/`);
+    getProduct: async (slug) => {
+      const response = await fetch(`${API_BASE_URL}/product/product_listings/slug/${slug}/`);
       if (!response.ok) throw new Error('Failed to fetch product');
       return response.json();
     },

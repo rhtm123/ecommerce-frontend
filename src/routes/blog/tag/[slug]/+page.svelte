@@ -10,21 +10,16 @@
 </script>
 
 <!-- Tag Header Banner -->
-<div class="relative  bg-gradient-to-r from-amber-50 to-amber-100 mb-12">
-  <div class="container text-black  mx-auto px-4 py-16">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-4xl font-bold mb-2">POSTS TAGGED "{currentTag}"</h1>
-        <div class="flex items-center gap-2">
-          <a href="/home" class="text-gray-600 hover:text-primary">Home</a>
-          <span class="text-gray-400">/</span>
-          <a href="/blog" class="text-gray-600 hover:text-primary">Blog</a>
-          <span class="text-gray-400">/</span>
-          <span class="text-primary">{currentTag}</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="mx-4 mx-8">
+
+  <div class="text-sm breadcrumbs text-gray-600">
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li>{currentTag}</li>
+      </ul>
+</div>
+
 </div>
 
 <div class="container text-black mx-auto px-4">

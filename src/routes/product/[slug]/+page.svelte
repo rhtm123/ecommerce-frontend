@@ -35,22 +35,17 @@
     }
   }
   </script>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Breadcrumb -->
-    <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
-        <div class="container mx-auto px-4">
-          <div class="flex flex-col items-left space-y-2">
-            <div class="text-sm breadcrumbs text-gray-600">
-                <ul>
-                    <li><a href="/home">Home</a></li>
-                    <li><a href="/shop">Shop</a></li>
-                    <li><a href="/shop/{categoryId}">{category}</a></li>
-                    <li>{product.name}</li>
-                  </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+  <div class="mx-4 md:mx-8">
+
+    <div class="text-sm breadcrumbs text-gray-600">
+      <ul>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/shop">Shop</a></li>
+          <li><a href="/shop/{categoryId}">{category}</a></li>
+          <li>{product.name}</li>
+        </ul>
+  </div>
+
   
     <!-- Product Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">

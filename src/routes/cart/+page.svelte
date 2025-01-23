@@ -40,22 +40,22 @@
   <svelte:head>
     <title>CART</title>
   </svelte:head>
+
+  <div class="mx-4 md:mx-8">
+
+    <div class="text-sm breadcrumbs text-gray-600">
+        <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <li>Cart</li>
+          </ul>
+    </div>
   
   <!-- Breadcrumb -->
-   <div class="bg-[#FDF6F4]">
-  <div class="bg-[#f7e4de] py-16">
-    <div class="container mx-auto px-4">
-      <h1 class="text-3xl font-bold text-center text-[#1A1A1A] mb-4">CART</h1>
-      <div class="flex justify-center items-center gap-2 text-sm">
-        <a href="/" class="text-[#1A1A1A] hover:text-red-500">Home</a>
-        <span class="text-red-500">></span>
-        <span class="text-red-500">Cart</span>
-      </div>
-    </div>
-  </div>
-  
+   <div class="">
+
   <!-- Progress Steps -->
-  <div class="container mx-auto bg-[#FDF6F4] px-4 py-8">
+  <div class="px-4 py-8">
     <div class="flex items-center justify-between max-w-3xl mx-auto mb-12">
       <div class="flex-1 relative">
         <div class="h-1 bg-red-500">
@@ -200,6 +200,8 @@
       </div>
     {/if}
   </div>
+</div>
+
 </div>
   
   <style>

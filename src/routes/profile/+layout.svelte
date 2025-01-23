@@ -47,8 +47,8 @@
 
   $: currentPath = $page.url.pathname;
 </script>
-<div class="bg-white">
-<div class="container mx-auto px-4 py-8 bg-white">
+<div class="">
+<div class="px-4 md:px-8 py-8">
   <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
     <!-- Sidebar -->
     <div class="md:col-span-1">

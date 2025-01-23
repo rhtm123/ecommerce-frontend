@@ -9,23 +9,17 @@
 </script>
 
 <!-- Blog Header Banner -->
-<div class="relative  bg-gradient-to-r from-amber-50 to-amber-100 mb-12">
-  <div class="container text-black mx-auto px-4 py-16">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-4xl font-bold mb-2">BLOG</h1>
-        <div class="flex items-center gap-2">
-          <a href="/home" class="text-gray-600 hover:text-primary">Home</a>
-          <span class="text-gray-400">/</span>
-          <span class="text-primary">Blog</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="mx-4 md:mx-8">
+  <div class="text-sm breadcrumbs text-gray-600">
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li>Blog</li>
+      </ul>
 </div>
 
 
-<div class="container text-black mx-auto px-4">
+<div class="mx-auto py-2">
   <div class="flex flex-col lg:flex-row gap-8">
     <!-- Main Content -->
     <div class="lg:w-2/3">
@@ -137,3 +131,5 @@
     </div>
   </div>
 </div> 
+
+</div>

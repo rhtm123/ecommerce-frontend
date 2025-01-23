@@ -3,8 +3,8 @@
    import { productApi } from '$lib/services/api';
 
    export async function load({ params }) {
-     try {
-       const product = await productApi.getProduct(params.id);
+     
+       const product = await productApi.getProduct(params.slug);
        console.log(product);
        const relatedProducts = await productApi.getProducts({
          category_id: product.category?.id,
@@ -18,7 +18,5 @@
          category: product.category?.name,
          categoryId: product.category?.id
        };
-     } catch (err) {
-       throw error(404, 'Product not found');
-     }
+      
    }
