@@ -7,10 +7,12 @@
     import BestSelling from '../../lib/components/BestSelling.svelte';
     import Carousel from '../../lib/components/Carousel.svelte';
     import Testimonials from '../../lib/components/Testimonials.svelte';
+    // import Login from '$lib/components/Login.svelte';
     // import Footer from '../../lib/components/Footer.svelte';
   </script>
   
   <div class="bg-base-100">
+    <!-- <Login /> -->
     <Hero />
     <!-- <Navigation /> -->
     <ProductShowcase />

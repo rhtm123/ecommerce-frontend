@@ -15,7 +15,7 @@
         <li><a href="/home">Home</a></li>
         <li><a href="/blog">Blog</a></li>
         <li>Category : {category?.name}</li>
-      </ul>
+    </ul>
 </div>
 
   <!-- <div class="container text-black mx-auto px-4 py-16">

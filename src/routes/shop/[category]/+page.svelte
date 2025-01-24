@@ -136,26 +136,18 @@
 </script>
 
 <!-- Template -->
-<div class="min-h-screen bg-gray-50">
-  <!-- Header Section -->
-  <section class="bg-gradient-to-r from-amber-50 to-amber-100 py-6 border-b" in:fade>
-    <div class="container mx-auto px-4">
-      <div class="flex flex-col items-center space-y-2">
-        <h1 class="text-2xl font-bold text-gray-800">
-          {currentCategory?.name || 'Shop'}
-        </h1>
-        <div class="text-sm breadcrumbs text-gray-600">
-          <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/shop">Shop</a></li>
-            <li>{category}</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
+<div class="mx-4 md:mx-8">
 
-  <div class="container mx-auto px-4 py-8">
+  <div class="text-sm breadcrumbs text-gray-600">
+    <ul>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/shop">Shop</a></li>
+      <li>{currentCategory?.name} </li>
+    </ul>
+  </div>
+  <!-- Header Section -->
+
+  <div class="">
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Filters -->
       <div class="w-full lg:w-1/4" in:fly="{{ x: -50, duration: 500 }}">
