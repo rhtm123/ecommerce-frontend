@@ -1,20 +1,20 @@
    // src/routes/product/[id]/+page.js
    import { error } from '@sveltejs/kit';
-   import { productApi } from '$lib/services/api';
+   import { productApi } from '$lib/services/productApi';
 
    export async function load({ params }) {
      
        const product = await productApi.getProduct(params.slug);
-       console.log(product);
-       const relatedProducts = await productApi.getProducts({
-         category_id: product.category?.id,
-         page_size: 4,
-         exclude: params.id
-       });
+      //  console.log(product);
+      //  const relatedProducts = await productApi.getProducts({
+      //    category_id: product.category?.id,
+      //    page_size: 4,
+      //    exclude: params.id
+      //  });
 
        return {
          product,
-         relatedProducts: relatedProducts.results,
+        //  relatedProducts: [],
          category: product.category?.name,
          categoryId: product.category?.id
        };

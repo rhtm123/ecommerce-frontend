@@ -1,5 +1,6 @@
 <script>
-  import { cart } from '$lib/stores/cart';
+
+  import { cart } from '../stores/cart';
   
   let isMenuOpen = false;
   let isProfileDropdownOpen = false;

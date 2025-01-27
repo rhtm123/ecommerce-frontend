@@ -1,28 +1,7 @@
 <script>
-    const testimonials = [
-      {
-        name: "DEANNA ROSE",
-        role: "Consultant",
-        image: "/img/Toy-Names-For-Kids.webp",
-        quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
-        rating: 3
-      },
-      {
-        name: "DEANNA ROSE",
-        role: "Consultant",
-        image: "/img/Toy-Names-For-Kids.webp",
-        quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
-        rating: 3
-      },
-      {
-        name: "DEANNA ROSE",
-        role: "Consultant",
-        image: "/img/Toy-Names-For-Kids.webp",
-        quote: "I always tell my kids if you lay down, people will step over you. But if you keep scrambling, if you keep going, someone will always, always give you a hand. Always. But you gotta keep dancing, you gotta kee...",
-        rating: 3
-      },
-      // Add more testimonials here
-    ];
+    import data from '$lib/data/testimonials.json';
+
+    const testimonials = data.testimonials;
   
     const StarIcon = ({ filled }) => `
       <svg class="w-5 h-5 ${filled ? 'text-yellow-400' : 'text-gray-300'}" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">

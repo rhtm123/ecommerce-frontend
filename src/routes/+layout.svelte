@@ -1,7 +1,7 @@
 <script>
   import "../app.css";
-  import Footer from "$lib/components/Footer.svelte";
-  import Navigation from '$lib/components/Navigation.svelte';
+  import Footer from "../lib/components/Footer.svelte"
+  import Navigation from '../lib/components/Navigation.svelte';
   import NProgress from 'nprogress';
   import 'nprogress/nprogress.css';
   import { navigating } from "$app/stores";

@@ -1,5 +1,5 @@
 <script>
-  import { addToCart } from '$lib/stores/cart';
+  import { addToCart } from '../../../lib/stores/cart';
 
   let wishlistItems = [
     {

@@ -1,6 +1,6 @@
 <script>
   import { getAgeCategories, getProductsByAge } from '$lib/utils/product';
-  import { addToCart } from '$lib/stores/cart';
+  import { addToCart } from '../stores/cart';
   
   const ageCategories = getAgeCategories();
   let selectedAge = ageCategories[0];

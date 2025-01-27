@@ -1,12 +1,14 @@
 <script>
     export let product;
 
-    import { addToCart } from '$lib/stores/cart';
     import { goto } from '$app/navigation';
+
+    import {addToCart} from "../stores/cart";
+
 
 
     function handleProductClick() {
-        console.log("HELLO ")
+        // console.log("HELLO ")
     goto(`/product/${product.slug}`);
   }
 

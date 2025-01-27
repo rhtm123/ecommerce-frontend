@@ -7,7 +7,7 @@
 
     import { onMount } from "svelte";
 
-    import { loginUser } from '../../stores/auth';
+    import { loginUser } from '../stores/auth';
     
     let googleToken = '';
 

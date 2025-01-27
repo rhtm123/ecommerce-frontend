@@ -1,43 +1,8 @@
 import { PUBLIC_API_URL } from '$env/static/public';
+import { myFetch } from '$lib/utils/myFetch';
 
 const API_BASE_URL = PUBLIC_API_URL.endsWith('/') ? PUBLIC_API_URL.slice(0, -1) : PUBLIC_API_URL;
 
-const processCategories = (categories) => {
-  // Create a map to store product counts
-  const categoryCounts = {};
-  
-  // First pass: Create a map of all categories
-  const categoryMap = categories.reduce((acc, cat) => {
-    acc[cat.id] = {
-      ...cat,
-      children: [],
-      productCount: 0
-    };
-    return acc;
-  }, {});
-
-  // Second pass: Build the tree structure
-  const rootCategories = [];
-  categories.forEach(cat => {
-    const category = categoryMap[cat.id];
-    
-    if (cat.level === 1) {
-      rootCategories.push(category);
-    } else {
-      // Find parent category by name prefix
-      const parentName = cat.name.split(' - ')[0];
-      const parent = Object.values(categoryMap).find(c => 
-        c.level === cat.level - 1 && cat.name.startsWith(c.name)
-      );
-      
-      if (parent) {
-        parent.children.push(category);
-      }
-    }
-  });
-
-  return rootCategories;
-};
 
 export const productApi = {
     // Get all products with filters
@@ -45,7 +10,7 @@ export const productApi = {
       try {
         const queryParams = new URLSearchParams({
           page: params.page || '1',
-          page_size: params.pageSize || '10',
+          page_size: params.pageSize || '12',
           ...(params.category_id && { category_id: params.category_id.toString() }),
           ...(params.search && { search: params.search }),
           ...(params.ordering && { ordering: params.ordering }),
@@ -54,20 +19,13 @@ export const productApi = {
           ...(params.max_price && { max_price: params.max_price }),
           ...(params.feature_filters && { feature_filters: JSON.stringify(params.feature_filters) })
         });
-  
-        const response = await fetch(`${API_BASE_URL}/product/product_listings/?${queryParams}`);
+        let url = `${API_BASE_URL}/product/product_listings/?${queryParams}`
+        console.log(url);
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-  
-        // Normalize the data
-        return {
-          ...data,
-          results: data.results.map(product => ({
-            ...product,
-            rating: typeof product.rating === 'number' ? 
-              Math.min(Math.max(Math.round(product.rating), 0), 5) : 0
-          }))
-        };
+
+        return data;
       } catch (error) {
         console.error('Error fetching products:', error);
         return { results: [], count: 0 };
@@ -93,11 +51,4 @@ export const productApi = {
       if (!response.ok) throw new Error('Failed to fetch filters');
       return response.json();
     },
-  
-    // Get categories
-    getCategories: async () => {
-      const response = await fetch(`${API_BASE_URL}/product/categories/`);
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      return response.json();
-    }
   };

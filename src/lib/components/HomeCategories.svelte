@@ -1,8 +1,24 @@
 <script>
-  import { getAllCategories } from '$lib/utils/product';
   import { goto } from '$app/navigation';
+
+  import { PUBLIC_API_URL } from '$env/static/public';
+  import { onMount } from 'svelte';
+
+  import { categoryApi } from '$lib/services/categoryApi';
+
+  let categories;
+
+  // console.log("HELLO FROM PRODUCT")
+
+
+  import { myFetch } from '$lib/utils/myFetch';
+
+
+  onMount(async ()=>{
+    let data = await categoryApi.getMainCategories();
+    categories = data.results;
+  })
   
-  const categories = getAllCategories();
 
   function handleCategoryClick(slug) {
     goto(`/shop/${slug}`);
@@ -25,7 +41,6 @@
           {@html category.icon}
         </div>
         <h3 class="text-sm font-medium text-center">{category.name}</h3>
-        <p class="text-xs text-gray-500">{category.products} Products</p>
       </button>
     {/each}
   </div>

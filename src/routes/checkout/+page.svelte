@@ -1,5 +1,5 @@
 <script>
-    import { cart } from '$lib/stores/cart';
+    import { cart } from '../../lib/stores/cart';
     import { fade } from 'svelte/transition';
   
     let billingDetails = {

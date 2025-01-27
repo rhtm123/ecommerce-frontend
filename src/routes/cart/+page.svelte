@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { fade, fly } from 'svelte/transition';
-    import { cart } from '$lib/stores/cart';
+    import { cart } from '../../lib/stores/cart';
     import { goto } from '$app/navigation';
   
     let selectedItems = [];

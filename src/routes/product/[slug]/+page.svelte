@@ -1,14 +1,16 @@
 <script>
     import { page } from '$app/stores';
     import { fade, slide } from 'svelte/transition';
-    import { addToCart } from '$lib/stores/cart';
+    import { addToCart } from '../../../lib/stores/cart.js';
     // export let data;
     //  const { product, relatedProducts } = data;
      
     
     // Get product data from page data
     export let data;
-    const { product, relatedProducts, category, categoryId } = data;
+    const { product, category, categoryId } = data;
+
+    let relatedProducts = [];
     
     // Tabs state
     let activeTab = 'DESCRIPTION';
