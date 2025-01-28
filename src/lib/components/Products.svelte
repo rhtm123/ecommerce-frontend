@@ -59,6 +59,7 @@
   
 
     $: if(currentCategory){
+      params['category_id'] = currentCategory.id;
       // console.log(currentCategory);
       loadProducts(params);
       fetchAllCategories();

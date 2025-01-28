@@ -43,7 +43,7 @@
                     {/each}
                   </div>
                   <p class="text-primary font-bold mb-4">
-                    ${typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
+                    ₹ {typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
                   </p>
                   <button 
                     class="btn btn-primary btn-sm w-full"

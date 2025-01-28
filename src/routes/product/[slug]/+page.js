@@ -15,8 +15,7 @@
        return {
          product,
         //  relatedProducts: [],
-         category: product.category?.name,
-         categoryId: product.category?.id
+         category: product.category,
        };
       
    }

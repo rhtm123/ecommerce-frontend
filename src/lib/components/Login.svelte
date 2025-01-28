@@ -50,4 +50,4 @@
     });
 </script>
 
-<div id="googleSignInDiv">Hello</div>
+<div id="googleSignInDiv">Google Login</div>

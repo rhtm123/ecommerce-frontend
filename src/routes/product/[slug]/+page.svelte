@@ -8,7 +8,7 @@
     
     // Get product data from page data
     export let data;
-    const { product, category, categoryId } = data;
+    const { product, category } = data;
 
     let relatedProducts = [];
     
@@ -17,6 +17,8 @@
     
     // Quantity state
     let quantity = 1;
+
+    console.log(product);
     
     // Selected image state (using the first image as default)
     let selectedImage = product.image;
@@ -27,15 +29,22 @@
     }
   
     function formatPrice(price) {
-      return `$${price.toFixed(2)}`;
+      return `₹ ${price.toFixed(2)}`;
     }
 
 
     function handleAddToCart() {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      for (let i = 0; i < quantity; i++) {
+        addToCart(product);
+      }
     }
-  }
+
+    async function fetchProductImages(){
+
+    }
+
+
+
   </script>
   <div class="mx-4 md:mx-8">
 
@@ -43,7 +52,7 @@
       <ul>
           <li><a href="/home">Home</a></li>
           <li><a href="/shop">Shop</a></li>
-          <li><a href="/shop/{categoryId}">{category}</a></li>
+          <li><a href="/shop/{category?.slug}">{category?.name}</a></li>
           <li>{product.name}</li>
         </ul>
   </div>
@@ -54,13 +63,13 @@
       <!-- Product Images -->
       <div class="space-y-4">
         <!-- Main Image -->
-        <div class="relative bg-white p-4 rounded-lg" in:fade>
+        <div class="relative rounded-lg" in:fade>
           <img 
-            src={selectedImage} 
+            src={product?.main_image} 
             alt={product.name}
-            class="w-full h-auto object-contain"
+            class="w-full h-auto object-contain rounded-lg"
           />
-          {#if product.isBestSeller}
+          {#if product?.isBestSeller}
             <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
               BEST SELLER
             </span>
@@ -114,12 +123,12 @@
         {/if}
   
         <!-- Age Selection -->
-        <div class="space-y-2 bg-inherit">
+        <!-- <div class="space-y-2 bg-inherit">
           <h3 class="font-medium">AGE</h3>
           <select class="select select-bordered text-base-200 bg-inherit w-full max-w-xs">
             <option>{product.ageRange}</option>
           </select>
-        </div>
+        </div> -->
   
         <!-- Quantity and Add to Cart -->
         <div class="flex items-center gap-4">
@@ -150,7 +159,7 @@
           </div>
           <div class="flex gap-2">
             <span class="font-medium">CATEGORY:</span>
-            <span class="text-gray-600">{category}</span>
+            <span class="text-gray-600">{category?.name}</span>
           </div>
           <div class="flex gap-4">
             <span class="font-medium">SHARE LINK:</span>
