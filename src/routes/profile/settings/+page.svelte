@@ -1,18 +1,64 @@
 <script>
+
+  import { user } from "$lib/stores/auth";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { myFetch } from "$lib/utils/myFetch";
+
+  import { onDestroy } from "svelte";
+
+
+  let authUser;
+
+  const unsubscribe = user.subscribe(value => {
+    authUser = value;
+  });
+
+  onDestroy(() => {
+    unsubscribe(); // Cleanup to avoid memory leaks
+  });
+
+
+  let userData;
   let profile = {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1234567890',
-    gender: 'male'
+    first_name: "",
+      last_name: "",
+      email: "",
+      mobile: "",
+      gender: '',
   };
+
+  $: if (authUser) {
+    fetchUser();
+  }
+
+  $: if (userData) {
+    profile = {
+      first_name: userData?.first_name,
+      last_name: userData?.last_name,
+      email: userData?.email,
+      mobile: userData?.mobile,
+      gender: userData?.mobile,
+    };
+  }
+
+  async function fetchUser(){
+    let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
+    userData = await myFetch(url);
+
+  }
 
   let isEditing = false;
 
-  function handleSubmit() {
-    // Implement profile update logic here
+  async function handleSubmit() {
     isEditing = false;
+    let url = `${PUBLIC_API_URL}/user/users/${authUser.user_id}/`;
+    userData = await myFetch(url, "PUT", profile, authUser.access_token);
+    authUser['first_name'] = userData?.first_name
+    authUser['last_name'] = userData?.last_name
+    authUser['email'] = userData?.email
+    user.set(authUser);
   }
+
 </script>
 
 <div class="space-y-6">
@@ -32,7 +78,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
         <input
           type="text"
-          bind:value={profile.firstName}
+          bind:value={profile.first_name}
           disabled={!isEditing}
           class="w-full p-2 border rounded-lg {!isEditing ? 'bg-gray-50' : 'bg-white'}"
         />
@@ -42,7 +88,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
         <input
           type="text"
-          bind:value={profile.lastName}
+          bind:value={profile.last_name}
           disabled={!isEditing}
           class="w-full p-2 border rounded-lg {!isEditing ? 'bg-gray-50' : 'bg-white'}"
         />
@@ -62,7 +108,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
         <input
           type="tel"
-          bind:value={profile.phone}
+          bind:value={profile.mobile}
           disabled={!isEditing}
           class="w-full p-2 border rounded-lg {!isEditing ? 'bg-gray-50' : 'bg-white'}"
         />
@@ -115,7 +161,7 @@
         <p class="text-gray-600">Your login email ID is changed. You'll receive all account related communication on your updated email address.</p>
       </div>
       <div>
-        <h4 class="font-medium mb-2">When will my Flipkart account be updated with the new email address?</h4>
+        <h4 class="font-medium mb-2">When will my account be updated with the new email address?</h4>
         <p class="text-gray-600">It happens as soon as you confirm the verification code sent to your email address.</p>
       </div>
     </div>

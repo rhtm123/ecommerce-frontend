@@ -8,9 +8,9 @@
 
   // console.log(user);
 
-  let loggedInUser = null;
+  let authUser = null;
 
-  $: loggedInUser = $user;
+  $: authUser = $user;
 
 
   function handleLogout() {
@@ -61,7 +61,6 @@
       </div>
 
       <!-- Right Icons -->
-      {#if loggedInUser}
       <div class="flex items-center space-x-6">
         <button class="text-primary">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,6 +68,8 @@
           </svg>
         </button>
         
+        {#if authUser}
+
         <div class="dropdown dropdown-hover dropdown-end ">
           <label 
             tabindex="0" 
@@ -120,6 +121,10 @@
           </ul>
         </div>
 
+        {/if}
+
+
+
         <div class="relative">
           <a href="/cart" class="text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,12 +149,6 @@
         </button>
       </div>
 
-      {/if}
-
-      {#if !loggedInUser}
-
-          <Login />
-      {/if}
 
     </div>
   </div>

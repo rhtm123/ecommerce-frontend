@@ -5,12 +5,14 @@ export function myFetchFile(url = ``, token="", data = {}, method='POST'){
 }
 
 
-export async function myFetch(url='',method='GET', formData={}){
+export async function myFetch(url='',method='GET', formData={}, token=""){
     
     try {
-        // const token = getCookie("token");
-        // var headers = {"Authorization":token}
         var headers = {}
+
+        if (token){
+            headers["Authorization"] = `Bearer ${token}`;
+        }
 
 
         headers["Content-Type"] = "application/json"

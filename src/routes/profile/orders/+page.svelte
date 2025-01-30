@@ -1,21 +1,51 @@
 <script>
-  let orders = [
-    {
-      id: 'OD123456789',
-      date: '2024-02-15',
-      status: 'Delivered',
-      total: 149.99,
-      items: [
-        {
-          name: "Baby's First Blocks Set",
-          image: '/img/Toy-Names-For-Kids.webp',
-          quantity: 2,
-          price: 74.99
-        }
-      ]
-    }
-    // Add more orders as needed
-  ];
+  import { onDestroy, onMount } from "svelte";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { myFetch } from "$lib/utils/myFetch";
+  import { user } from "$lib/stores/auth";
+  import OrderItems from "$lib/components/OrderItems.svelte";
+
+  let authUser;
+  const unsubscribe = user.subscribe(value => {
+    authUser = value;
+  });
+
+  let loading = true;
+
+  onDestroy(() => {
+    unsubscribe(); // Cleanup to avoid memory leaks
+  });
+
+  let orders = [];
+  let next;
+
+  onMount(async ()=>{
+
+    let url = `${PUBLIC_API_URL}/order/orders/?user_id=${authUser.user_id}`;
+    let data = await myFetch(url);
+    orders = data.results;
+    loading = false;
+    console.log(data);
+  })
+
+
+  // let orders = [
+  //   {
+  //     id: 'OD123456789',
+  //     date: '2024-02-15',
+  //     status: 'Delivered',
+  //     total: 149.99,
+  //     items: [
+  //       {
+  //         name: "Baby's First Blocks Set",
+  //         image: '/img/Toy-Names-For-Kids.webp',
+  //         quantity: 2,
+  //         price: 74.99
+  //       }
+  //     ]
+  //   }
+  //   // Add more orders as needed
+  // ];
 
   function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -29,6 +59,12 @@
 <div class="space-y-6">
   <h2 class="text-2xl font-bold">My Orders</h2>
 
+
+  {#if loading}
+  <div class="loading loading-spinner loading-sm"></div>
+
+  {/if}
+
   {#if orders.length > 0}
     <div class="space-y-4">
       {#each orders as order}
@@ -37,31 +73,25 @@
           <div class="bg-gray-50 p-4 flex justify-between items-center">
             <div>
               <p class="text-sm text-gray-600">Order ID: {order.id}</p>
-              <p class="text-sm text-gray-600">Ordered on {formatDate(order.date)}</p>
+              <!-- <p class="text-sm text-gray-600">Ordered on {formatDate(order.created)}</p> -->
             </div>
             <div class="text-right">
               <span class="inline-block px-3 py-1 rounded-full text-sm 
-                {order.status === 'Delivered' ? 'bg-green-100 text-green-800' : 
-                order.status === 'Processing' ? 'bg-blue-100 text-blue-800' : 
+                {order.status === 'delivered' ? 'bg-green-100 text-green-800' : 
+                order.status === 'processing' ? 'bg-blue-100 text-blue-800' : 
                 'bg-gray-100 text-gray-800'}">
                 {order.status}
               </span>
             </div>
           </div>
 
+
+          <OrderItems order_id={order.id} />
+
           <!-- Order Items -->
-          {#each order.items as item}
-            <div class="p-4 border-t">
-              <div class="flex items-center space-x-4">
-                <img src={item.image} alt={item.name} class="w-20 h-20 object-cover rounded"/>
-                <div class="flex-1">
-                  <h3 class="font-medium">{item.name}</h3>
-                  <p class="text-gray-600">Quantity: {item.quantity}</p>
-                  <p class="text-gray-600">${item.price.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-          {/each}
+
+
+         
 
           <!-- Order Footer -->
           <div class="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -70,13 +100,13 @@
               <button class="text-red-500 hover:text-red-600">Download Invoice</button>
             </div>
             <div class="text-lg font-medium">
-              Total: ${order.total.toFixed(2)}
+              Total: {order.total_amount.toFixed(2)}
             </div>
           </div>
         </div>
       {/each}
     </div>
-  {:else}
+  {:else if (!loading)}
     <div class="text-center py-12">
       <div class="mb-4">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

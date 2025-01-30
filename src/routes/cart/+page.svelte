@@ -105,10 +105,10 @@
               {#each selectedItems as item (item.id)}
                 <tr class="border-b" in:fly="{{ y: 20, duration: 300 }}" out:fade>
                   <td class="py-4">
-                    <img class="h-16 w-16 object-contain" src={item.image} alt={item.name} />
+                    <img class="h-16 w-16 object-contain" src={item.main_image} alt={item.name} />
                   </td>
                   <td class="py-4 font-medium">{item.name}</td>
-                  <td class="py-4">${item.price.toFixed(2)}</td>
+                  <td class="py-4">₹ {item.price.toFixed(2)}</td>
                   <td class="py-4">
                     <div class="flex items-center border rounded-md w-24">
                       <button 
@@ -128,7 +128,7 @@
                       >+</button>
                     </div>
                   </td>
-                  <td class="py-4">${(item.price * item.quantity).toFixed(2)}</td>
+                  <td class="py-4">₹ {(item.price * item.quantity).toFixed(2)}</td>
                   <td class="py-4">
                     <button 
                       on:click={() => removeItem(item.id)}
@@ -170,13 +170,13 @@
             <div class="border-b pb-4 mb-4">
               <div class="flex justify-between mb-2">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹ {totalPrice.toFixed(2)}</span>
               </div>
             </div>
             <div class="mb-4">
               <div class="flex justify-between font-bold">
                 <span>Total</span>
-                <span class="text-red-500">${totalPrice.toFixed(2)}</span>
+                <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
               </div>
             </div>
             <button 

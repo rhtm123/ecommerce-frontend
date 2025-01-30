@@ -1,28 +1,108 @@
 <script>
     import { cart } from '../../lib/stores/cart';
     import { fade } from 'svelte/transition';
+    import { user } from '$lib/stores/auth';
+    import { onDestroy, onMount } from 'svelte';
+    import { PUBLIC_API_URL } from '$env/static/public';
+    import { myFetch } from '$lib/utils/myFetch';
+
+    let addresses = [];
+    let loading = false;
+    let selectedAddress;
+    let cartItems;
+
+    let orderdCompleted = false;
+
+    const unsubscribe2 = cart.subscribe(value => {
+      cartItems = value;
+    });
+
+    onDestroy(() => {
+      unsubscribe2(); // Cleanup to avoid memory leaks
+    });
+
+
+
+    onMount(async () => {
+      loading = true;
+      let url = `${PUBLIC_API_URL}/user/shipping_addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
+      let data = await myFetch(url);
+      console.log(data)
+      addresses = data.results;
+      // selectedAddress = addresses[0];
+      loading = false;
+      // console.log(data);
+    });
   
-    let billingDetails = {
-      firstName: '',
-      lastName: '',
-      companyName: '',
-      country: '',
-      streetAddress: '',
-      apartment: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      phone: '',
-      email: '',
-      notes: ''
-    };
+    // let billingDetails = {
+    //   firstName: '',
+    //   lastName: '',
+    //   companyName: '',
+    //   country: '',
+    //   streetAddress: '',
+    //   apartment: '',
+    //   city: '',
+    //   state: '',
+    //   zipCode: '',
+    //   phone: '',
+    //   email: '',
+    //   notes: ''
+    // };
+
+    let authUser;
+
+    const unsubscribe = user.subscribe(value => {
+      authUser = value;
+    });
+
+    onDestroy(() => {
+      unsubscribe(); // Cleanup to avoid memory leaks
+    });
+
   
     $: totalPrice = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
-    function handleSubmit() {
+    async function handleSubmit() {
       // Implement order submission logic here
-      console.log('Order submitted:', { billingDetails, items: $cart });
+      // console.log(selectedAddress);
+      let url = `${PUBLIC_API_URL}/order/orders/`;
+      let order = await myFetch(url, "POST", {
+        user_id: authUser?.user_id,
+        shipping_address_id: selectedAddress?.id,
+        total_amount: totalPrice
+      }, authUser.access_token)
+
+      console.log(order);
+
+      let url2 = `${PUBLIC_API_URL}/order/order_items/`;
+
+      console.log(cartItems);
+
+      for (let i = 0; i < cartItems.length; i++) {
+        myFetch(url2, "POST", {
+          order_id: order.id,
+          product_listing_id: cartItems[i].id,
+          quantity:cartItems[i].quantity,
+          price: cartItems[i].price,
+          subtotal: cartItems[i].price
+        }, authUser.access_token)
+      }
+
+      orderdCompleted = true
+
+      cart.set([]);
+      // console.log('Order submitted:', { billingDetails, items: $cart });
     }
+
+
+    // function handleChange(event) {
+      
+    //   // selectedAddress = event.target.value;
+    //   console.log('Selected Value:', event.target.value);
+    // }
+
+
+
   </script>
   
   <svelte:head>
@@ -30,23 +110,20 @@
   </svelte:head>
   
 
-  <div class="bg-[#FDF6F4]">
-  <!-- Breadcrumb -->
-  <div class="bg-[#f7e4de] py-16">
-    <div class="container mx-auto px-4">
-      <h1 class="text-3xl font-bold text-center text-[#1A1A1A] mb-4">CHECKOUT</h1>
-      <div class="flex justify-center items-center gap-2 text-sm">
-        <a href="/" class="text-[#1A1A1A] hover:text-red-500">Home</a>
-        <span class="text-red-500">></span>
-        <a href="/cart " class="text-[#1A1A1A] hover:text-red-500">Cart</a>
-        <span class="text-red-500">></span>
-        <span class="text-red-500">Checkout</span>
-      </div>
-    </div>
+  <div class="px-4 md:px-8">
+
+    <div class="text-sm breadcrumbs text-gray-600">
+      <ul>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/shop">Shop</a></li>
+          <li>Cart</li>
+        </ul>
   </div>
+
+  <!-- Breadcrumb -->
   
   <!-- Progress Steps -->
-  <div class="container mx-auto px-4 py-8">
+  <div class=" mx-auto px-4 py-8">
     <div class="flex items-center justify-between max-w-3xl mx-auto mb-12">
       <div class="flex-1 relative">
         <div class="h-1 bg-red-500">
@@ -67,11 +144,11 @@
         </div>
       </div>
       <div class="flex-1 relative">
-        <div class="h-1 bg-gray-200">
+        <div class={!orderdCompleted?"h-1 bg-gray-200":"h-1 bg-red-500"}>
           <div class="w-0 h-full bg-red-500"></div>
         </div>
         <div class="absolute top-0 right-0 -mr-4 mt-[-10px]">
-          <div class="bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold">03</div>
+          <div class={!orderdCompleted?"bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold":"bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold"}>03</div>
           <div class="text-xs mt-2 text-gray-600 font-medium">ORDER COMPLETED</div>
         </div>
       </div>
@@ -85,128 +162,27 @@
         </a>
       </div>
     {:else}
+
+      {#if !orderdCompleted }
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Billing Details Form -->
         <div class="space-y-6">
           <div class="bg-white p-6 rounded shadow-sm">
-            <h2 class="text-xl font-bold mb-6">Billing Details</h2>
-            <form class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm mb-1">First Name *</label>
-                  <input 
-                    type="text" 
-                    bind:value={billingDetails.firstName} 
-                    required
-                    class="w-full border rounded px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm mb-1">Last Name *</label>
-                  <input 
-                    type="text" 
-                    bind:value={billingDetails.lastName} 
-                    required
-                    class="w-full border rounded px-3 py-2"
-                  />
-                </div>
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Company Name (optional)</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.companyName}
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Country *</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.country}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Street Address *</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.streetAddress}
-                  required
-                  placeholder="House number and street name"
-                  class="w-full border rounded px-3 py-2 mb-2"
-                />
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.apartment}
-                  placeholder="Apartment, suite, unit, etc. (optional)"
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Town / City *</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.city}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">State *</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.state}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">ZIP Code *</label>
-                <input 
-                  type="text" 
-                  bind:value={billingDetails.zipCode}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Phone *</label>
-                <input 
-                  type="tel" 
-                  bind:value={billingDetails.phone}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Email Address *</label>
-                <input 
-                  type="email" 
-                  bind:value={billingDetails.email}
-                  required
-                  class="w-full border rounded px-3 py-2"
-                />
-              </div>
-  
-              <div>
-                <label class="block text-sm mb-1">Order Notes (optional)</label>
-                <textarea 
-                  bind:value={billingDetails.notes}
-                  placeholder="Notes about your order, e.g. special notes for delivery"
-                  class="w-full border rounded px-3 py-2 h-32 resize-none"
-                ></textarea>
-              </div>
-            </form>
+            <h2 class="text-xl font-bold mb-6">Select Address</h2>
+
+
+            <select
+              bind:value={selectedAddress}
+              
+              class="select select-bordered"
+            >
+              {#each addresses as option}
+                <option value={option.id}>{option.address.line1}</option>
+              {/each}
+            </select>
+
+
+            
           </div>
         </div>
   
@@ -218,20 +194,20 @@
               {#each $cart as item}
                 <div class="flex justify-between mb-2">
                   <span>{item.name} × {item.quantity}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>₹ {(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               {/each}
             </div>
             <div class="border-b pb-4 mb-4">
               <div class="flex justify-between mb-2">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹ {totalPrice.toFixed(2)}</span>
               </div>
             </div>
             <div class="mb-6">
               <div class="flex justify-between font-bold">
                 <span>Total</span>
-                <span class="text-red-500">${totalPrice.toFixed(2)}</span>
+                <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
               </div>
             </div>
   
@@ -255,7 +231,22 @@
           </div>
         </div>
       </div>
+      {:else}
+        <div class="text-center py-8" in:fade>
+
+          
+
+          <p class="text-red-500 mb-4">
+            You have placed your order successfully.</p>
+          <a href="/shop" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
+            Continue Shopping
+          </a>
+        </div>
+      {/if}
     {/if}
+
+
+
   </div>
 </div>
   
