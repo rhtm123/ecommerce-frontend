@@ -9,6 +9,7 @@
   import { onMount } from 'svelte';
   import { user } from "$lib/stores/auth";
   import Login from "$lib/components/Login.svelte";
+  import AlertContainer from "$lib/components/AlertContainer.svelte";
 
 
   $: isMainPage = $page.url.pathname === '/';
@@ -49,6 +50,8 @@
   }
 </script>
 
+
+<AlertContainer />
 
 {#if loading}
   <!-- Show a loading indicator while checking authentication -->

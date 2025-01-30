@@ -5,7 +5,7 @@
 
     import {addToCart} from "../stores/cart";
 
-
+    import { addAlert } from '$lib/stores/alert';
 
     function handleProductClick() {
         // console.log("HELLO ")
@@ -14,6 +14,11 @@
 
   function getStars(rating = 0) {
     return new Array(5).fill(false).map((_, i) => i < rating);
+  }
+
+  function AddToCardAlert(product) {
+    addToCart(product);
+    addAlert("Product added to cart", "success");
   }
 
 </script>
@@ -47,7 +52,7 @@
                   </p>
                   <button 
                     class="btn btn-primary btn-sm w-full"
-                    on:click|stopPropagation={() => addToCart(product)}
+                    on:click|stopPropagation={() => AddToCardAlert(product)}
                     disabled={!product.stock || product.stock <= 0}
                   >
                     {!product.stock || product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}

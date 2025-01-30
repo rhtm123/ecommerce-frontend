@@ -47,7 +47,7 @@ async function refreshAccessToken(userData) {
     const updatedUser = { ...currentUser, access_token: data.access };
     saveUserToLocalStorage(updatedUser);
     user.set(updatedUser);
-    return updatedUser.access_token;
+    // return updatedUser.access_token;
   } catch (error) {
     console.error('Error refreshing access token:', error);
     clearUser();
@@ -57,7 +57,7 @@ async function refreshAccessToken(userData) {
 
 function initializeTokenRefresh(userData) {
   const interval = 60 * 30 * 1000; // 30 minutes in milliseconds
-
+  refreshAccessToken(userData);
   setInterval(async () => {
     const newAccessToken = await refreshAccessToken(userData);
     if (newAccessToken) {

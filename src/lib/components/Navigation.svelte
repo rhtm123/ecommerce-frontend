@@ -40,7 +40,7 @@
 </script>
 
 <!-- Navigation Bar -->
-<nav class="bg-base-200 shadow-sm fixed top-0 w-full z-50">
+<nav class="bg-base-200 shadow-sm fixed top-0 w-full z-10">
   <div class="mx-auto md:px-8 px-4">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
