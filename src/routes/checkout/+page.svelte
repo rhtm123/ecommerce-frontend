@@ -6,12 +6,28 @@
     import { PUBLIC_API_URL } from '$env/static/public';
     import { myFetch } from '$lib/utils/myFetch';
 
-    let addresses = [];
+    import { shipaddresses } from '$lib/stores/address';
+    import AddressAddEdit from '$lib/components/AddressAddEdit.svelte';
+
     let loading = false;
     let selectedAddress;
+
+    function selectAddress(option) {
+    selectedAddress = selectedAddress === option.id ? null : option.id;
+  }
+
     let cartItems;
 
     let orderdCompleted = false;
+
+    let addresses=[];
+
+    shipaddresses.subscribe(value=>{
+      // console.log(value);
+      addresses = value;
+      if (addresses.length>0)
+      selectedAddress = addresses[0].id;
+    })
 
     const unsubscribe2 = cart.subscribe(value => {
       cartItems = value;
@@ -27,27 +43,12 @@
       loading = true;
       let url = `${PUBLIC_API_URL}/user/shipping_addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
       let data = await myFetch(url);
-      console.log(data)
+      // console.log(data)
       addresses = data.results;
-      // selectedAddress = addresses[0];
+      shipaddresses.set(data.results);
       loading = false;
       // console.log(data);
     });
-  
-    // let billingDetails = {
-    //   firstName: '',
-    //   lastName: '',
-    //   companyName: '',
-    //   country: '',
-    //   streetAddress: '',
-    //   apartment: '',
-    //   city: '',
-    //   state: '',
-    //   zipCode: '',
-    //   phone: '',
-    //   email: '',
-    //   notes: ''
-    // };
 
     let authUser;
 
@@ -100,6 +101,30 @@
     //   // selectedAddress = event.target.value;
     //   console.log('Selected Value:', event.target.value);
     // }
+
+
+    let modal;
+
+    function openModal() {
+      modal.showModal(); // Opens the modal
+    }
+
+    function closeModal() {
+      modal.close(); // Closes the modal
+    }
+
+
+    let modalEdits = {}; // Store modal references
+
+      function openModalEdit(id) {
+        if (modalEdits[id]) {
+          modalEdits[id].showModal();
+        }
+      }
+
+      function closeModalEdits(id) {
+        modalEdit[id].close(); // Closes the modal
+      }
 
 
 
@@ -167,23 +192,51 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Billing Details Form -->
         <div class="space-y-6">
+          
           <div class="bg-white p-6 rounded shadow-sm">
-            <h2 class="text-xl font-bold mb-6">Select Address</h2>
-
-
-            <select
-              bind:value={selectedAddress}
-              
-              class="select select-bordered"
-            >
-              {#each addresses as option}
-                <option value={option.id}>{option.address.line1}</option>
-              {/each}
-            </select>
-
-
             
+          
+            
+         
+            <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold mb-4">Select Address</h2>
+
+            <button class="btn btn-secondary btn-sm mb-4" on:click={openModal}>
+              + Add
+            </button>
+            </div>
+
+            <dialog bind:this={modal} class="modal">
+              <AddressAddEdit authUser={authUser} modal={modal} />
+            </dialog>
+
+
+            <div class="space-y-4">
+              
+              {#each addresses as option}
+                <div 
+                  class={(selectedAddress==option.id)?"bg-green-300 flex justify-between items-center p-4 border rounded-lg shadow-sm cursor-pointer transition-colors":"flex justify-between items-center p-4 border rounded-lg shadow-sm cursor-pointer transition-colors"}
+                  on:click={() => selectAddress(option)}
+                >
+                  <div>
+                    <p class="font-semibold">{option.address.line1}</p>
+                    <p class="text-sm text-gray-600">{option.address.city}, {option.address.state}</p>
+                  </div>
+                  <button class="btn btn-sm btn-outline btn-primary" on:click={() => openModalEdit(option.id)}>
+                    Edit
+                  </button>
+
+                  <dialog bind:this={modalEdits[option.id]} class="modal">
+                    <AddressAddEdit authUser={authUser} shipAddress={option} modal={modalEdits[option.id]} />
+                  </dialog>
+
+                </div>
+              {/each}
+
+            </div>
           </div>
+
+          
         </div>
   
         <!-- Order Summary -->
