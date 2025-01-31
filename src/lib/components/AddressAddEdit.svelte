@@ -78,8 +78,8 @@
     let url2 = `${PUBLIC_API_URL}/user/shipping_addresses/${shipAddress.id}/`;
     let data = await myFetch(url2, "PUT", params, authUser.access_token)
     addToShipAddress(data);
+    console.log(data);
     addAlert("Address edited successfully", "success")
-
 
     }
 

@@ -123,7 +123,7 @@ let modalEdits = {}; // Store modal references
             </div>
             <p class="text-gray-600 mt-1">{address.address.line1}</p>
             <p class="text-gray-600">{address.address.city}, {address.address.state} {address.address.pin}</p>
-            <p class="text-gray-600 mt-1">Phone: {address.phone}</p>
+            <p class="text-gray-600 mt-1">Phone: {address.mobile}</p>
           </div>
           
           <div class="space-x-4">
