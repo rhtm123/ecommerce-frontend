@@ -11,6 +11,7 @@
   });
 
   let loading = true;
+  let loadingMore = false;
 
   onDestroy(() => {
     unsubscribe(); // Cleanup to avoid memory leaks
@@ -21,12 +22,23 @@
 
   onMount(async ()=>{
 
-    let url = `${PUBLIC_API_URL}/order/orders/?user_id=${authUser.user_id}`;
+    let url = `${PUBLIC_API_URL}/order/orders/?user_id=${authUser.user_id}&ordering=-id`;
     let data = await myFetch(url);
     orders = data.results;
+    next = data.next;
     loading = false;
-    console.log(data);
+    // console.log(data);
   })
+
+  async function loadMore() {
+    loadingMore = true;
+        // console.log("Hello Bhai")
+		const dataNew = await myFetch(next);
+        console.log(dataNew);
+    orders = [...orders,...dataNew.results];
+    next = dataNew.next;
+    loadingMore = false
+    }
 
 
   // let orders = [
@@ -105,6 +117,17 @@
           </div>
         </div>
       {/each}
+
+      {#if loadingMore}
+          <div class="loading loading-spinner loading-sm"></div>
+          
+      {/if}
+
+
+      {#if (next && !loadingMore && !loading)}
+        <button class="btn btn-sm my-4" on:click={loadMore}>Load More</button>
+      {/if}
+
     </div>
   {:else if (!loading)}
     <div class="text-center py-12">

@@ -16,6 +16,8 @@
     selectedAddress = selectedAddress === option.id ? null : option.id;
   }
 
+    let orderData;
+
     let cartItems;
 
     let orderdCompleted = false;
@@ -74,6 +76,7 @@
       }, authUser.access_token)
 
       console.log(order);
+      orderData = order;
 
       let url2 = `${PUBLIC_API_URL}/order/order_items/`;
 
@@ -127,7 +130,6 @@
       }
 
 
-
   </script>
   
   <svelte:head>
@@ -179,25 +181,25 @@
       </div>
     </div>
   
-    {#if $cart.length === 0}
+    
+
+    {#if !orderdCompleted }
+
+      {#if $cart.length === 0}
       <div class="text-center py-8" in:fade>
         <p class="text-red-500 mb-4">Please add some items to your cart before checking out.</p>
         <a href="/shop" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
           Continue Shopping
         </a>
       </div>
-    {:else}
+      {:else}
 
-      {#if !orderdCompleted }
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Billing Details Form -->
         <div class="space-y-6">
           
           <div class="bg-white p-6 rounded shadow-sm">
             
-          
-            
-         
             <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold mb-4">Select Address</h2>
 
@@ -284,19 +286,53 @@
           </div>
         </div>
       </div>
-      {:else}
+
+      {/if}
+
+
+
+    {:else}
+
+        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+          <h1 class="text-2xl font-bold text-center mb-4">Thank you. Your order has been received.</h1>
+
+          <!-- Order Details -->
+          <div class="space-y-4">
+              <!-- Order Number -->
+              <div class="flex justify-between border-b pb-2">
+                  <span class="font-medium">ORDER NUMBER:</span>
+                  <span>{orderData?.id}</span>
+              </div>
+
+              <!-- Date -->
+              <div class="flex justify-between border-b pb-2">
+                  <span class="font-medium">DATE:</span>
+                  <span>{new Date(orderData?.created).toLocaleDateString()}</span>
+              </div>
+
+              <!-- Total -->
+              <div class="flex justify-between border-b pb-2">
+                  <span class="font-medium">TOTAL:</span>
+                  <span>{orderData?.total_amount}</span>
+              </div>
+
+              <!-- Payment Method -->
+              <div class="flex justify-between border-b pb-2">
+                  <span class="font-medium">PAYMENT METHOD:</span>
+                  <span>Cash on delivery</span>
+              </div>
+          </div>
+
+          <!-- Payment Note -->
+          <p class="text-center text-gray-700 mt-4">**Pay with cash upon delivery.**</p>
+      </div>
+
         <div class="text-center py-8" in:fade>
-
-          
-
-          <p class="text-red-500 mb-4">
-            You have placed your order successfully.</p>
           <a href="/shop" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
             Continue Shopping
           </a>
         </div>
       {/if}
-    {/if}
 
 
 
