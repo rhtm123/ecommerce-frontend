@@ -5,7 +5,6 @@
   import { myFetch } from "$lib/utils/myFetch";
 
   import { shipaddresses } from "$lib/stores/address";
-
   import AddressAddEdit from "$lib/components/AddressAddEdit.svelte";
   import { addAlert } from "$lib/stores/alert";
 
@@ -25,7 +24,7 @@
   let addresses=[];
 
   shipaddresses.subscribe(value=>{
-    console.log(value);
+    // console.log(value);
     addresses = value;
   })
 
@@ -36,7 +35,7 @@
     loading = true;
     let url = `${PUBLIC_API_URL}/user/shipping_addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
     let data = await myFetch(url);
-    console.log(data)
+    // console.log(data);
     shipaddresses.set(data.results);
     loading = false;
     // console.log(data);
@@ -104,7 +103,7 @@ let modalEdits = {}; // Store modal references
   <div class="space-y-4">
 
     {#if loading}
-                <div class="loading loading-spinner loading-lg"></div>
+          <div class="loading loading-spinner loading-sm"></div>
     {/if}
 
     {#each addresses as address (address.id)}
