@@ -12,11 +12,13 @@
   import AlertContainer from "$lib/components/AlertContainer.svelte";
 
 
-  $: isMainPage = $page.url.pathname === '/';
+  $: isMainPage = $page.url.pathname === '/' || $page.url.pathname.includes("admin");
 
   let loading = true;
   let isAuthenticated = false;
   let showLogin = false;
+
+
 
   $: if (user || $page.url.pathname) {
     loading = true;
@@ -36,7 +38,7 @@
 
 
 
-  const protectedRoutes = ["/checkout", "/profile", "/settings"];
+  const protectedRoutes = ["/checkout", "/profile", "/settings", "/admin"];
 
 
 

@@ -102,10 +102,7 @@ let modalEdits = {}; // Store modal references
 
   <div class="space-y-4">
 
-    {#if loading}
-          <div class="loading loading-spinner loading-sm"></div>
-    {/if}
-
+    
     {#each addresses as address (address.id)}
       <div class="border rounded-lg p-4 relative {address.is_default ? 'border-red-500' : ''}">
         {#if address.is_default}
@@ -151,6 +148,13 @@ let modalEdits = {}; // Store modal references
         {/if}
       </div>
     {/each}
+
+    {#if loading}
+      <div class="p-4">
+          <div class="loading loading-spinner loading-sm"></div>
+      </div>
+    {/if}
+
 
     
   </div>

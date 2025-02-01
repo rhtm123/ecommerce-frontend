@@ -73,8 +73,9 @@
 
 
   {#if loading}
-  <div class="loading loading-spinner loading-sm"></div>
-
+  <div class="p-4">
+    <span class="loading loading-spinner loading-sm"></span>
+  </div>
   {/if}
 
   {#if orders.length > 0}
@@ -97,13 +98,7 @@
             </div>
           </div>
 
-
           <OrderItems order_id={order.id} />
-
-          <!-- Order Items -->
-
-
-         
 
           <!-- Order Footer -->
           <div class="bg-gray-50 p-4 flex justify-between items-center border-t">
@@ -119,8 +114,9 @@
       {/each}
 
       {#if loadingMore}
-          <div class="loading loading-spinner loading-sm"></div>
-          
+          <div class="p-4">
+            <span class="loading loading-spinner loading-sm"></span>
+          </div>
       {/if}
 
 
