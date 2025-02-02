@@ -9,7 +9,7 @@
   import NotFound from "$lib/components/error/NotFound.svelte";
 
 
-  console.log(data);
+  // console.log(data);
 
   $: category = data?.category;
   

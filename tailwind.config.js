@@ -72,18 +72,19 @@ module.exports = {
       {
         light: {
           ...require('daisyui/src/theming/themes')['[data-theme=light]'],
-          "primary": "#3D3BF3",
-          "secondary": "#FF2929", 
-          "accent": "#689ab8",
-
-          "neutral": "#1F2937",        // Darker neutral for better readability
-          "base-100": "#F9FAFB",       // Base background color
-          "base-200": "#E5E7EB",       // Light base background color
-          "base-300": "#CBD5E1",       // Lighter base background color
-          // "info": "#18C2EC",           // Info color
-          // "success": "#0C5F37",        // Success color
-          // "warning": "#AD840B",        // Warning color
-          // "error": "#EF3C25"           // Error color
+          "primary": "#3D3BF3",       // Vibrant blue
+          "secondary": "#6366f1",     // Indigo (complements blue)
+          "accent": "#60a5fa",        // Soft sky blue
+          "neutral": "#374151",       // Dark gray for contrast
+          "base-100": "#F9FAFB",      // Base background (slightly off-white)
+          "base-200": "#E5E7EB",      // Light gray
+          "base-300": "#D1D5DB",      // Medium light gray
+          "info": "#3b82f6",          // Info blue
+          "success": "#22c55e",       // Fresh green
+          "warning": "#f59e0b",       // Amber
+          "error": "#ef4444",         // Alert red
+          "--rounded-btn": "0.5rem",  // Button border radius
+          "--rounded-box": "0.5rem"   // Component border radius
         }
       },
       // {

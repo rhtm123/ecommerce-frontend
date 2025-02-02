@@ -1,10 +1,16 @@
 <script>
-  import { page } from '$app/stores';
-  import Comments from '$lib/components/Comments.svelte';
-  import blogData from '$lib/data/blog.json';
-  
-  $: post = blogData.posts.find(p => p.slug === $page.params.slug);
-  $: category = blogData.categories.find(c => c.slug === post?.category);
+  // import { page } from '$app/stores';
+  // import Comments from '$lib/components/Comments.svelte';
+
+  export let data; 
+
+  // console.log(data);
+
+  $: post = data.blog;
+  console.log(data);
+  $: category = data.blog?.category;
+
+
 </script>
 
 {#if post}
@@ -16,9 +22,9 @@
           {category.name}
         </a>
         <span>•</span>
-        <span>{post.readTime}</span>
+        <span>{post.read_time} Min</span>
         <span>•</span>
-        <span>{new Date(post.date).toLocaleDateString()}</span>
+        <span>{new Date(post.created).toLocaleDateString()}</span>
       </div>
       <h1 class="text-4xl font-bold mb-4">{post.title}</h1>
       <div class="flex items-center gap-4">
@@ -26,7 +32,7 @@
           <div class="w-12 h-12 rounded-full bg-gray-200"></div>
         </div>
         <div>
-          <div class="font-medium">{post.author}</div>
+          <div class="font-medium">{post.author?.first_name} {post.author?.last_name}</div>
           <div class="text-sm text-gray-600">Author</div>
         </div>
       </div>
@@ -34,7 +40,7 @@
 
     <!-- Featured Image -->
     <img 
-      src={post.image} 
+      src={post.img} 
       alt={post.title}
       class="w-full h-[400px] object-cover rounded-lg mb-8"
     />
@@ -49,7 +55,7 @@
       <div class="flex flex-wrap gap-2">
         {#each post.tags as tag}
           <a 
-            href={`/blog/tag/${tag.toLowerCase().replace(' ', '-')}`}
+            href={`/blog/tag/${tag.slug}`}
             class="badge badge-outline hover:badge-primary transition-colors"
           >
             {tag}
@@ -59,7 +65,7 @@
     </div>
 
     <!-- Comments Section -->
-    <Comments comments={post.comments} />
+    <!-- <Comments comments={post.comments} /> -->
   </article>
 {:else}
   <div class="container mx-auto px-4 py-8 text-center">

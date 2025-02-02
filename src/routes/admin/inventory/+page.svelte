@@ -28,7 +28,7 @@
 
     async function fetchProductListings(){
         loading = true
-        let url = `${PUBLIC_API_URL}/product/product_listings/?page=1&page_size=2&seller_id=${authUser?.entity.id}`;
+        let url = `${PUBLIC_API_URL}/product/product_listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
         let data = await myFetch(url);
         product_listings = data.results;
         next = data.next;
@@ -50,11 +50,11 @@
     
 
     // Inventory data
-    let products = [
-        { id: 1, name: "Premium T-Shirt", sku: "TSHIRT-001", stock: 150, price: 29.99, status: "In Stock", image: "" },
-        { id: 2, name: "Wireless Headphones", sku: "HEADPH-002", stock: 23, price: 149.99, status: "Low Stock" },
-        { id: 3, name: "Stainless Steel Bottle", sku: "BOTTLE-003", stock: 0, price: 39.99, status: "Out of Stock" },
-    ];
+    // let products = [
+    //     { id: 1, name: "Premium T-Shirt", sku: "TSHIRT-001", stock: 150, price: 29.99, status: "In Stock", image: "" },
+    //     { id: 2, name: "Wireless Headphones", sku: "HEADPH-002", stock: 23, price: 149.99, status: "Low Stock" },
+    //     { id: 3, name: "Stainless Steel Bottle", sku: "BOTTLE-003", stock: 0, price: 39.99, status: "Out of Stock" },
+    // ];
 
     const logout = () => {
         // Add your logout logic here

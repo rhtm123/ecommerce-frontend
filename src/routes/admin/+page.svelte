@@ -5,16 +5,21 @@
 
     import { user } from "$lib/stores/auth";
     import LeftNav from "$lib/components/admin/LeftNav.svelte";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
 
     import SalesChart from "$lib/components/admin/SalesChart.svelte";
 
 
 
     let authUser;
-    user.subscribe(value=>{
-        authUser = value;
-    })
+
+    const unsubscribe = user.subscribe(value => {
+      authUser = value;
+    });
+
+    onDestroy(() => {
+      unsubscribe(); // Cleanup to avoid memory leaks
+    });
 
     $: if (authUser) {
         fetchSellerAnalytics();

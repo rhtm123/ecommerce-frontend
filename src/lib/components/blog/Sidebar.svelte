@@ -1,9 +1,63 @@
 <script>
-
+  
 
   import { fade, fly } from 'svelte/transition';
+  import { onMount } from 'svelte';
   import blogData from '$lib/data/blog.json';
+  import { PUBLIC_API_URL } from '$env/static/public';
+  import { myFetch } from '$lib/utils/myFetch';
 
+
+  let tags = []
+  let loadingTags = false;
+  async function fetchTags() {
+    loadingTags = true
+    try{
+    let url = `${PUBLIC_API_URL}/blog/tags?ordering=-id`;
+    let data = await myFetch(url);
+    tags = data.results;
+    } catch (e) {
+    } finally {
+        loadingTags = false;
+    }
+  }
+
+  let blogs = []
+
+  let loadingBlogs = true
+
+  async function fetchLatestBlogs() {
+    loadingBlogs = true
+    try{
+    let url = `${PUBLIC_API_URL}/blog/blogs?page_size=5&ordering=-id`;
+    let data = await myFetch(url);
+    blogs = data.results;
+    } catch (e) {
+    } finally {
+        loadingBlogs = false;
+    }
+  }
+
+  let categories = []
+  let loadingCategories = true
+
+  async function fetchCategories() { 
+    loadingCategories = true
+    try{
+    let url = `${PUBLIC_API_URL}/product/categories/?has_blogs=true`;
+    let data = await myFetch(url);
+    categories = data.results;
+    } catch (e) {
+    } finally {
+        loadingCategories = false;
+    }
+  }
+
+  onMount(()=>{
+    fetchLatestBlogs();
+    fetchTags();
+    fetchCategories();
+  })
   
   let searchQuery = '';
   $: filteredPosts = blogData.posts.filter(post => 
@@ -13,7 +67,7 @@
 </script>
 
 <!-- Search Section -->
-<div class="mb-8">
+<!-- <div class="mb-8">
     <h2 class="text-xl font-semibold mb-4">SEARCH</h2>
     <div class="form-control">
       <input
@@ -23,21 +77,26 @@
         class="input input-bordered w-full bg-white focus:outline-none focus:border-primary"
       />
     </div>
-  </div>
+  </div> -->
 
   <!-- Categories -->
   <div class="mb-8">
     <h2 class="text-xl font-semibold mb-4">CATEGORIES</h2>
     <div class="flex flex-col gap-2">
-      {#each blogData.categories as category}
+      {#each categories as category}
         <a 
           href={`/blog/category/${category.slug}`}
           class="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors"
         >
           <span>{category.name}</span>
-          <span class="text-gray-500">({blogData.posts.filter(p => p.category === category.slug).length})</span>
         </a>
       {/each}
+
+      {#if loadingCategories}
+        <div class="p-4">
+            <span class="loading loading-spinner loading-sm"></span>
+        </div>
+    {/if}
     </div>
   </div>
 
@@ -45,35 +104,51 @@
   <div class="mb-8">
     <h2 class="text-xl font-semibold mb-4">LATEST POST</h2>
     <div class="flex flex-col gap-4">
-      {#each blogData.posts.slice(0, 4) as post}
+
+      
+      {#each blogs as post}
         <a 
           href={`/blog/${post.slug}`} 
           class="flex gap-4 group"
           in:fade
         >
-          <img src={post.image} alt={post.title} class="w-24 h-24 object-cover rounded" />
+          <img src={post.img} alt={post.title} class="w-24 h-24 object-cover rounded" />
           <div>
             <h3 class="font-semibold group-hover:text-primary transition-colors line-clamp-2">
               {post.title}
             </h3>
-            <p class="text-sm text-gray-500">{new Date(post.date).toLocaleDateString()}</p>
+            <p class="text-sm text-gray-500">{new Date(post.created).toLocaleDateString()}</p>
           </div>
         </a>
       {/each}
+
+
+      {#if loadingBlogs}
+        <div class="p-4">
+            <span class="loading loading-spinner loading-sm"></span>
+        </div>
+    {/if}
     </div>
   </div>
 
   <!-- Tags -->
-  <div>
+  <div class="mb-8">
     <h2 class="text-xl font-semibold mb-4">TAGS</h2>
     <div class="flex flex-wrap gap-2">
-      {#each blogData.tags as tag}
+      {#each tags as tag}
         <a 
-          href={`/blog/tag/${tag.toLowerCase().replace(' ', '-')}`}
+          href={`/blog/tag/${tag.slug}`}
           class="px-4 py-2 bg-gray-100 hover:bg-primary   transition-colors rounded-full text-sm"
         >
-          {tag}
+          {tag.name}
         </a>
       {/each}
+
+
+      {#if loadingTags}
+        <div class="p-4">
+            <span class="loading loading-spinner loading-sm"></span>
+        </div>
+    {/if}
     </div>
   </div>

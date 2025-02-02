@@ -1,19 +1,20 @@
+
 import { PUBLIC_API_URL } from '$env/static/public';
 import { myFetch } from '$lib/utils/myFetch.js';
 
 export async function load({ params }) {
 
-  let url = `${PUBLIC_API_URL}/blog/tags/slug/${params.slug}`
+  let url = `${PUBLIC_API_URL}/blog/blogs/slug/${params.slug}`
+  console.log(url);
 
   try {
-    let tag = await myFetch(url);
-
+    let blog = await myFetch(url);
+    // console.log(blog);
     return {
-      tag: tag,
+      blog: blog,
       error: false,
     }
   } catch (err) { 
-    console.log(err);
     return {
       error: true,
     }

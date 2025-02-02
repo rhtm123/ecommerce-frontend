@@ -2,15 +2,32 @@
      import { goto } from "$app/navigation";
 
      import { page } from '$app/stores';
+     import { logoutUser } from "$lib/stores/auth";
+     import { user } from "$lib/stores/auth";
+     import { onMount, onDestroy } from "svelte";
+
+
+     let authUser;
+
+    const unsubscribe = user.subscribe(value => {
+      authUser = value;
+    });
+
+    onDestroy(() => {
+      unsubscribe(); // Cleanup to avoid memory leaks
+    });
 
      const logout = () => {
+        logoutUser()
         // Add your logout logic here
-        alert('Logout clicked');
+        // alert('Logout clicked');
     };
 
-    const user = {
-        name: "John Doe",
-        email: "john@example.com"
+
+
+    const user1 = {
+        name: authUser?.first_name + " " + authUser?.last_name,
+        email: authUser?.email
     };
 
     const activePage = $page.url.pathname;
@@ -63,11 +80,11 @@
     <div class="p-4 border-t">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                {user.name.split(' ').map(n => n[0]).join('')}
+                {authUser?.first_name[0]+ authUser?.last_name[0]}
             </div>
             <div class="flex-1">
-                <p class="text-sm font-medium text-gray-700">{user.name}</p>
-                <p class="text-xs text-gray-500">{user.email}</p>
+                <p class="text-sm font-medium text-gray-700">{user1.name}</p>
+                <p class="text-xs text-gray-500">{user1.email}</p>
             </div>
         </div>
         <button 
