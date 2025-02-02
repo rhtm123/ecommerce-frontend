@@ -5,6 +5,10 @@
 
     import { user } from "$lib/stores/auth";
     import LeftNav from "$lib/components/admin/LeftNav.svelte";
+    import { onMount } from "svelte";
+
+    import SalesChart from "$lib/components/admin/SalesChart.svelte";
+
 
 
     let authUser;
@@ -24,7 +28,6 @@
     }
 
     
-    let l = '₹';
     // Sample analytics data
     const metrics = [
         { title: 'Total Sales', value: '$12,450', change: '+12.5%' },
@@ -74,7 +77,7 @@
 
 
                         <div class="bg-white p-6 rounded-xl shadow-sm">
-                            <h3 class="text-gray-500 text-sm font-medium">Total Items Sold</h3>
+                            <h3 class="text-gray-500 text-sm font-medium">Items Sold</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{data?.total_items}</p>
                             <!-- <span class={`inline-flex items-center mt-2 text-sm ${metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
                                 {metric.change.startsWith('+') ? '↑' : '↓'} {metric.change}
@@ -86,36 +89,9 @@
                 </div>
 
 
-                <!-- Metric Cards -->
-                <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {#each metrics as metric}
-                        <div class="bg-white p-6 rounded-xl shadow-sm">
-                            <h3 class="text-gray-500 text-sm font-medium">{metric.title}</h3>
-                            <p class="mt-2 text-3xl font-semibold text-gray-900">{metric.value}</p>
-                            <span class={`inline-flex items-center mt-2 text-sm ${metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                                {metric.change.startsWith('+') ? '↑' : '↓'} {metric.change}
-                            </span>
-                        </div>
-                    {/each}
-                </div> -->
+                <SalesChart authUser={authUser} />
 
-                <!-- Chart Section -->
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-semibold text-gray-900">Sales Overview</h2>
-                        <div class="flex space-x-4">
-                            <button class="text-gray-500 hover:text-gray-700 text-sm">Monthly</button>
-                            <button class="text-blue-600 text-sm font-medium">Weekly</button>
-                            <button class="text-gray-500 hover:text-gray-700 text-sm">Daily</button>
-                        </div>
-                    </div>
-                    <div class="h-96 bg-gray-50 rounded-lg p-4">
-                        <!-- Chart placeholder -->
-                        <div class="w-full h-full flex items-center justify-center text-gray-400">
-                            Chart will be displayed here
-                        </div>
-                    </div>
-                </div>
+                
             </div>
     </main>
 </div>

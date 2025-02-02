@@ -32,7 +32,7 @@
     async function fetchOrderItems(){
         loading = true;
         orderItems = [];
-        let url = `${PUBLIC_API_URL}/order/order_items/?page_size=6&seller_id=${authUser?.entity.id}&status=${selectedStatus}`;
+        let url = `${PUBLIC_API_URL}/order/order_items/?page_size=6&ordering=-id&seller_id=${authUser?.entity.id}&status=${selectedStatus}`;
         let data = await myFetch(url);
         orderItems = data.results;
         next = data.next;
@@ -116,7 +116,7 @@
                             {orderItem.status}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">${orderItem.subtotal.toFixed(2)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">₹ {orderItem.subtotal.toFixed(2)}</td>
                     <td class="px-6 py-4 text-sm font-medium space-x-4">
                         <button class="text-blue-600 hover:text-blue-900">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
