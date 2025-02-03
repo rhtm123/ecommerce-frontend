@@ -1,9 +1,16 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
-    // import { RichTextEditor } from '@svelte-richtext/editor'; // For rich text description
     import { PUBLIC_API_URL } from '$env/static/public';
-    
 
+    // import Tiptap from '$lib/components/wyswyg/Tiptap.svelte';
+    import TiptapEditor from '$lib/components/wyswyg/TiptapEditor.svelte';
+    let editorContent = '<p>Start writing here...</p>';
+
+	function handleEditorChange(content) {
+		editorContent = content;
+	}
+
+    
     let product = {
         name: '',
         sku: '',
@@ -141,6 +148,10 @@
             <p class="text-sm text-red-500 mt-1">{errors.name}</p>
         {/if}
     </div>
+
+    <TiptapEditor bind:content={editorContent} on:change={handleEditorChange} />
+
+
 
     <!-- SKU -->
     <div class="mb-6">

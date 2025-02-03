@@ -73,12 +73,15 @@
             <div class="max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
+                    <a href="/admin/add-product">
                     <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         Add Product
                     </button>
+                    </a>
+
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
