@@ -12,7 +12,7 @@ export const productApi = {
           page: params.page || '1',
           page_size: params.pageSize || '12',
           ...(params.category_id && { category_id: params.category_id.toString() }),
-          ...(params.search && { search: params.search }),
+          ...(params.search && { search: params.search.trim() }),
           ...(params.ordering && { ordering: params.ordering }),
           ...(params.brand_ids && { brand_ids: params.brand_ids }),
           ...(params.min_price && { min_price: params.min_price }),
@@ -24,7 +24,7 @@ export const productApi = {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-
+        console.log('API Response:', data); 
         return data;
       } catch (error) {
         console.error('Error fetching products:', error);
