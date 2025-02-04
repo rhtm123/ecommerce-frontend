@@ -4,6 +4,7 @@
   import { myFetch } from "$lib/utils/myFetch";
   import { user } from "$lib/stores/auth";
   import OrderItems from "$lib/components/OrderItems.svelte";
+  import InvoiceGenerator from "$lib/components/InvoiceGenerator.svelte";
 
   let authUser;
   const unsubscribe = user.subscribe(value => {
@@ -102,9 +103,9 @@
 
           <!-- Order Footer -->
           <div class="bg-gray-50 p-4 flex justify-between items-center border-t">
-            <div class="space-x-4">
-              <a href="/profile/orders/{order.id}" class="text-red-500 hover:text-red-600">View Details</a>
-              <button class="text-red-500 hover:text-red-600">Download Invoice</button>
+            <div class="space-x-4 flex">
+              <!-- <a href="/profile/orders/{order.id}" class="text-red-500 hover:text-red-600">View Details</a> -->
+              <InvoiceGenerator orderId={order.id} />
             </div>
             <div class="text-lg font-medium">
               Total: {order.total_amount.toFixed(2)}
