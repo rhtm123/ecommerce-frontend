@@ -1,5 +1,8 @@
 <script>
-	import { createEventDispatcher, onMount, onDestroy, writable } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+
+	import { writable } from 'svelte/store';
+
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import Bold from '@tiptap/extension-bold';
@@ -7,6 +10,7 @@
 	import Underline from '@tiptap/extension-underline';
 	import Blockquote from '@tiptap/extension-blockquote';
 	import CodeBlock from '@tiptap/extension-code-block';
+
 
 	export let content = '';
 	const dispatch = createEventDispatcher();
@@ -41,6 +45,9 @@
 </script>
 
 
+<div class="rounded-lg border">
+
+
 {#if $editorState}
 	<div class="toolbar flex gap-2 p-2 bg-gray-100 rounded-t-lg">
 		<button on:click={() => $editorState.chain().focus().toggleBold().run()} class:active={$editorState.isActive('bold')}>
@@ -73,6 +80,11 @@
 	</div>
 {/if}
 
+<div class="w-full prose max-w-none m-auto p-0 ">
+	<div class="min-h-24 p-2 bg-white rounded-lg" bind:this={element} />
+</div>
+
+</div>
 
 <style>
 	.toolbar button {

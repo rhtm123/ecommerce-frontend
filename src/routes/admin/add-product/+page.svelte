@@ -8,6 +8,7 @@
 
 	function handleEditorChange(content) {
 		editorContent = content;
+        // console.log(content);
 	}
 
     

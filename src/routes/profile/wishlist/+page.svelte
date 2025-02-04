@@ -2,15 +2,15 @@
   import { addToCart } from '../../../lib/stores/cart';
 
   let wishlistItems = [
-    {
-      id: 1,
-      name: "Baby's First Blocks Set",
-      price: 29.99,
-      image: '/img/Toy-Names-For-Kids.webp',
-      inStock: true,
-      rating: 4.5,
-      reviews: 128
-    }
+    // {
+    //   id: 1,
+    //   name: "Baby's First Blocks Set",
+    //   price: 29.99,
+    //   image: '/img/Toy-Names-For-Kids.webp',
+    //   inStock: true,
+    //   rating: 4.5,
+    //   reviews: 128
+    // }
     // Add more items as needed
   ];
 
