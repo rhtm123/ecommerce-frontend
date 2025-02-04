@@ -7,7 +7,7 @@
     let seconds = 0;
     
     // Set your launch date here
-    const launchDate = new Date('2025-01-01T00:00:00');
+    const launchDate = new Date('2025-02-15T00:00:00');
     
     function updateCountdown() {
       const now = new Date();
@@ -76,8 +76,7 @@
         </h1>
   
         <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto animate-fade-in-delay">
-          We're crafting a magical toy wonderland just for you. 
-          Get ready for an amazing adventure!
+          Your local digital marketplace is coming soon! Stay tuned for an exciting shopping experience.
         </p>
   
         <!-- Countdown Timer -->
