@@ -44,8 +44,26 @@
     }
 
 
+  
+
 
   </script>
+
+<svelte:head>
+  <title>Buy {product.name} Online in Naigaon | Best Price & Fast Delivery</title>
+  <meta name="description" content="Shop {product.name} at the best price in Naigaon, and more. Fast delivery, secure payments & top-quality products!">
+
+  <meta name="keywords" content="{product.name}, buy {product.name} online, {category?.name} in Naigaon, {product?.brand.name} {product.name}, best {product.name} price, fast delivery Naigaon">
+
+  <meta property="og:title" content="Buy {product.name} Online in Naigaon | Best Price & Fast Delivery">
+  <meta property="og:description" content="Get {product.name} at the best price in Naigaon and more. Order now for quick delivery!">
+
+  <!-- {Short Feature 1}, {Short Feature 2}, -->
+  <!-- <meta property="og:image" content="/path/to/your/image.jpg" /> -->
+  <!-- <meta property="og:url" content="https://www.codingchaskalab.com" /> -->
+  <meta property="og:type" content="website" />
+</svelte:head>
+
   <div class="mx-4 md:mx-8">
 
     <div class="text-sm breadcrumbs text-gray-600">

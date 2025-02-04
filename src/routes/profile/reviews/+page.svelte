@@ -1,18 +1,53 @@
 <script>
-  let reviews = [
-    {
-      id: 1,
-      productId: 'prod123',
-      productName: "Baby's First Blocks Set",
-      productImage: '/img/Toy-Names-For-Kids.webp',
-      rating: 4,
-      review: "Great product! My baby loves it.",
-      date: '2024-02-10',
-      likes: 12,
-      status: 'published'
-    }
-    // Add more reviews as needed
-  ];
+  import { onMount, onDestroy } from "svelte";
+  import { user } from "$lib/stores/auth";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { myFetch } from "$lib/utils/myFetch";
+  import { addAlert } from "$lib/stores/alert";
+
+  let authUser;
+  const unsubscribe = user.subscribe(value => {
+    authUser = value;
+  });
+
+  onDestroy(() => {
+    unsubscribe(); // Cleanup to avoid memory leaks
+  });
+  
+  let loading = true;
+  let reviews = [];
+  let next; 
+
+  async function fetchReviews(){
+    
+    let url = `${PUBLIC_API_URL}/review/reviews/?user_id=${authUser.user_id}`;
+    let data = await myFetch(url);
+    console.log(data);
+
+    reviews = data.results;
+    next = data.next;
+
+    loading = false;
+  }
+
+  onMount(()=>{
+    fetchReviews();
+  })
+
+  // let reviews = [
+  //   {
+  //     id: 1,
+  //     productId: 'prod123',
+  //     productName: "Baby's First Blocks Set",
+  //     productImage: '/img/Toy-Names-For-Kids.webp',
+  //     rating: 4,
+  //     review: "Great product! My baby loves it.",
+  //     date: '2024-02-10',
+  //     likes: 12,
+  //     status: 'published'
+  //   }
+  //   // Add more reviews as needed
+  // ];
 
   function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -22,34 +57,48 @@
     });
   }
 
-  function deleteReview(id) {
+  async function deleteReview(id) {
+    let url = `${PUBLIC_API_URL}/review/reviews/${id}/`;
+    myFetch(url, "DELETE", {}, authUser.access_token);
+    addAlert("You have successfully deleted the review", "success")
     reviews = reviews.filter(review => review.id !== id);
   }
 
-  function editReview(id) {
-    // Implement edit functionality
-    console.log('Edit review:', id);
-  }
+  // function editReview(id) {
+  //   // Implement edit functionality
+  //   console.log('Edit review:', id);
+  // }
+
+
+  async function loadMore() {
+    loading = true;
+        // console.log("Hello Bhai")
+		const dataNew = await myFetch(next);
+        console.log(dataNew);
+    reviews = [...reviews,...dataNew.results];
+    next = dataNew.next;
+    loading = false
+    }
+
 </script>
 
 <div class="space-y-6">
   <h2 class="text-2xl font-bold">My Reviews & Ratings</h2>
 
-  {#if reviews.length > 0}
     <div class="space-y-4">
       {#each reviews as review (review.id)}
         <div class="border rounded-lg p-4">
           <div class="flex items-start space-x-4">
             <img 
-              src={review.productImage} 
-              alt={review.productName}
+              src={review?.product_listing?.main_image} 
+              alt={review?.product_listing.name}
               class="w-20 h-20 object-cover rounded"
             />
             
             <div class="flex-1">
               <div class="flex justify-between items-start">
                 <div>
-                  <h3 class="font-medium">{review.productName}</h3>
+                  <h3 class="font-medium">{review?.product_listing.name}</h3>
                   <div class="flex items-center mt-1">
                     {#each Array(5) as _, i}
                       <svg 
@@ -64,12 +113,14 @@
                 </div>
                 
                 <div class="flex space-x-2">
-                  <button 
+                  
+                  <a 
+                    href={"/profile/add-review/"+review?.order_item_id}
                     on:click={() => editReview(review.id)}
                     class="text-gray-600 hover:text-gray-800"
                   >
                     Edit
-                  </button>
+                  </a>
                   <button 
                     on:click={() => deleteReview(review.id)}
                     class="text-red-500 hover:text-red-600"
@@ -79,29 +130,39 @@
                 </div>
               </div>
 
-              <p class="text-gray-600 mt-2">{review.review}</p>
+              <p class="text-gray-600 mt-2">{review.comment}</p>
               
               <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
                 <div class="flex items-center space-x-4">
-                  <span>Posted on {formatDate(review.date)}</span>
-                  <span class="flex items-center">
+                  <span>Posted on {formatDate(review.created)}</span>
+                  <!-- <span class="flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
                     </svg>
                     {review.likes} people found this helpful
-                  </span>
+                  </span> -->
                 </div>
-                <span class="inline-block px-2 py-1 rounded-full text-xs 
+                <!-- <span class="inline-block px-2 py-1 rounded-full text-xs 
                   {review.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
                   {review.status}
-                </span>
+                </span> -->
               </div>
             </div>
           </div>
         </div>
       {/each}
+
+      {#if loading}
+        <div class="loading loading-spinner loading-sm"></div>
+      {/if}
+
+
+      {#if (next && !loading)}
+        <button class="btn btn-sm my-4" on:click={loadMore}>Load More</button>
+      {/if}
+
     </div>
-  {:else}
+  {#if (reviews.length ==0 && !loading)}
     <div class="text-center py-12">
       <div class="mb-4">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

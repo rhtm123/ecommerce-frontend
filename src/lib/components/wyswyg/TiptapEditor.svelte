@@ -1,5 +1,5 @@
 <script>
-	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy, writable } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import Bold from '@tiptap/extension-bold';
@@ -8,10 +8,11 @@
 	import Blockquote from '@tiptap/extension-blockquote';
 	import CodeBlock from '@tiptap/extension-code-block';
 
-	export let content = ''; // Bind this with parent
+	export let content = '';
 	const dispatch = createEventDispatcher();
 	let element;
 	let editor;
+	const editorState = writable(null); // Make editor reactive
 
 	onMount(() => {
 		editor = new Editor({
@@ -26,10 +27,12 @@
 			],
 			content: content,
 			onUpdate: ({ editor }) => {
-				// Emit updated content to parent
 				dispatch('change', editor.getHTML());
 			},
 		});
+
+		// Store editor instance
+		editorState.set(editor);
 	});
 
 	onDestroy(() => {
@@ -37,59 +40,41 @@
 	});
 </script>
 
-<!-- Toolbar -->
 
-
-
-
-<div class="rounded-lg border">
-
-{#if editor}
+{#if $editorState}
 	<div class="toolbar flex gap-2 p-2 bg-gray-100 rounded-t-lg">
-		<button on:click={() => editor.chain().focus().toggleBold().run()} class:active={editor.isActive('bold')}>
+		<button on:click={() => $editorState.chain().focus().toggleBold().run()} class:active={$editorState.isActive('bold')}>
 			<strong>B</strong>
 		</button>
-		<button on:click={() => editor.chain().focus().toggleItalic().run()} class:active={editor.isActive('italic')}>
+		<button on:click={() => $editorState.chain().focus().toggleItalic().run()} class:active={$editorState.isActive('italic')}>
 			<em>I</em>
 		</button>
-		<button on:click={() => editor.chain().focus().toggleUnderline().run()} class:active={editor.isActive('underline')}>
+		<button on:click={() => $editorState.chain().focus().toggleUnderline().run()} class:active={$editorState.isActive('underline')}>
 			<u>U</u>
 		</button>
-		<button on:click={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} class:active={editor.isActive('heading', { level: 1 })}>
+		<button on:click={() => $editorState.chain().focus().toggleHeading({ level: 1 }).run()} class:active={$editorState.isActive('heading', { level: 1 })}>
 			H1
 		</button>
-		<button on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} class:active={editor.isActive('heading', { level: 2 })}>
+		<button on:click={() => $editorState.chain().focus().toggleHeading({ level: 2 }).run()} class:active={$editorState.isActive('heading', { level: 2 })}>
 			H2
 		</button>
-		<button on:click={() => editor.chain().focus().setParagraph().run()} class:active={editor.isActive('paragraph')}>
+		<button on:click={() => $editorState.chain().focus().setParagraph().run()} class:active={$editorState.isActive('paragraph')}>
 			P
 		</button>
-		<button on:click={() => editor.chain().focus().toggleBulletList().run()} class:active={editor.isActive('bulletList')}>
+		<button on:click={() => $editorState.chain().focus().toggleBulletList().run()} class:active={$editorState.isActive('bulletList')}>
 			&#8226; List
 		</button>
-		<button on:click={() => editor.chain().focus().toggleBlockquote().run()} class:active={editor.isActive('blockquote')}>
+		<button on:click={() => $editorState.chain().focus().toggleBlockquote().run()} class:active={$editorState.isActive('blockquote')}>
 			❝ Quote
 		</button>
-		<button on:click={() => editor.chain().focus().toggleCodeBlock().run()} class:active={editor.isActive('codeBlock')}>
+		<button on:click={() => $editorState.chain().focus().toggleCodeBlock().run()} class:active={$editorState.isActive('codeBlock')}>
 			&lt;/&gt; Code
 		</button>
 	</div>
 {/if}
 
-<!-- Editor -->
 
-
-
-<div class="w-full prose max-w-none m-auto p-0 ">
-	<div class="min-h-24 p-2 bg-white rounded-lg" bind:this={element} />
-</div>
-
-</div>
-
-<!-- Styles -->
 <style>
-
-
 	.toolbar button {
 		border: none;
 		padding: 4px 8px;
@@ -108,8 +93,4 @@
 		background: black;
 		color: white;
 	}
-
-
-
-
 </style>

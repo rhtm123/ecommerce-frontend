@@ -16,6 +16,14 @@
 
 </script>
 
+<svelte:head>
+  <title>Shop {currentCategory?.name} Online in Naigaon | Best Deals & Fast Delivery</title>
+
+  <meta name="description" content="Discover the best {currentCategory?.name} in Naigaon. Shop now for great prices & fast delivery!">
+<!-- {Highlight Feature 1}, {Highlight Feature 2}, and more. -->
+
+</svelte:head>
+
 <!-- Template -->
 <div class="mx-4 md:mx-8">
 
