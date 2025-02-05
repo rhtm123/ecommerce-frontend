@@ -33,7 +33,7 @@
     <ProductSection />
     <CompanySection />
     <BestSelling />
-    <Carousel />
+    <!-- <Carousel /> -->
     <Testimonials />
     <!-- <Footer /> -->
   </div>

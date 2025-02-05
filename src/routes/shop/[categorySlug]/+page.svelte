@@ -1,7 +1,4 @@
 <script>
-
-
-
   export let data;
   let currentCategory;
 

@@ -39,6 +39,7 @@
       try {
       const filtersData = await productApi.getFilters()
       filters = filtersData;
+      console.log(filters);
       // Set initial price range from API
       selectedPriceRange = [
         parseFloat(filters.price_range?.min_price || 0),
@@ -121,7 +122,6 @@
           brand_ids: selectedBrands.join(','),
           ordering: getSortOrder(sortOption)
         };
-  
         loadProducts();
     }
   

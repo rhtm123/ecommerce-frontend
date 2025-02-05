@@ -1,6 +1,43 @@
 <script>
     import data from '$lib/data/testimonials.json';
 
+    import { user } from '$lib/stores/auth';
+    import { PUBLIC_API_URL } from '$env/static/public';
+    import { PUBLIC_ESTORE_ID } from '$env/static/public';
+    import { myFetch } from '$lib/utils/myFetch';
+    import { onMount, onDestroy } from 'svelte';
+
+
+  let authUser;
+  const unsubscribe = user.subscribe(value => {
+    authUser = value;
+  });
+
+  onDestroy(() => {
+    unsubscribe(); // Cleanup to avoid memory leaks
+  });
+
+
+  let recentReviews = []
+  let loading = false;
+  async function fetchReviews() {
+    loading = true
+    try{
+    let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&ordering=-id`;
+    let data = await myFetch(url);
+    recentReviews = data.results;
+    console.log(recentReviews);
+    } catch (e) {
+    } finally {
+        loading = false;
+    }
+  }
+
+  onMount(()=>{
+    fetchReviews();
+  })
+
+
     const testimonials = data.testimonials;
   
     const StarIcon = ({ filled }) => `
@@ -20,30 +57,40 @@
   
       <!-- Testimonials Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {#each testimonials as { name, role, image, quote, rating }}
+
+        {#each recentReviews as review }
           <div class="bg-white rounded-lg p-6 shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
             <div class="flex items-center mb-4">
               <img
-                src={image}
-                alt={name}
+                src={review?.product_listing?.main_image}
+                alt={review?.product_listing?.name}
                 class="w-16 h-16 rounded-full border-4 border-pink-100 object-cover"
               />
               <div class="ml-4">
-                <h3 class="font-bold text-lg">{name}</h3>
-                <p class="text-gray-600">{role}</p>
+                <h3 class="font-bold text-lg">{review?.user?.first_name} {review?.user?.last_name}</h3>
+                <p class="text-xs text-gray-600">Product: {review?.product_listing?.name}</p>
               </div>
             </div>
             
             <!-- Star Rating -->
             <div class="flex mb-4">
               {#each Array(5) as _, i}
-                {@html StarIcon({ filled: i < rating })}
+                {@html StarIcon({ filled: i < review.rating })}
               {/each}
             </div>
             
-            <p class="text-gray-700 italic">"{quote}"</p>
+            <p class="text-gray-700 italic">"{review.comment}"</p>
           </div>
         {/each}
+
+        {#if loading}
+            <div class="p-4">
+                <span class="loading loading-spinner loading-sm"></span>
+            </div>
+        {/if}
+
+
+       
       </div>
     </div>
   </section>
