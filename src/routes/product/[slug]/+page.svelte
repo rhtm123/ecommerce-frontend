@@ -4,11 +4,10 @@
     import { addToCart } from '../../../lib/stores/cart.js';
     // export let data;
     //  const { product, relatedProducts } = data;
-     
-    
+     import Reviews from '$lib/components/product/Reviews.svelte';
     // Get product data from page data
     export let data;
-    const { product, category } = data;
+    const { product_listing, category } = data;
 
     let relatedProducts = [];
     
@@ -18,10 +17,10 @@
     // Quantity state
     let quantity = 1;
 
-    console.log(product);
+    console.log(product_listing);
     
     // Selected image state (using the first image as default)
-    let selectedImage = product.image;
+    let selectedImage = product_listing.image;
     
     // Handle quantity changes
     function updateQuantity(change) {
@@ -35,7 +34,7 @@
 
     function handleAddToCart() {
       for (let i = 0; i < quantity; i++) {
-        addToCart(product);
+        addToCart(product_listing);
       }
     }
 
@@ -50,13 +49,13 @@
   </script>
 
 <svelte:head>
-  <title>Buy {product.name} Online in Naigaon | Best Price & Fast Delivery</title>
-  <meta name="description" content="Shop {product.name} at the best price in Naigaon, and more. Fast delivery, secure payments & top-quality products!">
+  <title>Buy {product_listing.name} Online in Naigaon | Best Price & Fast Delivery</title>
+  <meta name="description" content="Shop {product_listing.name} at the best price in Naigaon, and more. Fast delivery, secure payments & top-quality products!">
 
-  <meta name="keywords" content="{product.name}, buy {product.name} online, {category?.name} in Naigaon, {product?.brand.name} {product.name}, best {product.name} price, fast delivery Naigaon">
+  <meta name="keywords" content="{product_listing.name}, buy {product_listing.name} online, {category?.name} in Naigaon, {product_listing?.brand.name} {product_listing.name}, best {product_listing.name} price, fast delivery Naigaon">
 
-  <meta property="og:title" content="Buy {product.name} Online in Naigaon | Best Price & Fast Delivery">
-  <meta property="og:description" content="Get {product.name} at the best price in Naigaon and more. Order now for quick delivery!">
+  <meta property="og:title" content="Buy {product_listing.name} Online in Naigaon | Best Price & Fast Delivery">
+  <meta property="og:description" content="Get {product_listing.name} at the best price in Naigaon and more. Order now for quick delivery!">
 
   <!-- {Short Feature 1}, {Short Feature 2}, -->
   <!-- <meta property="og:image" content="/path/to/your/image.jpg" /> -->
@@ -71,7 +70,7 @@
           <li><a href="/home">Home</a></li>
           <li><a href="/shop">Shop</a></li>
           <li><a href="/shop/{category?.slug}">{category?.name}</a></li>
-          <li>{product.name}</li>
+          <li>{product_listing.name}</li>
         </ul>
   </div>
 
@@ -83,11 +82,11 @@
         <!-- Main Image -->
         <div class="relative rounded-lg" in:fade>
           <img 
-            src={product?.main_image} 
-            alt={product.name}
+            src={product_listing.main_image} 
+            alt={product_listing.name}
             class="w-full h-auto object-contain rounded-lg"
           />
-          {#if product?.isBestSeller}
+          {#if product_listing?.isBestSeller}
             <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
               BEST SELLER
             </span>
@@ -95,9 +94,9 @@
         </div>
         
         <!-- Thumbnail Images (if multiple images available) -->
-        {#if product.images && product.images.length > 0}
+        {#if product_listing.images && product_listing.images.length > 0}
           <div class="flex gap-4">
-            {#each product.images as image}
+            {#each product_listing.images as image}
               <button 
                 class="w-24 h-24 border-2 rounded-lg overflow-hidden transition-all duration-200"
                 class:border-primary={selectedImage === image}
@@ -117,24 +116,24 @@
   
       <!-- Product Info -->
       <div class="space-y-6">
-        <h1 class="text-3xl font-bold">{product.name}</h1>
+        <h1 class="text-3xl font-bold">{product_listing.name}</h1>
         
         <!-- Price -->
         <div class="flex items-center gap-2">
-          <span class="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
+          <span class="text-2xl font-bold text-primary">{formatPrice(product_listing.price)}</span>
         </div>
   
         <!-- Description -->
-        <p class="text-gray-600">{product.description}</p>
+        <p class="text-gray-600">{product_listing.description}</p>
   
         <!-- Color Selection -->
-        {#if product.color}
+        {#if product_listing.color}
           <div class="space-y-2">
             <h3 class="font-medium">COLOR</h3>
             <div class="flex gap-2">
               <button 
                 class="w-8 h-8 rounded-full border-2 transition-all duration-200"
-                style="background-color: {product.color}"
+                style="background-color: {product_listing.color}"
               ></button>
             </div>
           </div>
@@ -144,7 +143,7 @@
         <!-- <div class="space-y-2 bg-inherit">
           <h3 class="font-medium">AGE</h3>
           <select class="select select-bordered text-base-200 bg-inherit w-full max-w-xs">
-            <option>{product.ageRange}</option>
+            <option>{product_listing.ageRange}</option>
           </select>
         </div> -->
   
@@ -173,7 +172,7 @@
         <div class="space-y-4 pt-4 border-t">
           <div class="flex gap-2">
             <span class="font-medium">SKU:</span>
-            <span class="text-gray-600">{product.id}</span>
+            <span class="text-gray-600">{product_listing.id}</span>
           </div>
           <div class="flex gap-2">
             <span class="font-medium">CATEGORY:</span>
@@ -213,7 +212,7 @@
             class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
             on:click={() => activeTab = 'REVIEWS'}
           >
-            REVIEWS (0)
+            REVIEWS
           </button>
         </div>
       </div>
@@ -222,50 +221,50 @@
       <div class="py-8" in:fade={{ duration: 300 }}>
         {#if activeTab === 'DESCRIPTION'}
           <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
-            <p class="text-gray-600">{product.product.description}</p>
+            <p class="text-gray-600">{product_listing.product.description}</p>
           </div>
         {:else if activeTab === 'ADDITIONAL INFORMATION'}
           <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
             <div class="overflow-x-auto">
               <table class="table border-4 w-full">
                 <tbody>
-                  {#if product.weight}
+                  {#if product_listing.weight}
                     <tr class="border-t">
                         <td class="font-medium text-gray-600 w-1/3 border-l">WEIGHT</td>
-                        <td class=" italic text-gray-500 border-l border-r">{product.weight}</td>
+                        <td class=" italic text-gray-500 border-l border-r">{product_listing.weight}</td>
                       </tr>
                   {/if}
                   
-                  {#if product.dimensions}
+                  {#if product_listing.dimensions}
                     <tr>
                       <td class="font-medium text-gray-600 w-1/3 border-l">DIMENSIONS</td>
-                      <td class="italic text-gray-500 border-l border-r">{product.dimensions}</td>
+                      <td class="italic text-gray-500 border-l border-r">{product_listing.dimensions}</td>
                     </tr>
                   {/if}
                   
-                  {#if product.color}
+                  {#if product_listing.color}
                     <tr>
                       <td class="font-medium text-gray-600 w-1/3 border-l">COLOR</td>
-                    <td class="italic text-gray-500 border-l border-r">{product.color}</td>
+                    <td class="italic text-gray-500 border-l border-r">{product_listing.color}</td>
                     </tr>
                   {/if}
                   
-                  {#if product.ageRange}
+                  {#if product_listing.ageRange}
                     <tr>
                       <td class="font-medium text-gray-600 w-1/3 border-l">AGE</td>
-                      <td class="italic text-gray-500 border-l border-r">{product.ageRange}</td>
+                      <td class="italic text-gray-500 border-l border-r">{product_listing.ageRange}</td>
                     </tr>
                   {/if}
                   
-                  {#if product.brand}
+                  {#if product_listing.brand}
                     <tr>
                       <td class="font-medium text-gray-600 w-1/3 border-l">BRAND</td>
-                      <td class="italic text-gray-500 border-l border-r">{product.brand.name}</td>
+                      <td class="italic text-gray-500 border-l border-r">{product_listing.brand.name}</td>
                     </tr>
                   {/if}
       
                   <!-- Dynamically render any additional properties -->
-                  {#each Object.entries(product.additionalInfo || {}) as [key, value]}
+                  {#each Object.entries(product_listing.additionalInfo || {}) as [key, value]}
                     <tr class="border-b">
                       <td class="font-medium text-gray-600 w-1/3 border-l">{key}</td>
                       <td class="italic text-gray-500 border-l border-r">{value}</td>
@@ -277,77 +276,10 @@
           </div>
         {:else}
           <div in:fade>
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <tbody>
-                  <tr>
-                    <td class="bg-gray-50 py-3 px-4 font-medium text-gray-600 w-1/4">REVIEWS</td>
-                    <td class="py-3 px-4 text-gray-600">
-                      <p class="italic">There are no reviews yet.</p>
-                      <div class="mt-4">
-                        <p class="font-medium mb-2">BE THE FIRST TO REVIEW "{product.name}"</p>
-                        <p class="text-sm text-gray-500 mb-4">
-                          Your email address will not be published. Required fields are marked *
-                        </p>
-                        
-                        <!-- Rating Input -->
-                        <div class="mb-4">
-                          <p class="font-medium mb-2">Your Rating *</p>
-                          <div class="rating rating-lg">
-                            {#each Array(5) as _, i}
-                              <input type="radio" name="rating" class="mask mask-star-2 bg-orange-400" value={i + 1}/>
-                            {/each}
-                          </div>
-                        </div>
-      
-                        <!-- Review Form -->
-                        <form class="space-y-4">
-                          <div>
-                            <label class="font-medium block mb-1">Your Review *</label>
-                            <textarea 
-                              class="textarea bg-inherit textarea-bordered w-full h-32" 
-                              required
-                            ></textarea>
-                          </div>
-                          
-                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label class="font-medium bg-inherit block mb-1">Name *</label>
-                              <input 
-                                type="text" 
-                                class="input bg-inherit input-bordered w-full" 
-                                required
-                              />
-                            </div>
-                            
-                            <div>
-                              <label class="font-medium block mb-1">Email *</label>
-                              <input 
-                                type="email" 
-                                class="input input-bordered bg-inherit w-full" 
-                                required
-                              />
-                            </div>
-                          </div>
-      
-                          <div>
-                            <label class="inline-flex items-center">
-                              <input type="checkbox" class="checkbox checkbox-primary mr-2"/>
-                              <span class="text-sm">
-                                Save my name, email, and website in this browser for the next time I comment.
-                              </span>
-                            </label>
-                          </div>
-      
-                          <button type="submit" class="btn btn-primary">
-                            SUBMIT
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="overflow-x-auto max-w-3xl mx-auto">
+
+              <Reviews product_listing={product_listing} />
+              
             </div>
           </div>
         {/if}
@@ -358,16 +290,16 @@
     <div class="mt-16 p-8">
       <h2 class="text-2xl font-bold mb-8">RELATED PRODUCTS</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {#each relatedProducts as product}
+        {#each relatedProducts as product_listing}
           <div class="bg-white rounded-lg shadow-sm overflow-hidden group">
             <div class="relative">
-              <a href="/product/{product.id}">
+              <a href="/product/{product_listing.id}">
                 <img 
-                  src={product.image}
-                  alt={product.name}
+                  src={product_listing.image}
+                  alt={product_listing.name}
                   class="w-full h-48 object-cover"
                 />
-                {#if product.isBestSeller}
+                {#if product_listing.isBestSeller}
                   <div class="absolute top-2 left-2">
                     <span class="bg-red-500 text-white px-2 py-1 text-sm rounded">
                       BEST SELLER
@@ -377,13 +309,13 @@
               </a>
             </div>
             <div class="p-4 text-center">
-              <h3 class="font-medium mb-2">{product.name}</h3>
+              <h3 class="font-medium mb-2">{product_listing.name}</h3>
               <div class="flex justify-center gap-1 mb-2">
-                {#each Array(product.rating) as _}
+                {#each Array(product_listing.rating) as _}
                   <i class="fas fa-star text-yellow-400"></i>
                 {/each}
               </div>
-              <p class="text-primary font-bold">{formatPrice(product.price)}</p>
+              <p class="text-primary font-bold">{formatPrice(product_listing.price)}</p>
               <button class="btn btn-primary btn-sm mt-4 w-full">
                 ADD TO CART
               </button>

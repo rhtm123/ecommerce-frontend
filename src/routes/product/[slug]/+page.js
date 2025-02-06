@@ -4,7 +4,7 @@
 
    export async function load({ params }) {
      
-       const product = await productApi.getProduct(params.slug);
+       const product_listing = await productApi.getProduct(params.slug);
       //  console.log(product);
       //  const relatedProducts = await productApi.getProducts({
       //    category_id: product.category?.id,
@@ -13,9 +13,9 @@
       //  });
 
        return {
-         product,
+         product_listing,
         //  relatedProducts: [],
-         category: product.category,
+         category: product_listing.category,
        };
       
    }

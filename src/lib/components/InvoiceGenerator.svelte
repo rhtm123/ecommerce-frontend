@@ -50,18 +50,18 @@
         let currentY = startY;
         doc.text('BILL TO:', 20, currentY);
         currentY += 5;
-        doc.text(`${orderData.user.first_name} ${orderData.user.last_name}`, 20, currentY);
+        doc.text(`${orderData.user?.first_name} ${orderData.user?.last_name}`, 20, currentY);
         currentY += 5;
-        doc.text(`${orderData.user.email}`, 20, currentY);
+        doc.text(`${orderData.user?.email}`, 20, currentY);
         currentY += 5;
-        doc.text(`${orderData.user.mobile}`, 20, currentY);
+        doc.text(`${orderData.user?.mobile}`, 20, currentY);
 
         // Shipping Section - Right column
         currentY = startY;
         const address = orderData.shipping_address;
         doc.text('SHIP TO:', pageWidth - 90, currentY);
         currentY += 5;
-        doc.text(address.name, pageWidth - 90, currentY);
+        doc.text(address?.name, pageWidth - 90, currentY);
         currentY += 5;
         doc.text(`${address.address.line1}`, pageWidth - 90, currentY);
         if (address.address.line2) {
@@ -80,7 +80,7 @@
         ];
 
         const tableRows = orderItemsData.results.map(item => ({
-          description: item.product_listing.name,
+          description: item.product_listing?.name,
           qty: item.quantity,
           price: `${rupeeSymbol}${item.price.toFixed(2)}`,
           total: `${rupeeSymbol}${item.subtotal.toFixed(2)}`
