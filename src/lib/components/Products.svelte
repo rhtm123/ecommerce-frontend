@@ -11,6 +11,9 @@
     import { goto } from '$app/navigation';
     import { nonpassive } from 'svelte/legacy';
 
+    import { page } from '$app/stores'
+
+
     import Categories from './Categories.svelte';
     export let currentCategory;
   
@@ -26,13 +29,19 @@
   
     // Filter states
     let selectedPriceRange = [0, 100];
-    let selectedBrands = [];
+
+    const brand_ids = $page.url.searchParams.get('brand_ids');
+    console.log(brand_ids)
+
+
+    $: selectedBrands = brand_ids ? brand_ids.split(',') : [];
     let sortOption = 'default';
     let viewMode = 'grid';
   
     let totalProducts = 0;
-    let params = {
-      "category_id": currentCategory?.id
+    $: params = {
+      "category_id": currentCategory?.id,
+      "brand_ids": brand_ids? brand_ids : ""
     }
 
     async function loadSideFilters(params) {

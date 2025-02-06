@@ -1,11 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  import { getBestSellingProducts } from '$lib/utils/product';
-  import { addToCart } from '../stores/cart';
+  import { addToCart } from '../../stores/cart';
   import { myFetch } from '$lib/utils/myFetch';
   import { PUBLIC_API_URL } from '$env/static/public';
 
-  import Product from './Product.svelte';
+  import Product from '../Product.svelte';
 
   let products = [];
 

@@ -100,7 +100,9 @@
     {/each}
 
     {#if loading}
+      <div class="p-4">
       <div class="loading loading-spinner loading-sm"></div>
+      </div>
     {/if}
 
 

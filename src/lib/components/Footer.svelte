@@ -17,9 +17,8 @@
   </script>
 
 
-
   
-  <footer class="bg-primary py-12 relative overflow-hidden">
+  <footer class="bg-primary py-12 text-gray-200 relative overflow-hidden">
     <!-- Decorative Stars -->
     {#if mounted}
       <div class="absolute top-4 right-4" in:fly="{{ y: -20, duration: 1000, delay: 200 }}">
@@ -78,7 +77,7 @@
               <li>
                 <a 
                   href="#{item.toLowerCase().replace(' ', '-')}"
-                  class="hover:text-white transition-colors"
+                  class="hover:text-white text-gray-200 transition-colors"
                 >
                   {item}
                 </a>
@@ -103,7 +102,7 @@
       <li>
         <a 
           href={item.href}
-          class="hover:text-white transition-colors"
+          class="hover:text-white text-gray-300 transition-colors"
         >
           {item.name}
         </a>
