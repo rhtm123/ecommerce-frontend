@@ -35,7 +35,7 @@
   const menuItems = [
     { label: 'HOME', href: '/home' },
     { label: 'SHOP', href: '/shop' },
-    { label: 'PRODUCT', href: '/product' },
+    // { label: 'PRODUCT', href: '/product' },
     { label: 'BLOG', href: '/blog' }
   ];
 
