@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
 
   import { cart } from '../stores/cart';
   import SearchBar from '$lib/components/SearchBar.svelte';
@@ -38,6 +40,33 @@
   ];
 
   $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
+
+  // Click outside handler
+  function clickOutside(node) {
+    const handleClick = (event) => {
+      if (node && !node.contains(event.target) && !event.defaultPrevented) {
+        isMenuOpen = false;
+      }
+    };
+
+    document.addEventListener('click', handleClick, true);
+
+    return {
+      destroy() {
+        document.removeEventListener('click', handleClick, true);
+      }
+    };
+  }
+
+  // Close menu after navigation
+  afterNavigate(() => {
+    isMenuOpen = false;
+  });
+
+  // Close menu on page load/reload
+  onMount(() => {
+    isMenuOpen = false;
+  });
 </script>
 
 <!-- Navigation Bar -->
@@ -45,7 +74,7 @@
   <div class="mx-auto md:px-8 px-4">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
-      <a href="/" class="flex-shrink-0">
+      <a href="/home" class="flex-shrink-0">
         <img src="https://th.bing.com/th/id/OIP.fyTJQxz_hAqGTkhRcWQ27AHaHa?&c=7&r=0&o=5&dpr=1.3&pid=1.7" alt="Pippo" class="h-16" />
       </a>
 
@@ -62,14 +91,15 @@
       </div>
 
       <!-- Right Icons -->
-      <div class="flex items-center space-x-6">
+      <div class="flex items-center md:space-x-6 space-x-2">
         <div class="relative">
           <SearchBar />
         </div>
+
         
         {#if authUser}
 
-        <div class="dropdown dropdown-hover dropdown-end ">
+        <div class="dropdown dropdown-hover dropdown-end">
           <label 
             tabindex="0" 
             class="btn btn-ghost btn-circle avatar text-primary"
@@ -81,7 +111,7 @@
           
           <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] p-2 shadow  rounded-box w-52 text-black bg-white">
             <li>
-              <a href="/profile/settings" class="flex items-center space-x-2">
+              <a href="/profile/settings" class="flex items-center ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -90,7 +120,7 @@
             </li>
             
             <li>
-              <a href="/profile/orders" class="flex items-center space-x-2">
+              <a href="/profile/orders" class="flex items-center ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
@@ -99,7 +129,7 @@
             </li>
             
             <li>
-              <a href="/profile/wishlist" class="flex items-center space-x-2">
+              <a href="/profile/wishlist" class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
@@ -139,9 +169,10 @@
 
         <!-- Mobile Menu Button -->
         <button 
-          class="md:hidden text-primary"
+          class="md:hidden text-primary px-2"
           on:click={() => isMenuOpen = !isMenuOpen}
         >
+
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -154,7 +185,10 @@
 
   <!-- Mobile Menu -->
   {#if isMenuOpen}
-    <div class="md:hidden bg-white border-t">
+    <div 
+      class="md:hidden bg-white border-t"
+      use:clickOutside
+    >
       {#each menuItems as item}
         <a 
           href={item.href}

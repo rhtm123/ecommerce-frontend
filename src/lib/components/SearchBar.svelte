@@ -156,8 +156,105 @@
     </svg>
   </button>
 
+  <!-- Mobile Search View -->
+  {#if isSearchOpen}
+    <div class="md:hidden fixed inset-0 bg-white z-50">
+      <!-- Top Header -->
+      <div class="flex items-center p-4 bg-white">
+        
+        <!-- Search Container -->
+        <div class="flex-1 flex items-center bg-gray-100 rounded-full mx-2">
+          <button 
+            type="button"
+            class="p-2"
+            on:click={closeSearch}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <input
+            type="text"
+            class="flex-1 px-2 py-2 bg-transparent focus:outline-none text-sm"
+            placeholder="Search products..."
+            bind:value={searchQuery}
+            on:input={handleInput}
+            autocomplete="off"
+          />
+        </div>
+        
+      </div>
+
+      <!-- Mobile Search Content -->
+      <div class="p-4">
+        {#if !searchQuery && searchHistory.length > 0}
+          <!-- Recent Searches -->
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-sm font-medium text-gray-900">Recent Searches</h3>
+              <button 
+                class="text-sm text-blue-600"
+                on:click={clearAllHistory}
+              >
+                Clear all
+              </button>
+            </div>
+            <div class="space-y-2">
+              {#each searchHistory as query}
+                <div class="flex items-center justify-between py-2">
+                  <button 
+                    class="flex items-center text-gray-700"
+                    on:click={() => handleHistoryClick(query)}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {query}
+                  </button>
+                  <button 
+                    class="text-gray-400"
+                    on:click={() => removeFromHistory(query)}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if showSuggestions && suggestions.length > 0}
+          <!-- Mobile Search Results -->
+          <div class="space-y-4">
+            {#each suggestions as product}
+              <button
+                class="flex items-center w-full text-left"
+                on:click={() => handleSuggestionClick(product)}
+              >
+                {#if product.main_image}
+                  <img 
+                    src={product.main_image} 
+                    alt={product.name}
+                    class="w-16 h-16 object-cover rounded-lg mr-4"
+                  />
+                {/if}
+                <div>
+                  <h4 class="text-sm font-medium text-gray-900">{product.name}</h4>
+                  <p class="text-sm text-gray-500">{product.category}</p>
+                </div>
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  <!-- Desktop Search View (Original) -->
   <form 
-    class="absolute top-0 right-0 transition-all duration-300 ease-in-out origin-right {isSearchOpen ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}"
+    class="hidden md:block absolute top-0 right-0 transition-all duration-300 ease-in-out origin-right {isSearchOpen ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}"
     on:submit|preventDefault={handleSearchSubmit}
     style="min-width: 320px;"
   >
@@ -255,9 +352,25 @@
 </div>
 
 <style>
-  .relative {
-    position: relative;
-    z-index: 50;
+  /* Prevent body scroll when mobile search is open */
+  @media (max-width: 768px) {
+    :global(body.search-open) {
+      overflow: hidden;
+    }
+  }
+
+  /* Smooth transitions */
+  .fixed {
+    transition: all 0.3s ease-in-out;
+  }
+
+  input::placeholder {
+    color: #9CA3AF;
+  }
+
+  /* Add subtle hover effects */
+  button:hover {
+    opacity: 0.8;
   }
 </style>
 
