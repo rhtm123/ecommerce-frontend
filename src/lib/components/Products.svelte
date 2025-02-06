@@ -15,6 +15,7 @@
 
 
     import Categories from './Categories.svelte';
+    import MobileShopView from './MobileShopView.svelte';
     export let currentCategory;
   
     // State
@@ -102,16 +103,23 @@
     // Handle category click
 
   
-    async function loadProducts() {
+    async function loadProducts(newParams = {}) {
       loading = true;
-      products = []
-      // console.log("Function is called")
+      products = [];
       try {
-      const productsData = await productApi.getProducts(params);
-  
-      products = productsData.results;
-      totalProducts = productsData.count;
-      next = productsData.next;
+        // Merge existing params with new params
+        params = {
+          ...params,
+          ...newParams
+        };
+        
+        const productsData = await productApi.getProducts(params);
+        products = productsData.results;
+        totalProducts = productsData.count;
+        next = productsData.next;
+        
+        // Update filters after loading products
+        // await loadSideFilters(params);
       } catch (err) { 
         error = 'Failed to load products';
         console.error(err);
@@ -146,7 +154,14 @@
   
   </script>
   
-
+<!-- Mobile Shop View -->
+<MobileShopView 
+  {currentCategory}
+  {products}
+  {filters}
+  {params}
+  {loadProducts}
+/>
   
     <div class="">
         
@@ -155,9 +170,9 @@
           <span>{error}</span>
         </div>
       {:else}
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="flex flex-col lg:flex-row gap-8 ">
           <!-- Sidebar Filters -->
-          <div class="w-full lg:w-1/4" in:fly="{{ x: -50, duration: 500 }}">
+          <div class="w-full lg:w-1/4 hidden md:block" in:fly="{{ x: -50, duration: 500 }}">
             <!-- Categories -->
             <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
               
@@ -217,7 +232,7 @@
                 Showing {products.length} of {totalProducts} products
               </div>
               
-              <div class="flex items-center gap-4 bg-white">
+              <div class="flex items-center gap-4 bg-white hidden md:block">
                 <!-- Sort Dropdown -->
                 <select 
                   class="select select-bordered select-sm bg-white text-gray-600"
