@@ -46,7 +46,7 @@
       alt={product.name}
       class="w-full rounded transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-105"
       loading="lazy"
-      on:error={(e) => e.target.src = '/placeholder-image.jpg'}
+      on:error={(e) => e.target.src = `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`}
     />
   </div>
 
