@@ -5,7 +5,7 @@
   import { myFetch } from '$lib/utils/myFetch';
   import { PUBLIC_API_URL } from '$env/static/public';
 
-  import Product from './Product.svelte';
+  import Product from './product/Product.svelte';  
 
   let products = [];
 

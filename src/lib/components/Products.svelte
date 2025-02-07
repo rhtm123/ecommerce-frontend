@@ -3,7 +3,7 @@
     import { fade, fly } from 'svelte/transition';
 
     import { productApi } from '$lib/services/productApi';
-    import Product from '$lib/components/Product.svelte';
+    import Product from '$lib/components/product/Product.svelte';
 
     import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
   

@@ -5,8 +5,8 @@
   import { myFetch } from '$lib/utils/myFetch';
   import { PUBLIC_API_URL } from '$env/static/public';
 
-  import Product from '../Product.svelte';
   import { slide } from 'svelte/transition';
+  import Product from '../product/Product.svelte';
 
   let slides = [];
 
