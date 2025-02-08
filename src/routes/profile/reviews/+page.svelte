@@ -83,7 +83,8 @@
 </script>
 
 <div class="space-y-6">
-  <h2 class="text-2xl font-bold">My Reviews & Ratings</h2>
+  <h2 class="text-2xl font-bold md:block hidden">My Reviews & Ratings</h2>
+
 
     <div class="space-y-4">
       {#each reviews as review (review.id)}

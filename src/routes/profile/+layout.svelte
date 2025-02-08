@@ -1,5 +1,52 @@
 <script>
   import { page } from '$app/stores';
+  import { user } from "$lib/stores/auth";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { myFetch } from "$lib/utils/myFetch";
+
+  import { onDestroy } from "svelte";
+  import ProfileMobileNav from '$lib/components/ProfileMobileNav.svelte';
+
+
+  let authUser;
+
+  const unsubscribe = user.subscribe(value => {
+    authUser = value;
+  });
+
+  onDestroy(() => {
+    unsubscribe(); // Cleanup to avoid memory leaks
+  });
+
+
+  let userData;
+  let profile = {
+    first_name: "",
+      last_name: "",
+      email: "",
+      mobile: "",
+      gender: '',
+  };
+
+  $: if (authUser) {
+    fetchUser();
+  }
+
+  $: if (userData) {
+    profile = {
+      first_name: userData?.first_name,
+      last_name: userData?.last_name,
+      email: userData?.email,
+      mobile: userData?.mobile,
+      gender: userData?.mobile,
+    };
+  }
+
+  async function fetchUser(){
+    let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
+    userData = await myFetch(url);
+    console.log(userData);
+  }
 
   const menuItems = [
     {
@@ -49,7 +96,13 @@
 </script>
 <div class="">
 <div class="px-4 md:px-8 py-8">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+  <!-- Mobile Navigation with slot -->
+  <ProfileMobileNav {profile} {menuItems}>
+    <slot />
+  </ProfileMobileNav>
+
+  <!-- Desktop Layout (unchanged) -->
+  <div class="hidden md:grid md:grid-cols-4 gap-8">
     <!-- Sidebar -->
     <div class="md:col-span-1">
       <div class="bg-white rounded-lg shadow p-6">
@@ -62,9 +115,10 @@
           </div>
           <div>
             <h3 class="font-medium">Hello,</h3>
-            <p class="text-gray-600">John Doe</p>
+            <p class="text-gray-600">{profile.first_name} {profile.last_name}</p>
           </div>
         </div>
+
 
         <!-- Navigation -->
         <nav class="space-y-2">

@@ -109,9 +109,21 @@
             </svg>
           </label>
           
-          <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] p-2 shadow  rounded-box w-52 text-black bg-white">
+          <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] p-2 shadow rounded-box w-52 text-black bg-white">
             <li>
-              <a href="/profile/settings" class="flex items-center ">
+              <a 
+                href="/profile/settings" 
+                class="hidden md:flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>View Profile</span>
+              </a>
+              <a 
+                href="/profile" 
+                class="md:hidden flex items-center"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>

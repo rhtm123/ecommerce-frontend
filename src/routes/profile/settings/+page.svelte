@@ -63,7 +63,7 @@
 
 <div class="space-y-6">
   <div class="flex justify-between items-center">
-    <h2 class="text-2xl font-bold">Personal Information</h2>
+    <h2 class="text-2xl font-bold md:block hidden">Personal Information</h2>
     <button
       on:click={() => isEditing = !isEditing}
       class="text-red-500 hover:text-red-600"

@@ -25,7 +25,7 @@
 </script>
 
 <div class="space-y-6">
-  <h2 class="text-2xl font-bold">My Wishlist ({wishlistItems.length} items)</h2>
+  <h2 class="text-2xl font-bold md:block hidden">My Wishlist ({wishlistItems.length} items)</h2>
 
   {#if wishlistItems.length > 0}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

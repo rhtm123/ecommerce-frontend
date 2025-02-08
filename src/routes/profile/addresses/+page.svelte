@@ -88,7 +88,7 @@ let modalEdits = {}; // Store modal references
 
 <div class="space-y-6">
   <div class="flex justify-between items-center">
-    <h2 class="text-2xl font-bold">Manage Addresses</h2>
+    <h2 class="text-2xl font-bold md:block hidden">Manage Addresses</h2>
     
     <button class="btn btn-secondary" on:click={openModal}>+ Add New Address</button>
 

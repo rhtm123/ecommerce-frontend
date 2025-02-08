@@ -69,20 +69,19 @@
   }
 </script>
 
-<div class="space-y-6">
-  <h2 class="text-2xl font-bold">My Orders</h2>
+<h2 class="text-2xl font-bold md:block hidden">My Orders</h2>
 
-
+<div class="space-y-6 md:mt-0 mt-2">
   {#if loading}
-  <div class="p-4">
-    <span class="loading loading-spinner loading-sm"></span>
-  </div>
+    <div class="p-4">
+      <span class="loading loading-spinner loading-sm"></span>
+    </div>
   {/if}
 
   {#if orders.length > 0}
     <div class="space-y-4">
       {#each orders as order}
-        <div class="border rounded-lg overflow-hidden">
+        <div class="border md:rounded-lg overflow-hidden">
           <!-- Order Header -->
           <div class="bg-gray-50 p-4 flex justify-between items-center">
             <div>
