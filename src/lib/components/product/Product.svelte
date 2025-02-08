@@ -44,7 +44,7 @@
     <img 
       src={product.main_image || `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`} 
       alt={product.name}
-      class="w-full rounded transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-105"
+      class="w-full rounded-lg transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-105"
       loading="lazy"
       on:error={(e) => e.target.src = `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`}
     />
