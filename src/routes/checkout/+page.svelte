@@ -9,8 +9,12 @@
     import { shipaddresses } from '$lib/stores/address';
     import AddressAddEdit from '$lib/components/AddressAddEdit.svelte';
 
+    import { addAlert } from '$lib/stores/alert';
+
     let loading = false;
     let selectedAddress;
+
+    let orderPlacing = false;
 
     function selectAddress(option) {
     selectedAddress = selectedAddress === option.id ? null : option.id;
@@ -68,10 +72,20 @@
     async function handleSubmit() {
       // Implement order submission logic here
       // console.log(selectedAddress);
+
+
+      if (!selectedAddress) {
+        addAlert("Address is required to place the order", "error");
+      }
+
+      try {
+
+      orderPlacing = true;
       let url = `${PUBLIC_API_URL}/order/orders/`;
+      console.log(selectedAddress);
       let order = await myFetch(url, "POST", {
         user_id: authUser?.user_id,
-        shipping_address_id: selectedAddress?.id,
+        shipping_address_id: selectedAddress,
         total_amount: totalPrice
       }, authUser.access_token)
 
@@ -93,6 +107,13 @@
       }
 
       orderdCompleted = true
+      addAlert("Order placed successfully ", "success")
+
+    } catch (e) {
+
+    } finally {
+      orderPlacing = false;
+    }
 
       cart.set([]);
       // console.log('Order submitted:', { billingDetails, items: $cart });
@@ -281,8 +302,8 @@
               on:click={handleSubmit}
               class="w-full bg-red-500 text-white py-3 rounded hover:bg-red-600 transition-colors"
             >
-              PLACE ORDER
-            </button>
+             {orderPlacing ?"PLACING ORDER":"PLACE ORDER"}
+            </button> 
           </div>
         </div>
       </div>

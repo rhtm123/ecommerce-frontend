@@ -89,12 +89,7 @@
               <!-- <p class="text-sm text-gray-600">Ordered on {formatDate(order.created)}</p> -->
             </div>
             <div class="text-right">
-              <span class="inline-block px-3 py-1 rounded-full text-sm 
-                {order.status === 'delivered' ? 'bg-green-100 text-green-800' : 
-                order.status === 'processing' ? 'bg-blue-100 text-blue-800' : 
-                'bg-gray-100 text-gray-800'}">
-                {order.status}
-              </span>
+              <a href={"/profile/orders/"+order.id}>Details & Track</a>
             </div>
           </div>
 

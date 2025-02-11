@@ -128,7 +128,7 @@
     .categories-container {
         background-color: white;
         border-radius: 1rem;
-        padding: 1.5rem;
+        padding: 1rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 

@@ -174,7 +174,7 @@
           <!-- Sidebar Filters -->
           <div class="w-full lg:w-1/4 hidden md:block" in:fly="{{ x: -50, duration: 500 }}">
             <!-- Categories -->
-            <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <div class="mb-6">
               
               <Categories currentCategory={currentCategory} />
               

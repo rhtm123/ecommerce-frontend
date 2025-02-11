@@ -43,8 +43,8 @@
         <!-- Company Info -->
         <div class="space-y-4">
           <img 
-            src="https://placehold.co/120x40/ff4b4b/ffffff.png?text=KB" 
-            alt="KB Logo" 
+            src="/img/naigaonmarketlogo2.png" 
+            alt="Naigaon Market Logo" 
             class="h-10 hover:scale-105 transition-transform"
           />
           <a href="mailto:Support@example.com" class="block transition-colors">
