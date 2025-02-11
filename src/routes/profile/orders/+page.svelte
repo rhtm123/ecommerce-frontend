@@ -85,11 +85,11 @@
           <!-- Order Header -->
           <div class="bg-gray-50 p-4 flex justify-between items-center">
             <div>
-              <p class="text-sm text-gray-600">Order ID: {order.id}</p>
+              <p class="text-sm text-gray-600">Order Number: {order.order_number}</p>
               <!-- <p class="text-sm text-gray-600">Ordered on {formatDate(order.created)}</p> -->
             </div>
             <div class="text-right">
-              <a href={"/profile/orders/"+order.id}>Details & Track</a>
+              <a href={"/profile/orders/"+order.order_number}>Details & Track</a>
             </div>
           </div>
 
