@@ -171,36 +171,34 @@
   <!-- Breadcrumb -->
   
   <!-- Progress Steps -->
-  <div class=" mx-auto px-4 py-8">
-    <div class="flex items-center justify-between max-w-3xl mx-auto mb-12">
-      <div class="flex-1 relative">
-        <div class="h-1 bg-red-500">
-          <div class="w-full h-full bg-red-500"></div>
+  <div class="progress-container mb-8">
+    <div class="flex items-center justify-between max-w-3xl mx-auto relative">
+        <div class="absolute inset-0 flex items-center">
+            <div class="h-1 w-full bg-gray-200">
+                <div class={!orderdCompleted?"h-full bg-red-500 w-2/3":"h-full bg-red-500"}></div>
+            </div>
         </div>
-        <div class="absolute top-0 -ml-4 mt-[-10px]">
-          <div class="bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold">01</div>
-          <div class="text-xs mt-2 text-gray-600 font-medium">SHOPPING CART</div>
+        
+        <div class="relative flex-1 flex justify-start">
+            <div class="bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold step-number">01</div>
+            <div class="absolute mt-10 -ml-4 text-xs font-medium text-gray-600 step-text whitespace-nowrap">SHOPPING CART</div>
         </div>
-      </div>
-      <div class="flex-1 relative">
-        <div class="h-1 bg-red-500">
-          <div class="w-full h-full bg-red-500"></div>
+        
+        <div class="relative flex-1 flex justify-center">
+            <div class="bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold step-number">02</div>
+            <div class="absolute mt-10 -ml-4 text-xs font-medium text-red-500 step-text whitespace-nowrap">CHECKOUT</div>
         </div>
-        <div class="absolute top-0 left-1/2 -ml-4 mt-[-10px]">
-          <div class="bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold">02</div>
-          <div class="text-xs mt-2 text-red-500 font-medium">CHECKOUT</div>
-        </div>
-      </div>
-      <div class="flex-1 relative">
+        
+        <div class="relative flex-1 flex justify-end">
+          
         <div class={!orderdCompleted?"h-1 bg-gray-200":"h-1 bg-red-500"}>
           <div class="w-0 h-full bg-red-500"></div>
         </div>
-        <div class="absolute top-0 right-0 -mr-4 mt-[-10px]">
-          <div class={!orderdCompleted?"bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold":"bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold"}>03</div>
-          <div class="text-xs mt-2 text-gray-600 font-medium">ORDER COMPLETED</div>
+            <div class={!orderdCompleted?"bg-gray-200 rounded-full h-8 w-8 flex items-center justify-center text-gray-600 font-bold":"bg-red-500 rounded-full h-8 w-8 flex items-center justify-center text-white font-bold"} >03</div>
+            <div class="absolute mt-10 -ml-8 text-xs font-medium text-gray-600 step-text whitespace-nowrap">ORDER COMPLETED</div>
         </div>
-      </div>
     </div>
+
   
     
 
@@ -217,7 +215,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Billing Details Form -->
-        <div class="space-y-6">
+        <div class="space-y-6 mt-10">
           
           <div class="bg-white p-6 rounded shadow-sm">
             
@@ -263,49 +261,49 @@
         </div>
   
         <!-- Order Summary -->
-        <div>
-          <div class="bg-white p-6 rounded shadow-sm sticky top-24">
-            <h2 class="text-xl font-bold mb-6">Your Order</h2>
-            <div class="border-b pb-4 mb-4">
+        <div class="bg-white rounded-lg shadow-sm p-4 md:mt-10">
+          <h2 class="text-lg font-bold mb-4">Your Order</h2>
+          <div class="space-y-4">
               {#each $cart as item}
-                <div class="flex justify-between mb-2">
-                  <span>{item.name} × {item.quantity}</span>
-                  <span>₹ {(item.price * item.quantity).toFixed(2)}</span>
-                </div>
+                  <div class="flex justify-between items-center py-2 border-b">
+                      <div class="flex items-center gap-3">
+                          <img src={item.main_image || "/placeholder.svg"} alt={item.name} class="w-12 h-12 object-cover rounded-md" />
+                          <div>
+                              <p class="font-medium">{item.name}</p>
+                              <p class="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                          </div>
+                      </div>
+                      <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
               {/each}
-            </div>
-            <div class="border-b pb-4 mb-4">
-              <div class="flex justify-between mb-2">
-                <span>Subtotal</span>
-                <span>₹ {totalPrice.toFixed(2)}</span>
+
+              <div class=" ">
+                  <div class="flex justify-between mb-2">
+                      <span class="text-gray-600">Subtotal</span>
+                      <span>₹ {totalPrice.toFixed(2)}</span>
+                  </div>
+                  <div class="flex justify-between font-bold">
+                      <span>Total</span>
+                      <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
+                  </div>
               </div>
-            </div>
-            <div class="mb-6">
-              <div class="flex justify-between font-bold">
-                <span>Total</span>
-                <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
-              </div>
-            </div>
-  
-            <!-- Terms and Conditions -->
-            <div class="mb-6">
+
               <label class="flex items-start gap-2">
-                <input type="checkbox" class="mt-1" required />
-                <span class="text-sm">
-                  I have read and agree to the website's 
-                  <a href="/terms" class="text-red-500 hover:underline">terms and conditions</a>
-                </span>
+                  <input type="checkbox" class="mt-1" required />
+                  <span class="text-sm text-gray-600">
+                      I have read and agree to the website's 
+                      <a href="/terms" class="text-red-500 hover:underline">terms and conditions</a>
+                  </span>
               </label>
-            </div>
-  
-            <button 
-              on:click={handleSubmit}
-              class="w-full bg-red-500 text-white py-3 rounded hover:bg-red-600 transition-colors"
-            >
-             {orderPlacing ?"PLACING ORDER":"PLACE ORDER"}
-            </button> 
+
+              <button 
+                  on:click={handleSubmit}
+                  class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors"
+              >
+                  {orderPlacing ? "PLACING ORDER" : "PLACE ORDER"}
+              </button>
           </div>
-        </div>
+      </div>
       </div>
 
       {/if}
@@ -314,7 +312,7 @@
 
     {:else}
 
-        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
           <h1 class="text-2xl font-bold text-center mb-4">Thank you. Your order has been received.</h1>
 
           <!-- Order Details -->
@@ -382,5 +380,33 @@
   
     .container {
       max-width: 1200px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+        .progress-container {
+            padding: 0 1rem;
+        }
+        
+        .step-number {
+            height: 24px !important;
+            width: 24px !important;
+            font-size: 12px !important;
+        }
+        
+        .step-text {
+            font-size: 10px !important;
+            text-align: center;
+        }
+    }
+
+  
+     /* Transitions */
+     button {
+        transition: all 0.2s ease-in-out;
+    }
+
+    button:active {
+        transform: scale(0.95);
     }
   </style>
