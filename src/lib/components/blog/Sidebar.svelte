@@ -8,61 +8,61 @@
   import { myFetch } from '$lib/utils/myFetch';
 
 
-  let tags = []
-  let loadingTags = false;
-  async function fetchTags() {
-    loadingTags = true
-    try{
-    let url = `${PUBLIC_API_URL}/blog/tags?ordering=-id`;
-    let data = await myFetch(url);
-    tags = data.results;
-    } catch (e) {
-    } finally {
-        loadingTags = false;
-    }
-  }
+  export let tags;
+  // let loadingTags = false;
+  // async function fetchTags() {
+  //   loadingTags = true
+  //   try{
+  //   let url = `${PUBLIC_API_URL}/blog/tags?ordering=-id`;
+  //   let data = await myFetch(url);
+  //   tags = data.results;
+  //   } catch (e) {
+  //   } finally {
+  //       loadingTags = false;
+  //   }
+  // }
 
-  let blogs = []
+  export let blogs;
 
-  let loadingBlogs = true
+  // let loadingBlogs = true
 
-  async function fetchLatestBlogs() {
-    loadingBlogs = true
-    try{
-    let url = `${PUBLIC_API_URL}/blog/blogs?page_size=5&ordering=-id`;
-    let data = await myFetch(url);
-    blogs = data.results;
-    } catch (e) {
-    } finally {
-        loadingBlogs = false;
-    }
-  }
+  // async function fetchLatestBlogs() {
+  //   loadingBlogs = true
+  //   try{
+  //   let url = `${PUBLIC_API_URL}/blog/blogs?page_size=5&ordering=-id`;
+  //   let data = await myFetch(url);
+  //   blogs = data.results;
+  //   } catch (e) {
+  //   } finally {
+  //       loadingBlogs = false;
+  //   }
+  // }
 
-  let categories = []
-  let loadingCategories = true
+  export let categories;
+  let loadingCategories = false
 
-  async function fetchCategories() { 
-    loadingCategories = true
-    try{
-    let url = `${PUBLIC_API_URL}/product/categories/?has_blogs=true`;
-    let data = await myFetch(url);
-    categories = data.results;
-    } catch (e) {
-    } finally {
-        loadingCategories = false;
-    }
-  }
+  // async function fetchCategories() { 
+  //   loadingCategories = true
+  //   try{
+  //   let url = `${PUBLIC_API_URL}/product/categories/?has_blogs=true`;
+  //   let data = await myFetch(url);
+  //   categories = data.results;
+  //   } catch (e) {
+  //   } finally {
+  //       loadingCategories = false;
+  //   }
+  // }
 
   onMount(()=>{
-    fetchLatestBlogs();
-    fetchTags();
-    fetchCategories();
+    // fetchLatestBlogs();
+    // fetchTags();
+    // fetchCategories();
   })
   
-  let searchQuery = '';
-  $: filteredPosts = blogData.posts.filter(post => 
-    post.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // let searchQuery = '';
+  // $: filteredPosts = blogData.posts.filter(post => 
+  //   post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
 </script>
 
@@ -92,11 +92,7 @@
         </a>
       {/each}
 
-      {#if loadingCategories}
-        <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
-        </div>
-    {/if}
+
     </div>
   </div>
 
@@ -123,11 +119,6 @@
       {/each}
 
 
-      {#if loadingBlogs}
-        <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
-        </div>
-    {/if}
     </div>
   </div>
 
@@ -144,11 +135,5 @@
         </a>
       {/each}
 
-
-      {#if loadingTags}
-        <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
-        </div>
-    {/if}
     </div>
   </div>

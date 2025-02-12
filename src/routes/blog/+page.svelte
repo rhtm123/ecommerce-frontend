@@ -1,9 +1,14 @@
 <script>
   import { fade, fly } from 'svelte/transition';
 
-  import BlogCard from '$lib/components/blog/BlogCard.svelte';
-  import Blogs from '$lib/components/blog/Blogs.svelte';
+  export let data; 
 
+  let tags = data.tags;
+  let recentBlogs = data.recentBlogs;
+  let blogCategories = data.blogCategories;
+
+  // import BlogCard from '$lib/components/blog/BlogCard.svelte';
+  import Blogs from '$lib/components/blog/Blogs.svelte';
   import Sidebar from '$lib/components/blog/Sidebar.svelte';
   
 
@@ -29,7 +34,7 @@
 
     <!-- Sidebar -->
     <div class="lg:w-1/3">
-      <Sidebar />
+      <Sidebar tags={tags} categories={blogCategories} blogs={recentBlogs} />
     </div>
   </div>
 </div> 
