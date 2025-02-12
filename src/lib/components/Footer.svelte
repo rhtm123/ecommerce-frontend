@@ -48,12 +48,12 @@
             class="h-10 hover:scale-105 transition-transform"
           />
           <a href="mailto:Support@example.com" class="block transition-colors">
-            support@example.com
+            support@naigaonmarket.com
           </a>
-          <div class="text-xl font-semibold">+ (1800)-88-66-99</div>
+          <div class="text-xl font-semibold">+ (91)-9823000000</div>
           <address class="not-italic">
-            My Company, 42 Puffin Street 12345<br />
-            Puffinville France
+            Naigaon Market, JayVijay Building<br />
+            Naigaon, Maharashtra, India
           </address>
           <div class="flex space-x-3">
             {#if mounted}
@@ -61,7 +61,7 @@
                 <img 
                   src="https://placehold.co/40x25/ffffff/666666.png?text={card}"
                   alt={card}
-                  class="h-6 w-auto"
+                  class="h-6 w-auto hover:scale-105 transition-transform bg-transparent"
                   in:fade="{{ delay: i * 200 }}"
                 />
               {/each}

@@ -1,19 +1,27 @@
 <script>
   import { onMount } from 'svelte';
   import { addToCart } from '../../stores/cart';
-  // import { myFetch } from '$lib/utils/myFetch';
-  // import { PUBLIC_API_URL } from '$env/static/public';
+  import { fade, fly } from 'svelte/transition';
 
   export let slides;
   let currentSlide = 0;
   let interval;
-
+  let isHovering = false;
 
   onMount(() => {
-    // fetchProductListings();
-    interval = setInterval(() => nextSlide(), 5000);
+    startAutoplay();
     return () => clearInterval(interval);
   });
+
+  function startAutoplay() {
+    if (!isHovering) {
+      interval = setInterval(() => nextSlide(), 5000);
+    }
+  }
+
+  function stopAutoplay() {
+    clearInterval(interval);
+  }
 
   function nextSlide() {
     currentSlide = (currentSlide + 1) % slides.length;
@@ -31,83 +39,235 @@
     if (!mrp || !price || mrp <= price) return null;
     return Math.round(((mrp - price) / mrp) * 100);
   }
+
+  function goToSlide(index) {
+    currentSlide = index;
+  }
 </script>
-
-<div class="relative min-h-[600px] flex items-center justify-center bg-base-100 overflow-hidden">
-  <div class="container mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-center">
-    
-    {#if slides.length > 0}
-    <div class="text-center md:text-left space-y-4 md:w-1/2">
-      <!-- Product Title with Assured Badge -->
-      <h2 class="text-primary text-2xl md:text-4xl font-bold flex items-center">
-        {slides[currentSlide].name} 
-        <span class="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-          Assured by NM
-        </span>
-      </h2>
-
-      <!-- Product Description -->
-      <p class="text-gray-600 text-lg md:text-xl">{slides[currentSlide].description}</p>
-
-      <!-- Price & Discount -->
-      <div class="flex items-center space-x-2">
-        {#if calculateDiscount(slides[currentSlide].mrp, slides[currentSlide].price)}
-          <span class="text-green-600 font-semibold">
-            Save {calculateDiscount(slides[currentSlide].mrp, slides[currentSlide].price)}%!
-          </span>
-        {/if}
-        <span class="text-gray-500 line-through">{formatPrice(slides[currentSlide].mrp)}</span>
-        <span class="text-primary font-bold text-lg">{formatPrice(slides[currentSlide].price)}</span>
-
-        <span class="bg-green-600 text-white px-2 py-1 text-sm font-semibold rounded">
-          {slides[currentSlide].rating} ★
-        </span>
-        <span class="text-gray-500 text-sm">{slides[currentSlide].review_count} Reviews</span>
-        
-      </div>
-
-      <!-- Rating & Reviews -->
-      <div class="flex items-center space-x-2">
-
-        <a href={"/product/"+slides[currentSlide].slug}>
-          <button class="btn btn-primary rounded-full px-6 py-3 text-lg">Get This Deal</button>
-        </a>
-
-        
-      </div>
-
-      <!-- Call to Action -->
-      
-    </div>
-    {/if}
-
-    <!-- Product Image -->
-    <div class="relative md:w-1/2 flex items-center justify-center">
-      {#each slides as slide, i}
-        <img 
-          src={slide?.main_image} 
-          alt={slide?.name} 
-          class="absolute w-full h-auto max-w-sm md:max-w-md object-cover rounded-lg shadow-lg transition-opacity duration-700" 
-          style="opacity: {currentSlide === i ? '1' : '0'};"
-        />
-      {/each}
-    </div>
+<div 
+  class="relative min-h-[500px] bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden"
+  on:mouseenter={() => {isHovering = true; stopAutoplay();}}
+  on:mouseleave={() => {isHovering = false; startAutoplay();}}
+>
+  <!-- Animated Background Elements -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-blue-500/10 to-transparent rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h4v4H0V0zm8 0h4v4H8V0zm8 0h4v4h-4V0zM0 8h4v4H0V8zm8 0h4v4H8V8zm8 0h4v4h-4V8zM0 16h4v4H0v-4zm8 0h4v4H8v-4zm8 0h4v4h-4v-4z\' fill=\'%23000000\' fill-opacity=\'0.03\'%3E%3C/path%3E%3C/svg%3E')] opacity-30"></div>
   </div>
 
-  <!-- Navigation Arrows -->
-  <div class="absolute inset-x-0 bottom-4 flex justify-center space-x-4">
-    <button class="btn btn-circle btn-sm btn-outline" on:click={prevSlide}>❮</button>
-    <button class="btn btn-circle btn-sm btn-outline" on:click={nextSlide}>❯</button>
+  <div class="container mx-auto px-4 py-8 md:py-12 relative z-10">
+    {#if slides.length > 0}
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+        <!-- Product Details -->
+        <div class="w-full md:w-1/2 space-y-4 md:space-y-6 text-center md:text-left px-4 md:px-0" 
+          in:fly={{ y: 20, duration: 800, delay: 200 }}
+          out:fade={{ duration: 200 }}
+        >
+          <!-- Tags with enhanced mobile styling -->
+          <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+            {#if calculateDiscount(slides[currentSlide].mrp, slides[currentSlide].price)}
+              <span class="relative inline-flex items-center px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-green-500 to-green-600 text-white shadow-sm">
+                <span class="absolute -left-1 -top-1 h-2 w-2 md:h-3 md:w-3 bg-white rounded-full animate-ping"></span>
+                Save {calculateDiscount(slides[currentSlide].mrp, slides[currentSlide].price)}%
+              </span>
+            {/if}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
+              <svg class="w-3 h-3 md:w-4 md:h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+              </svg>
+              Assured by NM
+            </span>
+          </div>
+
+          <!-- Title with responsive typography -->
+          <h1 class="text-2xl md:text-4xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+            {slides[currentSlide].name}
+          </h1>
+
+          <!-- Description with adjusted font size -->
+          <p class="text-base md:text-lg lg:text-xl leading-relaxed text-gray-600 max-w-xl mx-auto md:mx-0">
+            {slides[currentSlide].description}
+          </p>
+
+          <!-- Price & Rating with mobile optimization -->
+          <div class="space-y-3 md:space-y-4">
+            <div class="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
+              <span class="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary">
+                {formatPrice(slides[currentSlide].price)}
+              </span>
+              {#if slides[currentSlide].mrp > slides[currentSlide].price}
+                <span class="text-lg md:text-2xl text-gray-400 line-through">
+                  {formatPrice(slides[currentSlide].mrp)}
+                </span>
+              {/if}
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 justify-center md:justify-start">
+              <div class="flex items-center bg-white/80 backdrop-blur-sm rounded-lg px-2 md:px-3 py-1 md:py-2 shadow-sm">
+                <span class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-2 py-0.5 rounded text-xs md:text-sm font-semibold mr-2">
+                  {slides[currentSlide].rating} ★
+                </span>
+                <span class="text-gray-700 text-xs md:text-sm">
+                  {slides[currentSlide].review_count} Reviews
+                </span>
+              </div>
+              <div class="hidden md:block h-8 w-px bg-gray-200"></div>
+              <span class="inline-flex items-center text-green-600 text-xs md:text-sm font-medium bg-green-50 px-2 md:px-3 py-1 rounded-full">
+                <svg class="w-3 h-3 md:w-4 md:h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                In Stock
+              </span>
+            </div>
+          </div>
+
+          <!-- Enhanced CTA with mobile optimization -->
+          <div class="flex items-center gap-4 justify-center md:justify-start mt-4 md:mt-6">
+            <a href={"/product/"+slides[currentSlide].slug}
+              class="group relative inline-flex items-center px-6 md:px-8 py-2 md:py-3 rounded-full overflow-hidden"
+            >
+              <span class="absolute inset-0 bg-gradient-to-r from-primary via-primary-focus to-primary transform transition-transform group-hover:scale-105"></span>
+              <span class="relative flex items-center text-white font-semibold text-base md:text-lg">
+                Get This Deal
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 ml-2 transform transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Enhanced Product Image Display -->
+        <div class="w-full md:w-1/2 relative aspect-square md:aspect-auto md:h-[500px] z-10">
+          {#each slides as slide, i}
+            <div 
+              class="absolute inset-0 transition-all duration-700"
+              style="opacity: {currentSlide === i ? '1' : '0'};"
+            >
+              <img 
+                src={slide?.main_image || "/placeholder.svg"} 
+                alt={slide?.name}
+                class="w-full h-full object-contain transition-transform hover:scale-105"
+              />
+            </div>
+          {/each}
+          
+          <!-- Decorative Elements with more transparency and blur -->
+          <div class="absolute -top-4 -right-4 w-32 h-32 bg-yellow-400/10 rounded-full blur-3xl"></div>
+          <div class="absolute -bottom-4 -left-4 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+          <div class="absolute top-1/2 right-1/2 w-24 h-24 bg-purple-400/10 rounded-full blur-3xl"></div>
+        </div>
+      </div>
+
+      <!-- Enhanced Navigation -->
+      <div class="absolute mt-30 bottom-2  left-1/2 transform -translate-x-1/2 z-20">
+        <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg">
+          <button 
+            class="p-2 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110"
+            on:click={prevSlide}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div class="flex gap-2">
+            {#each slides as _, i}
+              <button
+                class="relative w-2 h-2 rounded-full transition-all duration-300 {currentSlide === i ? 'w-8 bg-primary' : 'bg-gray-300 hover:bg-gray-400'}"
+                on:click={() => goToSlide(i)}
+              >
+                {#if currentSlide === i}
+                  <span class="absolute inset-0 bg-primary rounded-full animate-ping opacity-75"></span>
+                {/if}
+              </button>
+            {/each}
+          </div>
+
+          <button 
+            class="p-2 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110"
+            on:click={nextSlide}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 
 <style>
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: scale(0.95) rotate(-5deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
   }
 
-  :global(img) {
-    animation: fadeIn 1s ease-in-out;
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  /* :global(img) {
+    animation: fadeIn 0.5s ease-out, float 6s ease-in-out infinite;
+  } */
+
+  /* Enhanced transitions */
+  button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Improved glass effect */
+  .backdrop-blur-md {
+    backdrop-filter: blur(12px);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0.75rem;
+    }
+    
+    :global(.space-y-4) > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 1rem;
+    }
+    
+    :global(.space-y-3) > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 0.75rem;
+    }
+    
+    :global(.aspect-square) {
+      height: 300px !important;
+    }
+    
+    :global(.text-4xl) {
+      font-size: 2rem;
+    }
+    
+    :global(.text-5xl) {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Gradient text support for Safari */
+  @supports (-webkit-background-clip: text) {
+    .bg-clip-text {
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+  }
+
+  /* Remove any box shadows or borders that might be inherited */
+  img {
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Enhance transitions */
+  .transition-all {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>
