@@ -34,21 +34,11 @@
       </ul>
 </div>
 
+<Blogs tag_id={tag.id} />
+
+
 </div>
 
-<div class="text-black mx-auto px-4">
-  <div class="flex flex-col lg:flex-row gap-8">
-    <!-- Main Content -->
-    <div class="lg:w-2/3">
-      <Blogs tag_id={tag.id} />
-    </div>
 
-    <!-- Sidebar -->
-    <div class="lg:w-1/3">
-      <!-- Categories -->
-      <Sidebar />
-    </div>
-  </div>
-</div> 
 
 {/if}

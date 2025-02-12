@@ -6,6 +6,7 @@
   import Blogs from '$lib/components/blog/Blogs.svelte';
   export let data; 
 
+
   import NotFound from "$lib/components/error/NotFound.svelte";
 
 
@@ -51,20 +52,6 @@
   </div> -->
 </div>
 
-<div class="text-black mx-auto px-4">
-  <div class="flex flex-col lg:flex-row gap-8">
-    <!-- Main Content -->
-    <div class="lg:w-2/3">
-      <Blogs category_id={category.id} />
-    </div>
-
-    <!-- Sidebar -->
-    <div class="lg:w-1/3">
-      
-      
-        <Sidebar />
-    </div>
-  </div>
-</div> 
+<Blogs category_id={category.id} />
 
 {/if}
