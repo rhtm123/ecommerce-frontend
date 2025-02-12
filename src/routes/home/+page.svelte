@@ -1,4 +1,15 @@
 <script>
+
+    export let data; 
+    let recentReviews = data.recentReviews;
+    let bestProducts = data.bestProducts;
+    let brands = data.brands; 
+    let newProducts = data.newProducts;
+    let mainCategories = data.mainCategories;
+    let heroProducts = data.heroProducts;
+
+    // console.log(recentReviews)
+    // console.log(data)
     import Hero from '../../lib/components/home/Hero.svelte';
     // import Navigation from '../../lib/lib/components/Navigation.svelte';
     import HomeCategories from '../../lib/components/home/HomeCategories.svelte';
@@ -28,15 +39,15 @@
   
   <div class="bg-base-100">
     <!-- <Login /> -->
-    <Hero />
+    <Hero slides={heroProducts} />
     <!-- <Navigation /> -->
-    <HomeCategories />
-    <ProductSection />
+    <HomeCategories categories={mainCategories} />
+    <ProductSection products={newProducts} />
 
-    <ShopByBrands />
+    <ShopByBrands brands={brands} />
     <!-- <CompanySection /> -->
-    <BestSelling />
+    <BestSelling products={bestProducts} />
     <!-- <Carousel /> -->
-    <Testimonials />
+    <Testimonials recentReviews={recentReviews} />
     <!-- <Footer /> -->
   </div>

@@ -1,25 +1,16 @@
 <script>
   import { onMount } from 'svelte';
   import { addToCart } from '../../stores/cart';
-  import { myFetch } from '$lib/utils/myFetch';
-  import { PUBLIC_API_URL } from '$env/static/public';
+  // import { myFetch } from '$lib/utils/myFetch';
+  // import { PUBLIC_API_URL } from '$env/static/public';
 
-  let slides = [];
+  export let slides;
   let currentSlide = 0;
   let interval;
 
-  async function fetchProductListings() {
-    let url = PUBLIC_API_URL + "/product/product_listings/?page=1&page_size=5&featured=true&ordering=-popularity";
-    try {
-      let data = await myFetch(url);
-      slides = data.results;
-    } catch (e) {
-      console.log(e, "Error fetching data");
-    }
-  }
 
   onMount(() => {
-    fetchProductListings();
+    // fetchProductListings();
     interval = setInterval(() => nextSlide(), 5000);
     return () => clearInterval(interval);
   });

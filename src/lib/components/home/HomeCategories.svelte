@@ -1,23 +1,22 @@
 <script>
   import { goto } from '$app/navigation';
 
-  import { PUBLIC_API_URL } from '$env/static/public';
-  import { onMount } from 'svelte';
+  // import { PUBLIC_API_URL } from '$env/static/public';
+  // import { onMount } from 'svelte';
 
-  import { categoryApi } from '$lib/services/categoryApi';
 
-  let categories;
+  export let categories;
 
   // console.log("HELLO FROM PRODUCT")
 
 
-  import { myFetch } from '$lib/utils/myFetch';
+  // import { myFetch } from '$lib/utils/myFetch';
 
 
-  onMount(async ()=>{
-    let data = await categoryApi.getMainCategories();
-    categories = data.results;
-  })
+  // onMount(async ()=>{
+  //   let data = await categoryApi.getMainCategories();
+  //   categories = data.results;
+  // })
   
 
   function handleCategoryClick(slug) {

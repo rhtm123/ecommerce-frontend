@@ -1,29 +1,30 @@
 <script>
-  import { onMount } from 'svelte';
+  // import { onMount } from 'svelte';
   import { addToCart } from '../../stores/cart';
-  import { myFetch } from '$lib/utils/myFetch';
-  import { PUBLIC_API_URL } from '$env/static/public';
+  // import { myFetch } from '$lib/utils/myFetch';
+  // import { PUBLIC_API_URL } from '$env/static/public';
 
   import Product from '../product/Product.svelte';  
 
-  let products = [];
+  export let products;
 
-  async function fetchProductListings() {
-    let url = PUBLIC_API_URL + "/product/product_listings/?page=1&page_size=24&ordering=-popularity";
-    console.log(url);
-    try {
-      let data = await myFetch(url);
-      // console.log(data);
-      products = data.results;
 
-    } catch (e) {
-      console.log(e, "Error fetching data");
-    }
-  }
+  // async function fetchProductListings() {
+  //   let url = PUBLIC_API_URL + "/product/product_listings/?page=1&page_size=24&ordering=-popularity";
+  //   console.log(url);
+  //   try {
+  //     let data = await myFetch(url);
+  //     // console.log(data);
+  //     products = data.results;
 
-  onMount(() => {
-    fetchProductListings();
-  });
+  //   } catch (e) {
+  //     console.log(e, "Error fetching data");
+  //   }
+  // }
+
+  // onMount(() => {
+  //   fetchProductListings();
+  // });
 
   function handleAddToCart(product) {
     addToCart(product);

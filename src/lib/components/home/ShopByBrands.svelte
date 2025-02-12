@@ -1,32 +1,31 @@
 <script>
     import { goto } from '$app/navigation';
   
-    import { PUBLIC_API_URL } from '$env/static/public';
-    import { onMount } from 'svelte';
+    // import { PUBLIC_API_URL } from '$env/static/public';
+    // import { onMount } from 'svelte';
   
-    import { categoryApi } from '$lib/services/categoryApi';
 
   
-    let brands;
+    export let brands;
   
     // console.log("HELLO FROM PRODUCT")
   
-    let loading = true;
+    // let loading = true;
   
-    import { myFetch } from '$lib/utils/myFetch';
+    // import { myFetch } from '$lib/utils/myFetch';
   
   
-    onMount(async ()=>{
+    // onMount(async ()=>{
         
-    try {
-      let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand`);
-      brands = data.results;
-    } catch (e) {
+    // try {
+    //   let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand`);
+    //   brands = data.results;
+    // } catch (e) {
 
-    } finally {
-        loading = false;
-    }
-    })
+    // } finally {
+    //     loading = false;
+    // }
+    // })
     
   
     function handleCategoryClick(id) {
@@ -52,12 +51,12 @@
           <h3 class="text-sm font-medium text-center">{brand.name}</h3>
         </button>
       {/each}
-
+<!-- 
       {#if loading}
         <div class="p-4">
         <div class="loading loading-spinner loading-sm"></div>
         </div>
-        {/if}
+        {/if} -->
     </div>
   </section>
   
