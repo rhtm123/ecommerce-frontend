@@ -69,51 +69,54 @@
   
     $: totalPrice = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
-    async function handleSubmit() {
-      // Implement order submission logic here
-      // console.log(selectedAddress);
+    let termsAccepted = false;
 
+    async function handleSubmit() {
+      if (!termsAccepted) {
+        addAlert("Please accept the terms and conditions", "error");
+        return;
+      }
 
       if (!selectedAddress) {
         addAlert("Address is required to place the order", "error");
+        return;
       }
 
       try {
-
-      orderPlacing = true;
-      let url = `${PUBLIC_API_URL}/order/orders/`;
-      console.log(selectedAddress);
-      let order = await myFetch(url, "POST", {
-        user_id: authUser?.user_id,
-        shipping_address_id: selectedAddress,
-        total_amount: totalPrice
-      }, authUser.access_token)
-
-      console.log(order);
-      orderData = order;
-
-      let url2 = `${PUBLIC_API_URL}/order/order-items/`;
-
-      console.log(cartItems);
-
-      for (let i = 0; i < cartItems.length; i++) {
-        myFetch(url2, "POST", {
-          order_id: order.id,
-          product_listing_id: cartItems[i].id,
-          quantity:cartItems[i].quantity,
-          price: cartItems[i].price,
-          subtotal: cartItems[i].price
+        orderPlacing = true;
+        let url = `${PUBLIC_API_URL}/order/orders/`;
+        console.log(selectedAddress);
+        let order = await myFetch(url, "POST", {
+          user_id: authUser?.user_id,
+          shipping_address_id: selectedAddress,
+          total_amount: totalPrice
         }, authUser.access_token)
+
+        console.log(order);
+        orderData = order;
+
+        let url2 = `${PUBLIC_API_URL}/order/order-items/`;
+
+        console.log(cartItems);
+
+        for (let i = 0; i < cartItems.length; i++) {
+          myFetch(url2, "POST", {
+            order_id: order.id,
+            product_listing_id: cartItems[i].id,
+            quantity:cartItems[i].quantity,
+            price: cartItems[i].price,
+            subtotal: cartItems[i].price
+          }, authUser.access_token)
+        }
+
+        orderdCompleted = true
+        addAlert("Order placed successfully ", "success")
+
+      } catch (e) {
+        addAlert("Error placing order", "error");
+      } finally {
+        orderPlacing = false;
       }
-
-      orderdCompleted = true
-      addAlert("Order placed successfully ", "success")
-
-    } catch (e) {
-
-    } finally {
-      orderPlacing = false;
-    }
 
       cart.set([]);
       // console.log('Order submitted:', { billingDetails, items: $cart });
@@ -158,7 +161,7 @@
   </svelte:head>
   
 
-  <div class="px-4 md:px-8">
+  <div class="px-4 mt-5 md:px-8">
 
     <div class="text-sm breadcrumbs text-gray-600">
       <ul>
@@ -289,10 +292,15 @@
               </div>
 
               <label class="flex items-start gap-2">
-                  <input type="checkbox" class="mt-1" required />
+                  <input 
+                      type="checkbox" 
+                      class="mt-1" 
+                      bind:checked={termsAccepted}
+                      required 
+                  />
                   <span class="text-sm text-gray-600">
                       I have read and agree to the website's 
-                      <a href="/terms" class="text-red-500 hover:underline">terms and conditions</a>
+                      <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
                   </span>
               </label>
 

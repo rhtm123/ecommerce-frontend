@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { afterNavigate } from '$app/navigation';
-
+  import InitialsAvatar from '$lib/components/InitialsAvatar.svelte';
   import { cart } from '../stores/cart';
   import SearchBar from '$lib/components/SearchBar.svelte';
 
@@ -10,6 +10,8 @@
 
   let authUser = null;
   $: authUser = $user;
+
+  console.log("authUser", $user);
 
   function handleLogout() {
     logoutUser(); // Log the user out
@@ -107,8 +109,14 @@
               tabindex="0" 
               class="btn btn-ghost btn-circle avatar"
             >
-              <div class="w-10 rounded-full">
+              <!-- <div class="w-10 rounded-full">
                 <img src="https://placehold.co/100" alt="Profile" />
+              </div> -->
+              <div class="w-10 rounded-full">
+                <InitialsAvatar 
+                  firstName={authUser.first_name} 
+                  lastName={authUser.last_name}
+                />
               </div>
             </label>
             <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] p-2 shadow rounded-box w-52 text-black bg-white">

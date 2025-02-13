@@ -5,7 +5,7 @@
    export async function load({ params }) {
      
        const product_listing = await productApi.getProduct(params.slug);
-      //  console.log(product);
+      //  console.log(product_listing);
       //  const relatedProducts = await productApi.getProducts({
       //    category_id: product.category?.id,
       //    page_size: 4,

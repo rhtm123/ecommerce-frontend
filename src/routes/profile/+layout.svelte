@@ -3,6 +3,7 @@
   import { user } from "$lib/stores/auth";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
+  import InitialsAvatar from '$lib/components/InitialsAvatar.svelte';
 
   import { onDestroy } from "svelte";
   import ProfileMobileNav from '$lib/components/ProfileMobileNav.svelte';
@@ -119,9 +120,14 @@
               class="h-12 w-12 text-gray-600 rounded-full"
             />
             {:else}
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+            </svg> -->
+            <InitialsAvatar 
+              firstName={profile.first_name} 
+              lastName={profile.last_name}
+              size="w-12 h-12"
+            />
             {/if}
           </div>
           <div>
