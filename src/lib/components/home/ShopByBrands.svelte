@@ -35,7 +35,7 @@
   
   <section class="py-12 bg-base-200">
     <div class="text-center mb-8">
-      <p class="text-primary text-sm mb-2">Shop By Brand</p>
+      <p class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 md:mb-3 bg-primary/10 px-3 py-1 rounded-full">Shop By Brand</p>
       <h2 class="text-2xl font-bold">Your Favorite Brands</h2>
     </div>
   

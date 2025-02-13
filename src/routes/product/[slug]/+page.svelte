@@ -287,7 +287,7 @@
     </div>
   
     <!-- Related Products -->
-    <div class="mt-16 p-8">
+    <!-- <div class="mt-16 p-8">
       <h2 class="text-2xl font-bold mb-8">RELATED PRODUCTS</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {#each relatedProducts as product_listing}
@@ -323,7 +323,7 @@
           </div>
         {/each}
       </div>
-    </div>
+    </div> -->
   </div>
 
   
