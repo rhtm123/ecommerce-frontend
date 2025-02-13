@@ -74,7 +74,7 @@
       // console.log(currentCategory);
       loadProducts(params);
       fetchAllCategories();
-      loadSideFilters(params);
+      // loadSideFilters(params);
     }
   
     async function loadMore() {

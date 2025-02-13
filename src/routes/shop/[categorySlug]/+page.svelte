@@ -22,7 +22,7 @@
 </svelte:head>
 
 <!-- Template -->
-<div class="mx-4 md:mx-8">
+<div class="mx-4 mt-5 md:mx-8">
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
