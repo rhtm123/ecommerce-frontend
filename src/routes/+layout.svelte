@@ -20,17 +20,27 @@
 
 
 
+  // const protectedRoutes = ["/checkout", "/profile", "/settings", "/admin"];
+
+
   $: if (user || $page.url.pathname) {
     loading = true;
     const unsubscribe = user.subscribe(value => {
           isAuthenticated = value?.access_token ? true : false;
           loading = false; // Hide loading once authentication is checked
           // console.log($page.url.pathname);
-          if (protectedRoutes.includes($page.url.pathname) && !isAuthenticated) {
-              // goto('/login'); // Redirect to login page
-              showLogin = true;
-              console.log("Redirecting to login page")
-          } else {
+          if (($page.url.pathname.includes('profile') || $page.url.pathname.includes('checkout')) && !isAuthenticated) {
+            showLogin = true;
+            console.log("Redirecting to login page")
+          }
+          else {
+
+            loading = false; // Hide loading once authentication is checked
+
+            if (($page.url.pathname.includes('profile') || $page.url.pathname.includes('checkout'))) {
+            showLogin = true;
+            console.log("Redirecting to login page")
+            }
             showLogin = false;
           }
       });
@@ -38,7 +48,6 @@
 
 
 
-  const protectedRoutes = ["/checkout", "/profile", "/settings", "/admin"];
 
 
 
@@ -55,9 +64,11 @@
 
 <AlertContainer />
 
+<div class="bg-base-100">
+
 {#if loading}
   <!-- Show a loading indicator while checking authentication -->
-  <div class="fixed inset-0 flex items-center justify-center bg-gray-100">
+  <div class="fixed inset-0 flex items-center justify-cente">
     <div class="spinner"></div> <!-- Replace with your preferred spinner -->
   </div>
 {:else}
@@ -71,7 +82,7 @@
       {#if !isMainPage}
       <Navigation />
       {/if}
-      <div class={isMainPage?"bg-base-100":"pt-20 bg-base-100"}> <!-- Only add padding when Navigation is present -->
+      <div class={isMainPage?"":"pt-16"}> <!-- Only add padding when Navigation is present -->
         <slot />
       </div>
 
@@ -82,3 +93,5 @@
     {/if}
 
 {/if}
+
+</div>

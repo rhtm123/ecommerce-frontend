@@ -40,7 +40,7 @@
 </script>
 
 <div class="categories-container">
-    <h3 class="font-bold text-lg mb-6 flex items-center gap-3">
+    <h3 class="font-bold text-lg mb-2 flex items-center gap-3">
         {#if currentCategory}
             <button 
                 class="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -54,12 +54,12 @@
         Categories
     </h3>
 
-    <div class="space-y-3">
+    <div class="space-y-1">
         <!-- Parent Categories -->
         {#each parentsCategories as category, i}
             <div class="category-item">
                 <button 
-                    class="w-full text-left py-2 rounded-lg transition-colors flex items-center text-gray-600 hover:text-gray-900"
+                    class="w-full text-left py-1 rounded-lg transition-colors flex items-center text-gray-600 hover:text-gray-900"
                     on:click={() => handleCategoryClick(category.slug)}
                 >
                     <span>{category.name}</span>
@@ -73,7 +73,7 @@
         <!-- Current Category -->
         {#if currentCategory}
             <div class="category-item">
-                <div class="w-full py-2 px-4 bg-amber-50 rounded-lg flex items-center font-medium">
+                <div class="w-full py-1 px-2 bg-amber-50 rounded-lg flex items-center font-medium">
                     {#if parentsCategories.length > 0}
                         <span class="connector"></span>
                     {/if}
@@ -91,7 +91,7 @@
         {#each childrenCategories as category, i}
             <div class="category-item child">
                 <button 
-                    class="w-full text-left py-2 rounded-lg transition-colors flex items-center relative group"
+                    class="w-full text-left py-1 px-2 rounded-lg transition-colors flex items-center relative group"
                     on:click={() => handleCategoryClick(category.slug)}
                 >
                     <span class="connector"></span>
@@ -109,7 +109,7 @@
             {#each categories as category}
                 <div class="category-item">
                     <button 
-                        class="w-full text-left py-2 rounded-lg transition-colors flex items-center relative group"
+                        class="w-full text-left py-1 rounded-lg transition-colors flex items-center relative group"
                         on:click={() => handleCategoryClick(category.slug)}
                     >
                         <span class="relative z-10">{category.name}</span>

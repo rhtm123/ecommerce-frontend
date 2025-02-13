@@ -142,13 +142,13 @@
         <div class="w-full md:w-1/2 relative aspect-square md:aspect-auto md:h-[500px] z-10">
           {#each slides as slide, i}
             <div 
-              class="absolute inset-0 transition-all duration-700"
+              class="absolute rounded inset-0 transition-all duration-700"
               style="opacity: {currentSlide === i ? '1' : '0'};"
             >
               <img 
                 src={slide?.main_image || "/placeholder.svg"} 
                 alt={slide?.name}
-                class="w-full h-full object-contain transition-transform hover:scale-105"
+                class="w-full h-full rounded object-contain transition-transform hover:scale-105"
               />
             </div>
           {/each}

@@ -5,7 +5,6 @@ import { categoryApi } from '$lib/services/categoryApi';
 
 
 export async function load() {
-  let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&ordering=-id`;
   
   let recentReviews = [];
   let bestProducts = [];
@@ -17,6 +16,7 @@ export async function load() {
 
 
   try{
+    let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&ordering=-id`;
     let data1 = await myFetch(url);
     recentReviews = data1.results; // Ensure this matches the API response structure
   

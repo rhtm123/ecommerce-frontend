@@ -163,7 +163,7 @@
   {loadProducts}
 />
   
-    <div class="">
+    <div class="py-2">
         
       {#if error}
         <div class="alert alert-error">
@@ -177,7 +177,6 @@
             <div class="mb-6">
               
               <Categories currentCategory={currentCategory} />
-              
               
             </div>
   

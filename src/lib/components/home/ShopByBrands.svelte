@@ -41,15 +41,33 @@
   
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 px-4 md:px-8">
       {#each brands as brand}
+        
         <button
           on:click={() => handleCategoryClick(brand.id)}
-          class="flex flex-col items-center bg-base-300 py-8 px-4 rounded-lg hover:shadow-lg transition-all transform hover:scale-105"
+          class="group relative bg-white rounded-lg md:rounded-xl p-2 md:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary/50 flex flex-col h-[120px] md:h-auto"
         >
-          <div class="w-16 h-16 flex items-center justify-center mb-4 text-gray-600">
-            {@html brand?.icon}
+          <div class="relative flex flex-col h-full">
+            <div class="w-full h-[80px] md:h-auto md:aspect-square mb-1 md:mb-4 rounded-lg bg-base-100/50 p-1 md:p-4 flex items-center justify-center">
+              <img 
+                src={brand?.image || `https://placehold.co/400x400?text=${encodeURIComponent(brand.name)}`} 
+                alt={brand.name}
+                class="w-[100%] h-[100%] md:w-[100%] md:h-[100%] object-contain filter drop-shadow-md"
+                loading="lazy"
+              />
+            </div>
+            
+            <div class="text-center mt-auto">
+              <h3 class="font-medium text-[11px] md:text-base text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-1 md:line-clamp-2">
+                {brand.name}
+              </h3>
+              <span class="hidden md:inline-block mt-1 md:mt-2 text-[10px] md:text-xs text-gray-500">
+                Explore Now →
+              </span>
+            </div>
           </div>
-          <h3 class="text-sm font-medium text-center">{brand.name}</h3>
         </button>
+
+
       {/each}
 <!-- 
       {#if loading}

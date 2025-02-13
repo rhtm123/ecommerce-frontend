@@ -6,6 +6,7 @@
 
   import { onDestroy } from "svelte";
   import ProfileMobileNav from '$lib/components/ProfileMobileNav.svelte';
+  import { productApi } from '$lib/services/productApi';
 
 
   let authUser;
@@ -38,7 +39,8 @@
       last_name: userData?.last_name,
       email: userData?.email,
       mobile: userData?.mobile,
-      gender: userData?.mobile,
+      gender: userData?.gender,
+      google_picture: userData?.google_picture
     };
   }
 
@@ -109,9 +111,18 @@
         <!-- User Info -->
         <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
           <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+
+            {#if profile.google_picture}
+            <img 
+              src={profile.google_picture}
+              alt="User profile"
+              class="h-12 w-12 text-gray-600 rounded-full"
+            />
+            {:else}
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
+            {/if}
           </div>
           <div>
             <h3 class="font-medium">Hello,</h3>
@@ -127,7 +138,7 @@
               {#if item.href}
                 <a
                   href={item.href}
-                  class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 {currentPath === item.href ? 'text-red-500 bg-red-50' : 'text-gray-700'}"
+                  class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(item.href)? 'text-primary bg-base-200' : 'text-gray-700'}"
                 >
                   {@html item.icon}
                   <span>{item.title}</span>
@@ -142,7 +153,7 @@
                     {#each item.subItems as subItem}
                       <a
                         href={subItem.href}
-                        class="block p-2 rounded-lg hover:bg-gray-100 {currentPath === subItem.href ? 'text-red-500 bg-red-50' : 'text-gray-700'}"
+                        class="block p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(subItem.href) ? 'text-primary bg-base-200' : 'text-gray-700'}"
                       >
                         {subItem.title}
                       </a>

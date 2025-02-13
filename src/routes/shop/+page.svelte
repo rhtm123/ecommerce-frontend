@@ -15,4 +15,5 @@ import Products from "$lib/components/Products.svelte";
   </div>
 
   <Products />
+
 </div>

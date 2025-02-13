@@ -24,7 +24,7 @@
 
 
 <!-- Tag Header Banner -->
-<div class="mx-4 mx-8">
+<div class="mx-4 md:mx-8">
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
