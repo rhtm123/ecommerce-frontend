@@ -28,7 +28,7 @@
 
     async function fetchProductListings(){
         loading = true
-        let url = `${PUBLIC_API_URL}/product/product_listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
+        let url = `${PUBLIC_API_URL}/product/product-listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
         let data = await myFetch(url);
         product_listings = data.results;
         next = data.next;

@@ -33,7 +33,7 @@
 
   onMount(async () => {
     loading = true;
-    let url = `${PUBLIC_API_URL}/user/shipping_addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
+    let url = `${PUBLIC_API_URL}/user/shipping-addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
     let data = await myFetch(url);
     // console.log(data);
     shipaddresses.set(data.results);
@@ -45,7 +45,7 @@
 
 
   async function deleteAddress(address) {
-    let url2 = `${PUBLIC_API_URL}/user/shipping_addresses/${address.id}/`;
+    let url2 = `${PUBLIC_API_URL}/user/shipping-addresses/${address.id}/`;
     myFetch(url2, "DELETE", {}, authUser.access_token);
     let url1 = `${PUBLIC_API_URL}/location/addresses/${address.address.id}/`;
     myFetch(url1, "DELETE", {}, authUser.access_token);

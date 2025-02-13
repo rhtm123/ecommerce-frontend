@@ -9,7 +9,7 @@
     let loading = true;
 
     async function fetchItemOrders(){
-        let url = `${PUBLIC_API_URL}/order/order_items/?order_id=${order_id}&need_reviews=true`
+        let url = `${PUBLIC_API_URL}/order/order-items/?order_id=${order_id}&need_reviews=true`
         let data = await myFetch(url);
         orderItems = data.results;
         // console.log(data);

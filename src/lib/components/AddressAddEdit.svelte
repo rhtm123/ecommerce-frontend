@@ -50,7 +50,7 @@
     }
 
 
-    let url2 = `${PUBLIC_API_URL}/user/shipping_addresses/`;
+    let url2 = `${PUBLIC_API_URL}/user/shipping-addresses/`;
     let data = await myFetch(url2, "POST", params, authUser.access_token)
     newEditAddress = { name: '', type: 'home', line1: '', line2:"" ,city: '', state: '', pin: '', mobile: '', is_default: false };
 
@@ -75,7 +75,7 @@
       type: newEditAddress.type,
     }
 
-    let url2 = `${PUBLIC_API_URL}/user/shipping_addresses/${shipAddress.id}/`;
+    let url2 = `${PUBLIC_API_URL}/user/shipping-addresses/${shipAddress.id}/`;
     let data = await myFetch(url2, "PUT", params, authUser.access_token)
     addToShipAddress(data);
     console.log(data);

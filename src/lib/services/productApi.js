@@ -19,7 +19,7 @@ export const productApi = {
           ...(params.max_price && { max_price: params.max_price }),
           ...(params.feature_filters && { feature_filters: JSON.stringify(params.feature_filters) })
         });
-        let url = `${API_BASE_URL}/product/product_listings/?${queryParams}`
+        let url = `${API_BASE_URL}/product/product-listings/?${queryParams}`
         console.log(url);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
@@ -34,7 +34,7 @@ export const productApi = {
   
     // Get single product
     getProduct: async (slug) => {
-      const response = await fetch(`${API_BASE_URL}/product/product_listings/slug/${slug}/`);
+      const response = await fetch(`${API_BASE_URL}/product/product-listings/slug/${slug}/`);
       if (!response.ok) throw new Error('Failed to fetch product');
       return response.json();
     },
@@ -47,7 +47,7 @@ export const productApi = {
         ...(params.min_price && { min_price: params.min_price }),
         ...(params.max_price && { max_price: params.max_price })
       });
-      const response = await fetch(`${API_BASE_URL}/product/sidebar_filters/?${queryParams}`);
+      const response = await fetch(`${API_BASE_URL}/product/sidebar-filters/?${queryParams}`);
       if (!response.ok) throw new Error('Failed to fetch filters');
       return response.json();
     },

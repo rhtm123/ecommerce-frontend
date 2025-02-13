@@ -31,7 +31,7 @@
     async function fetchOrderItems() {
         loading = true;
         orderItems = [];
-        let url = `${PUBLIC_API_URL}/order/order_items/?page_size=6&ordering=-id&seller_id=${authUser?.entity.id}&status=${selectedStatus}`;
+        let url = `${PUBLIC_API_URL}/order/order-items/?page_size=6&ordering=-id&seller_id=${authUser?.entity.id}&status=${selectedStatus}`;
         let data = await myFetch(url);
         orderItems = data.results;
         next = data.next;
@@ -48,7 +48,7 @@
     }
 
     async function updateStatus(orderId, newStatus) {
-        const url = `${PUBLIC_API_URL}/order/order_items/${orderId}/`;
+        const url = `${PUBLIC_API_URL}/order/order-items/${orderId}/`;
         const payload = { status: newStatus };
         orderItems = orderItems.map(order =>
                 order.id === orderId ? { ...order, status: newStatus } : order

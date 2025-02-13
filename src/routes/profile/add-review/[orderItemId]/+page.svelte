@@ -35,7 +35,7 @@
     };
   
     async function getOrderItem() {
-      let url = `${PUBLIC_API_URL}/order/order_items/${orderItemId}/`;
+      let url = `${PUBLIC_API_URL}/order/order-items/${orderItemId}/`;
       try {
         let data = await myFetch(url);
         console.log(data);

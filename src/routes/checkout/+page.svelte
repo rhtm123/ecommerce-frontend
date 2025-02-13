@@ -47,7 +47,7 @@
 
     onMount(async () => {
       loading = true;
-      let url = `${PUBLIC_API_URL}/user/shipping_addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
+      let url = `${PUBLIC_API_URL}/user/shipping-addresses/?page=1&page_size=50&user_id=${authUser.user_id}`
       let data = await myFetch(url);
       // console.log(data)
       addresses = data.results;
@@ -92,7 +92,7 @@
       console.log(order);
       orderData = order;
 
-      let url2 = `${PUBLIC_API_URL}/order/order_items/`;
+      let url2 = `${PUBLIC_API_URL}/order/order-items/`;
 
       console.log(cartItems);
 

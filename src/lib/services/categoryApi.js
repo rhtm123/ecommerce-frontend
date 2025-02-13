@@ -7,7 +7,7 @@ export const categoryApi = {
 
     getParentsChildrenCategories: async (category_id) => {
       try{
-        const data = await myFetch(`${PUBLIC_API_URL}/product/categories/parents_children/${category_id}/`);
+        const data = await myFetch(`${PUBLIC_API_URL}/product/categories/parents-children/${category_id}/`);
         return data  
       } catch(e){ 
         throw new Error('Failed to fetch');

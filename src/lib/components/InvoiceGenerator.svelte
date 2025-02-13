@@ -13,7 +13,7 @@
         isLoading = true;
         const [orderData, orderItemsData] = await Promise.all([
           myFetch(`${PUBLIC_API_URL}/order/orders/${orderId}/`),
-          myFetch(`${PUBLIC_API_URL}/order/order_items/?order_id=${orderId}`)
+          myFetch(`${PUBLIC_API_URL}/order/order-items/?order_id=${orderId}`)
         ]);
         
         const doc = new jsPDF();

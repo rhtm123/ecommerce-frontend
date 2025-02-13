@@ -11,7 +11,7 @@
   // let loading = true;
 
   // async function fetchProductListings() {
-  //   let url = PUBLIC_API_URL + "/product/product_listings/?page=1&page_size=12&ordering=-id";
+  //   let url = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id";
   //   console.log(url);
   //   try {
   //     let data = await myFetch(url);
