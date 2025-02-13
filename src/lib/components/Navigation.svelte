@@ -93,7 +93,7 @@
         <!-- Login Button (if no authUser) -->
         {#if !authUser}
           <a
-            href="/login"
+            href="/login?next=/home"
             class="btn btn-primary btn-sm"
           >
             Login

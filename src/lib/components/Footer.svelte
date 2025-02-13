@@ -54,16 +54,16 @@
               <div>
                   <h3 class="font-semibold text-lg mb-3">Quick Links</h3>
                   <ul class="space-y-2">
-                      {#each ["Home", "About", "Services", "Contact"] as link}
-                          <li><a href="/#{link.toLowerCase()}" class="hover:underline">{link}</a></li>
+                      {#each [ "About", "Shop", "login", "Blog"] as link}
+                          <li><a href="/{link.toLowerCase()}" class="hover:underline">{link}</a></li>
                       {/each}
                   </ul>
               </div>
               <div>
                   <h3 class="font-semibold text-lg mb-3">Resources</h3>
                   <ul class="space-y-2">
-                      {#each ["Privacy Policy", "Terms of Service", "Help Center"] as resource}
-                          <li><a href="/#{resource.toLowerCase().replace(/ /g, "-")}" class="hover:underline">{resource}</a></li>
+                      {#each ["Privacy Policy", "Terms of Service",] as resource}
+                          <li><a href="/{resource.toLowerCase().replace(/ /g, "-")}" class="hover:underline">{resource}</a></li>
                       {/each}
                   </ul>
               </div>

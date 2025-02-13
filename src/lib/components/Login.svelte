@@ -23,7 +23,7 @@
         .then((data) => {
             if (data.access_token) {
                 loginUser(data);
-                redirectAfterLogin(); // Redirect after successful login
+                // redirectAfterLogin(); // Redirect after successful login
             } else {
                 errorMessage = 'Login failed: ' + data.error;
             }
@@ -50,7 +50,7 @@
         .then((data) => {
             if (data.access_token) {
                 loginUser(data);
-                redirectAfterLogin(); // Redirect after successful login
+                // redirectAfterLogin(); // Redirect after successful login
             } else {
                 errorMessage = 'Login failed: ' + data.error;
             }
@@ -75,7 +75,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const nextPage = urlParams.get('next'); // Get the 'next' query parameter
         if (nextPage) {
-            console.log(nextPage);
+            // console.log(nextPage);
             goto(nextPage); // Redirect to the specified page
         } else {
             // goto('/'); // Redirect to the home page if no 'next' parameter
