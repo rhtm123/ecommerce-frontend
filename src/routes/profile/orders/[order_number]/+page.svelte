@@ -18,7 +18,8 @@
         }
         const data = await response.json();
         order = data;
-        // console.log(order);
+        
+        console.log(order);
       } catch (err) {
         error = err.message;
       } finally {
@@ -206,142 +207,152 @@
 
 
         {#if order.items_without_package.length > 0}
-  <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-    <h2 class="text-2xl font-bold mb-6">Non-Packaged Items Tracking</h2>
-    <!-- Progress Bar -->
-    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
-      <div
-        class="bg-primary h-2.5 rounded-full"
-        style={`width: ${(order.items_without_package[0].status === 'delivered' ? 100 : 75)}%`}
-      ></div>
-    </div>
-    <!-- Tracking Steps -->
-    <div class="space-y-4">
-      <div class="flex items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary">
-          <svg
-            class="w-4 h-4 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            ></path>
-          </svg>
-        </div>
-        <div class="ml-4">
-          <p class="font-medium">Order Placed</p>
-          <p class="text-sm text-gray-500">{order.created}</p>
-        </div>
-      </div>
-      <div class="flex items-center">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary">
-          <svg
-            class="w-4 h-4 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            ></path>
-          </svg>
-        </div>
-        <div class="ml-4">
-          <p class="font-medium">Processing</p>
-          <p class="text-sm text-gray-500">{order.created}</p>
-        </div>
-      </div>
-      <div class="flex items-center">
-        <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
-          {#if order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered'}
-            <svg
-              class="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-          {:else}
-            <span class="text-white">3</span>
-          {/if}
-        </div>
-        <div class="ml-4">
-          <p class="font-medium">Shipped</p>
-          <p class="text-sm text-gray-500">
-            {order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered' ? 'Shipped on ' + new Date(order.updated).toLocaleDateString() : 'Not yet shipped'}
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center">
-        <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'out_for_delivery' || order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
-          {#if order.items_without_package[0].status === 'out_for_delivery' || order.items_without_package[0].status === 'delivered'}
-            <svg
-              class="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-          {:else}
-            <span class="text-white">4</span>
-          {/if}
-        </div>
-        <div class="ml-4">
-          <p class="font-medium">Out for Delivery</p>
-          <p class="text-sm text-gray-500">
-            {order.items_without_package[0].status === 'out_for_delivery' ? 'Out for delivery on ' + new Date(order.updated).toLocaleDateString() : 'Not yet out for delivery'}
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center">
-        <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
-          {#if order.items_without_package[0].status === 'delivered'}
-            <svg
-              class="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-          {:else}
-            <span class="text-white">5</span>
-          {/if}
-        </div>
-        <div class="ml-4">
-          <p class="font-medium">Delivered</p>
-          <p class="text-sm text-gray-500">
-            {order.items_without_package[0].status === 'delivered' ? 'Delivered on ' + new Date(order.updated).toLocaleDateString() : 'Not yet delivered'}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+
+        {#each order.items_without_package as order_item}
+          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-6">{order_item.product_listing}</h2>
+
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+              <div
+                class="bg-primary h-2.5 rounded-full"
+                style={`width: ${(order_item.status === 'delivered' ? 100 : 75)}%`}
+              ></div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary">
+                  <svg
+                    class="w-4 h-4 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="font-medium">Order Placed</p>
+                  <p class="text-sm text-gray-500">{order.created}</p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary">
+                  <svg
+                    class="w-4 h-4 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="font-medium">Processing</p>
+                  <p class="text-sm text-gray-500">{order.created}</p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
+                  {#if order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered'}
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                  {:else}
+                    <span class="text-white">3</span>
+                  {/if}
+                </div>
+                <div class="ml-4">
+                  <p class="font-medium">Shipped</p>
+                  <p class="text-sm text-gray-500">
+                    {order.items_without_package[0].status === 'shipped' || order.items_without_package[0].status === 'delivered' ? 'Shipped on ' + new Date(order.updated).toLocaleDateString() : 'Not yet shipped'}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'out_for_delivery' || order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
+                  {#if order.items_without_package[0].status === 'out_for_delivery' || order.items_without_package[0].status === 'delivered'}
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                  {:else}
+                    <span class="text-white">4</span>
+                  {/if}
+                </div>
+                <div class="ml-4">
+                  <p class="font-medium">Out for Delivery</p>
+                  <p class="text-sm text-gray-500">
+                    {order.items_without_package[0].status === 'out_for_delivery' ? 'Out for delivery on ' + new Date(order.updated).toLocaleDateString() : 'Not yet out for delivery'}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class={`w-8 h-8 rounded-full flex items-center justify-center ${order.items_without_package[0].status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}`}>
+                  {#if order.items_without_package[0].status === 'delivered'}
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                  {:else}
+                    <span class="text-white">5</span>
+                  {/if}
+                </div>
+                <div class="ml-4">
+                  <p class="font-medium">Delivered</p>
+                  <p class="text-sm text-gray-500">
+                    {order.items_without_package[0].status === 'delivered' ? 'Delivered on ' + new Date(order.updated).toLocaleDateString() : 'Not yet delivered'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
+
+          
+
+        {/each}
+
 {/if}
       </div>
     </div>

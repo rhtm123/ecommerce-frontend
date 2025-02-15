@@ -7,7 +7,7 @@
     let seconds = 0;
     
     // Set your launch date here
-    const launchDate = new Date('2025-02-15T00:00:00');
+    const launchDate = new Date('2025-03-15T00:00:00');
     
     function updateCountdown() {
       const now = new Date();

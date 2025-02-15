@@ -15,16 +15,20 @@ const storedUser = initialValue ? JSON.parse(initialValue) : null;
 // Svelte store for user
 export const user = writable(storedUser);
 
+// Cache user data in memory
+let cachedUser = storedUser;
+
 function saveUserToLocalStorage(userData) {
   if (browser && typeof window !== 'undefined') {
     localStorage.setItem('user', JSON.stringify(userData));
+    cachedUser = userData; // Update cache
   }
 }
 
-// Helper function to clear user data
 function clearUser() {
   console.log("Clearing user");
   user.set(null);
+  cachedUser = null;
   if (browser && typeof window !== 'undefined') {
     localStorage.removeItem('user');
   }
@@ -47,7 +51,7 @@ async function refreshAccessToken(userData) {
     const updatedUser = { ...currentUser, access_token: data.access };
     saveUserToLocalStorage(updatedUser);
     user.set(updatedUser);
-    // return updatedUser.access_token;
+    return updatedUser.access_token;
   } catch (error) {
     console.error('Error refreshing access token:', error);
     clearUser();
@@ -56,14 +60,13 @@ async function refreshAccessToken(userData) {
 }
 
 function initializeTokenRefresh(userData) {
-  const interval = 60 * 30 * 1000; // 30 minutes in milliseconds
-  refreshAccessToken(userData);
-  setInterval(async () => {
-    const newAccessToken = await refreshAccessToken(userData);
-    if (newAccessToken) {
-      console.log('Access token refreshed successfully');
-    }
-  }, interval);
+  setTimeout(() => {
+    refreshAccessToken(userData);
+    const interval = 60 * 30 * 1000; // 30 minutes
+    setInterval(async () => {
+      await refreshAccessToken(userData);
+    }, interval);
+  }, 0); // Defer execution
 }
 
 export function loginUser(userData) {
@@ -78,9 +81,15 @@ export function logoutUser() {
   clearUser();
 }
 
-// Initialize the store on app load
-if (storedUser) {
-  initializeTokenRefresh(storedUser);
-} else {
-  clearUser();
+// Immediately check if user exists and set the store
+export function checkUser() {
+  if (cachedUser) {
+    user.set(cachedUser);
+    initializeTokenRefresh(cachedUser);
+  } else {
+    clearUser();
+  }
 }
+
+// Initialize the store on app load
+checkUser();

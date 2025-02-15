@@ -11,7 +11,7 @@
   let authUser = null;
   $: authUser = $user;
 
-  console.log("authUser", $user);
+  // console.log("authUser", $user);
 
   function handleLogout() {
     logoutUser(); // Log the user out

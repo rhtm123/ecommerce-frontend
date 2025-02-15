@@ -10,9 +10,11 @@
   import { user } from "$lib/stores/auth";
   import Login from "$lib/components/Login.svelte";
   import AlertContainer from "$lib/components/AlertContainer.svelte";
-
+  // import { checkUser } from "$lib/stores/auth";
 
   $: isMainPage = $page.url.pathname === '/' || $page.url.pathname.includes("admin");
+
+  // checkUser();
 
   let loading = true;
   let isAuthenticated = false;
@@ -31,7 +33,7 @@
           // console.log($page.url.pathname);
           if (($page.url.pathname.includes('profile') || $page.url.pathname.includes('checkout')) && !isAuthenticated) {
             showLogin = true;
-            console.log("Redirecting to login page")
+            // console.log("Redirecting to login page")
           }
           else {
 
@@ -39,7 +41,7 @@
 
             if (($page.url.pathname.includes('profile') || $page.url.pathname.includes('checkout'))) {
             showLogin = true;
-            console.log("Redirecting to login page")
+            // console.log("Redirecting to login page")
             }
             showLogin = false;
           }
