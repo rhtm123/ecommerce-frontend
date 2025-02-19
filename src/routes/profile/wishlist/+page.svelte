@@ -4,6 +4,8 @@
   import { addAlert } from '$lib/stores/alert';
   import { goto } from '$app/navigation';
 
+  
+
   function handleAddToCart(product) {
     addToCart(product);
     removeFromWishlist(product.id);
