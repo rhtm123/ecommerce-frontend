@@ -30,7 +30,7 @@
         // Business Info - Left aligned
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
-        doc.text('Khilona Buddy', 20, 35);
+        doc.text('Naigaon Market', 20, 35);
         doc.text('123 Street Address, City, State, Zip | GSTIN: XXXXXXXXXXXXX', 20, 40);
         doc.text('Phone: +91 9876543210 | Email: hello@khilonabuddy.com', 20, 45);
 

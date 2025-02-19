@@ -4,7 +4,7 @@
   <div class="space-y-6">
     <section>
       <h2 class="text-xl font-semibold mb-3">1. Information We Collect</h2>
-      <p class="mb-2">When you visit Khilona Buddy, we collect:</p>
+      <p class="mb-2">When you visit Naigaon Market, we collect:</p>
       <ul class="list-disc ml-6 mb-4">
         <li>Personal information (name, email address, shipping address)</li>
         <li>Payment information (processed securely through our payment providers)</li>

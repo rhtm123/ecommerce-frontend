@@ -4,7 +4,7 @@
   <div class="space-y-6">
     <section>
       <h2 class="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
-      <p class="mb-4">By accessing and using Khilona Buddy, you accept and agree to be bound by these Terms and Conditions and our Privacy Policy.</p>
+      <p class="mb-4">By accessing and using Naigaon Market, you accept and agree to be bound by these Terms and Conditions and our Privacy Policy.</p>
     </section>
 
     <section>
