@@ -105,7 +105,7 @@
     </div>
 
     <!-- Product Info -->
-    <div class="space-y-6">
+    <div class="space-y-4">
       <!-- Product Title and Assured Badge -->
       <h1 class="text-3xl font-bold flex items-center gap-2">
         {product_listing.name}
@@ -126,18 +126,12 @@
       <div class="flex flex-wrap gap-4">
         <!-- Same Day Delivery Badge -->
         <div class="flex items-center badge">
-          <!-- Replace with a proper truck icon if available -->
-          <svg class="w-3 h-3 md:w-4 md:h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M5 5h14v14H5z" />
-          </svg>
+          <Icon icon="charm:tick" class="w-3 h-3 pr-2 md:w-4 md:h-4 text-success" />
           <span>Same Day Delivery</span>
         </div>
         <!-- Cash on Delivery Badge -->
         <div class="flex items-center badge ">
-          <!-- Replace with a cash/money icon if available -->
-          <svg class="w-3 h-3 md:w-4 md:h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M5 5h14v14H5z" />
-          </svg>
+          <Icon icon="charm:tick" class="w-3 h-3 pr-2 md:w-4 md:h-4 text-success" />
           <span>Cash on Delivery</span>
         </div>
       </div>
@@ -176,7 +170,7 @@
             on:click={() => updateQuantity(1)}
           >+</button>
         </div>
-        <button class="btn btn-primary" on:click={handleAddToCart}>ADD TO CART</button>
+        <button class="border bg-primary text-white rounded-lg px-4 py-2" on:click={handleAddToCart}>ADD TO CART</button>
       </div>
 
       <!-- Additional Product Info -->

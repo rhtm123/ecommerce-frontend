@@ -37,6 +37,15 @@
 
   function handleClickOutside() {
     isMenuOpen = false;
+    isProfileDropdownOpen = false;
+  }
+
+  function toggleProfileDropdown(){
+    isProfileDropdownOpen = !isProfileDropdownOpen;
+  }
+
+  function handleLogout(){
+    logoutUser();
   }
 
 </script>
@@ -109,7 +118,7 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
             </button>
             {#if isProfileDropdownOpen}
               <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Channel</a>
+                <a href="/profile/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
                 <a href="/profile/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
                 <div class="border-t my-2"></div>
                 <button on:click={handleLogout} class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
