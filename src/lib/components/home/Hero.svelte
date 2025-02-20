@@ -58,7 +58,7 @@
 
   <div class="container mx-auto px-4 py-8 md:py-12 relative z-10">
     {#if slides.length > 0}
-      <div class="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+      <div class="flex flex-col py-8 md:py-0 md:flex-row items-center justify-between gap-8 md:gap-12">
         <!-- Product Details -->
         <div class="w-full md:w-1/2 space-y-4 md:space-y-6 text-center md:text-left px-4 md:px-0" 
           in:fly={{ y: 20, duration: 800, delay: 200 }}

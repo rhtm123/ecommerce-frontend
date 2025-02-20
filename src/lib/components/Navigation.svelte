@@ -51,9 +51,8 @@
 </script>
 
 <nav 
-
-  use:clickOutside
-  on:outclick={handleClickOutside}
+use:clickOutside
+on:outclick={()=> isMenuOpen=false}
 
 class="bg-white shadow-md fixed top-0 w-full z-20">
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,7 +104,12 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
 
         <!-- Profile -->
         {#if authUser}
-          <div class="relative">
+          <div class="relative"
+          
+          use:clickOutside
+          on:outclick={()=> isProfileDropdownOpen=false}
+
+          >
             <button
               on:click={toggleProfileDropdown}
               class="p-1 rounded-full hover:bg-gray-100"
@@ -151,7 +155,7 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
     <div class=" bg-white border-t">
       <div class="px-2 pt-2 pb-3 space-y-1">
         {#each menuItems as item}
-          <a href={item.href} class="block px-3 py-2 text-gray-700 hover:bg-gray-100">{item.label}</a>
+          <a on:click={()=>{isMenuOpen=false}} href={item.href} class="block px-3 py-2 text-gray-700 hover:bg-gray-100">{item.label}</a>
         {/each}
       </div>
     </div>
@@ -170,15 +174,9 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
           </svg>
         </button>
         <div class="flex-1 ml-2">
-          <SearchBar autoFocus={true} />
+          <SearchBar on:closeSearch={() => isSearchOpen = false} autoFocus={true} />
         </div>
       </div>
     </div>
   {/if}
 </nav>
-
-<style>
-  .shadow-custom {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-</style>

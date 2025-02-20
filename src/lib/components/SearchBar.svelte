@@ -3,6 +3,11 @@
   import { productApi } from '$lib/services/productApi';
   import { onMount, onDestroy } from 'svelte';
 
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
+
+
   let searchQuery = '';
   let suggestions = [];
   let showSuggestions = false;
@@ -120,19 +125,20 @@
     }
   }
 
-  function toggleSearch() {
-    isSearchOpen = !isSearchOpen;
-    if (isSearchOpen) {
-      setTimeout(() => document.querySelector('input').focus(), 300);
-    } else {
-      closeSearch();
-    }
-  }
+  // function toggleSearch() {
+  //   isSearchOpen = !isSearchOpen;
+  //   if (isSearchOpen) {
+  //     setTimeout(() => document.querySelector('input').focus(), 300);
+  //   } else {
+  //     closeSearch();
+  //   }
+  // }
 
   function closeSearch() {
     isSearchOpen = false;
     searchQuery = '';
     showSuggestions = false;
+    dispatch("closeSearch", "close");
     // console.log("Search Closed");
   }
 
@@ -249,117 +255,6 @@
     </div>
   {/if}
 
-  <!-- Mobile Search Overlay -->
-  {#if isSearchOpen}
-    <div class="md:hidden fixed inset-0 bg-white z-50">
-      <div class="flex items-center p-4 border-b">
-        <button 
-          class="p-2"
-          on:click={() => isSearchOpen = false}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <div class="flex-1 ml-2">
-          <form 
-            class="flex items-center w-full bg-gray-100 rounded-full overflow-hidden"
-            on:submit|preventDefault={handleSearchSubmit}
-          >
-            <input
-              type="text"
-              class="flex-1 px-4 py-2 bg-transparent focus:outline-none text-sm"
-              placeholder="Search products..."
-              bind:value={searchQuery}
-              on:input={handleInput}
-              on:focus={() => showSuggestions = true}
-              autocomplete="off"
-            />
-            <button 
-              type="submit" 
-              class="h-full px-4 py-2 bg-gray-200 hover:bg-gray-300"
-              disabled={isLoading}
-            >
-              {#if isLoading}
-                <span class="loading loading-spinner loading-xs"></span>
-              {:else}
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              {/if}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Mobile Search Content -->
-      <div class="p-4">
-        {#if !searchQuery && searchHistory.length > 0}
-          <!-- Recent Searches -->
-          <div class="mb-6">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-sm font-medium text-gray-900">Recent Searches</h3>
-              <button 
-                class="text-sm text-blue-600"
-                on:click={clearAllHistory}
-              >
-                Clear all
-              </button>
-            </div>
-            <div class="space-y-2">
-              {#each searchHistory as query}
-                <div class="flex items-center justify-between py-2">
-                  <button 
-                    class="flex items-center text-gray-700"
-                    on:click={() => handleHistoryClick(query)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    {query}
-                  </button>
-                  <button 
-                    class="text-gray-400"
-                    on:click={() => removeFromHistory(query)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
-
-        {#if showSuggestions && suggestions.length > 0}
-          <!-- Mobile Search Results -->
-          <div class="space-y-4">
-            {#each suggestions as product}
-              <button
-                class="flex items-center w-full text-left"
-                on:click={() => handleSuggestionClick(product)}
-              >
-                {#if product.main_image}
-                  <img 
-                    src={product.main_image} 
-                    alt={product.name}
-                    class="w-16 h-16 object-cover rounded-lg mr-4"
-                  />
-                {/if}
-                <div>
-                  <h4 class="text-sm font-medium text-gray-900">{product.name}</h4>
-                  {#if product.category}
-                    <p class="text-sm text-gray-500">{product.category.name}</p>
-                  {/if}
-                </div>
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-  {/if}
 </div>
 <style>
   /* Prevent body scroll when mobile search is open */
