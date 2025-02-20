@@ -15,7 +15,7 @@
   let isSearchOpen = false;
 
   const menuItems = [
-    { label: 'Home', href: '/home' },
+    { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
     { label: 'Blog', href: '/blog' }
   ];
@@ -60,11 +60,11 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
     <div class="flex items-center justify-between h-16">
       <!-- Left Section -->
       <div class="flex items-center">
-        <a href="/home" class="md:hidden flex-shrink-0">
+        <a href="/" class="md:hidden flex-shrink-0">
           <img src="/img/logo.png" alt="Logo" class="h-12" />
         </a>
 
-        <a href="/home" class="hidden md:block flex-shrink-0">
+        <a href="/" class="hidden md:block flex-shrink-0">
           <img src="/img/naigaonmarketlogo1.png" alt="Logo" class="h-12" />
         </a>
         <!-- <div class="hidden md:flex items-center ml-8 space-x-6">

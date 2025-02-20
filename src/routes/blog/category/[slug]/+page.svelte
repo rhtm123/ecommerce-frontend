@@ -30,7 +30,7 @@
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
-        <li><a href="/home">Home</a></li>
+        <li><a href="/">Home</a></li>
         <li><a href="/blog">Blog</a></li>
         <li>Category : {category?.name}</li>
     </ul>
@@ -41,7 +41,7 @@
       <div>
         <h1 class="text-4xl font-bold mb-2">POSTS TAGGED "{category?.name}"</h1>
         <div class="flex items-center gap-2">
-          <a href="/home" class="text-gray-600 hover:text-primary">Home</a>
+          <a href="/" class="text-gray-600 hover:text-primary">Home</a>
           <span class="text-gray-400">/</span>
           <a href="/blog" class="text-gray-600 hover:text-primary">Blog</a>
           <span class="text-gray-400">/</span>

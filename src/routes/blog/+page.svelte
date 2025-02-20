@@ -9,7 +9,7 @@
 <div class="mx-4 md:mx-8">
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
-        <li><a href="/home">Home</a></li>
+        <li><a href="/">Home</a></li>
         <li>Blog</li>
       </ul>
 </div>

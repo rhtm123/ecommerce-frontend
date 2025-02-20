@@ -12,7 +12,7 @@
   import AlertContainer from "$lib/components/AlertContainer.svelte";
   // import { checkUser } from "$lib/stores/auth";
 
-  $: isMainPage = $page.url.pathname === '/' || $page.url.pathname.includes("admin");
+  $: isMainPage = $page.url.pathname.includes("admin");
 
   // checkUser();
 

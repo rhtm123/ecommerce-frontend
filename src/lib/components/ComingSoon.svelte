@@ -63,7 +63,7 @@
         <!-- Logo -->
         <div class="mb-8 animate-bounce">
           <img
-            src="https://www.freepnglogos.com/uploads/logo-home-png/home-blue-logo-house-png-20.png"
+            src="https://www.freepnglogos.com/uploads/logo-home-png/-blue-logo-house-png-20.png"
             alt="Toy Store Logo"
             class="h-24 mx-auto"
           />

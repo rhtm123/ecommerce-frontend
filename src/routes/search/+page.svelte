@@ -10,7 +10,7 @@
 <main class="container mx-auto px-4 py-8">
   <div class="breadcrumbs text-sm mb-6">
     <ul>
-      <li><a href="/home">Home</a></li>
+      <li><a href="/">Home</a></li>
       <li>Search Results for "{$page.url.searchParams.get('q')}"</li>
     </ul>
   </div>

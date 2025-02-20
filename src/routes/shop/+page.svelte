@@ -9,7 +9,7 @@ import Products from "$lib/components/Products.svelte";
   
   <div class="breadcrumbs text-sm">
     <ul>
-      <li><a href="/home">Home</a></li>
+      <li><a href="/">Home</a></li>
       <li>Shop</li>
     </ul>
   </div>

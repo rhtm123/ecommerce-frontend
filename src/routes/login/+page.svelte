@@ -8,7 +8,7 @@
         // Check if user is already logged in
         const unsubscribe = user.subscribe(value => {
             if (value) {
-                goto('/home'); // Redirect to home if user is logged in
+                goto('/'); // Redirect to home if user is logged in
             }
         });
 

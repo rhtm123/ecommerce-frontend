@@ -60,7 +60,7 @@
   <!-- Breadcrumbs -->
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
-      <li><a href="/home">Home</a></li>
+      <li><a href="/">Home</a></li>
       <li><a href="/shop">Shop</a></li>
       <li><a href="/shop/{category?.slug}">{category?.name}</a></li>
       <li>{product_listing.name}</li>
