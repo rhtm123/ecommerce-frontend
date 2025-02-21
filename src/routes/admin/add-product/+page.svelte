@@ -1,6 +1,9 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { PUBLIC_API_URL } from '$env/static/public';
+    import { myFetch } from '$lib/utils/myFetch';
+
+    import { user } from '$lib/stores/auth';
 
     // import Tiptap from '$lib/components/wyswyg/Tiptap.svelte';
     import TiptapEditor from '$lib/components/wyswyg/TiptapEditor.svelte';
@@ -11,25 +14,27 @@
         // console.log(content);
 	}
 
+    let authUser = $user;
+
     
     let product = {
         name: '',
-        sku: '',
-        price: '',
-        quantity: '',
+        // sku: '',
+        // price: '',
+        stock: '',
         category: '',
         brand: '',
-        description: '',
-        images: [],
+        // description: '',
+        // images: [],
         attributes: [],
-        shippingDetails: {
-            weight: '',
-            dimensions: {
-                length: '',
-                width: '',
-                height: ''
-            }
-        },
+        // shippingDetails: {
+        //     weight: '',
+        //     dimensions: {
+        //         length: '',
+        //         width: '',
+        //         height: ''
+        //     }
+        // },
         isActive: true
     };
 
@@ -41,10 +46,12 @@
     // Fetch categories and brands on mount
     onMount(async () => {
         try {
-            const categoriesResponse = await fetch(`${PUBLIC_API_URL}/categories`);
-            const brandsResponse = await fetch(`${PUBLIC_API_URL}/brands`);
-            categories = await categoriesResponse.json();
-            brands = await brandsResponse.json();
+            const categoriesResponse = await myFetch(`${PUBLIC_API_URL}/product/categories/?page=1&page_size=48`);
+            const brandsResponse = await myFetch(`${PUBLIC_API_URL}/user/entities/?page=1&page_size=48&entity_type=brand`);
+            categories = categoriesResponse.results;
+            brands = brandsResponse.results;
+            console.log(categories)
+            console.log(brands)
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -65,13 +72,13 @@
     function validateForm() {
         errors = {};
         if (!product.name) errors.name = "Product name is required.";
-        if (!product.sku) errors.sku = "SKU is required.";
-        if (!product.price || isNaN(product.price)) errors.price = "Price must be a valid number.";
-        if (!product.quantity || isNaN(product.quantity)) errors.quantity = "Quantity must be a valid number.";
+        // if (!product.sku) errors.sku = "SKU is required.";
+        // if (!product.price || isNaN(product.price)) errors.price = "Price must be a valid number.";
+        if (!product.stock || isNaN(product.stock)) errors.stock = "stock must be a valid number.";
         if (!product.category) errors.category = "Category is required.";
         if (!product.brand) errors.brand = "Brand is required.";
-        if (!product.description) errors.description = "Description is required.";
-        if (product.images.length === 0) errors.images = "At least one image is required.";
+        if (!editorContent) errors.description = "Description is required.";
+        // if (product.images.length === 0) errors.images = "At least one image is required.";
         return Object.keys(errors).length === 0;
     }
 
@@ -81,46 +88,53 @@
 
         isSubmitting = true;
         try {
-            const formData = new FormData();
-            formData.append('name', product.name);
-            formData.append('sku', product.sku);
-            formData.append('price', product.price);
-            formData.append('quantity', product.quantity);
-            formData.append('category', product.category);
-            formData.append('brand', product.brand);
-            formData.append('description', product.description);
-            product.images.forEach((file, index) => {
-                formData.append(`image_${index}`, file);
-            });
-            formData.append('shippingDetails', JSON.stringify(product.shippingDetails));
-            formData.append('isActive', product.isActive);
 
-            const response = await fetch(`${PUBLIC_API_URL}/products`, {
-                method: 'POST',
-                body: formData
-            });
+            const formData = {
+                name: product.name,
+                stock: product.stock,
+                category: product.category,
+                brand: product.brand,
+                description: editorContent,
+                base_price: 0,
+            }
+            // const formData = new FormData();
+            // formData.append('name', product.name);
+            // // formData.append('sku', product.sku);
+            // // formData.append('price', product.price);
+            // formData.append('stock', product.stock);
+            // formData.append('category', product.category);
+            // formData.append('brand', product.brand);
+            // formData.append('description', editorContent);
+            // // product.images.forEach((file, index) => {
+            // //     formData.append(`image_${index}`, file);
+            // // });
+            // // formData.append('shippingDetails', JSON.stringify(product.shippingDetails));
+            // formData.append('isActive', product.isActive);
 
-            if (!response.ok) throw new Error("Failed to add product.");
-            alert("Product added successfully!");
+            const data = await myFetch(`${PUBLIC_API_URL}/product/products/`, "POST", formData, authUser.access_token);
+
+            // console.log(data);
+            // if (!response.ok) throw new Error("Failed to add product.");
+            // alert("Product added successfully!");
             // Reset form
             product = {
                 name: '',
                 sku: '',
                 price: '',
-                quantity: '',
+                stock: '',
                 category: '',
                 brand: '',
                 description: '',
-                images: [],
-                attributes: [],
-                shippingDetails: {
-                    weight: '',
-                    dimensions: {
-                        length: '',
-                        width: '',
-                        height: ''
-                    }
-                },
+                // images: [],
+                // attributes: [],
+                // shippingDetails: {
+                //     weight: '',
+                //     dimensions: {
+                //         length: '',
+                //         width: '',
+                //         height: ''
+                //     }
+                // },
                 isActive: true
             };
         } catch (error) {
@@ -150,12 +164,11 @@
         {/if}
     </div>
 
-    <TiptapEditor bind:content={editorContent} on:change={handleEditorChange} />
 
 
 
     <!-- SKU -->
-    <div class="mb-6">
+    <!-- <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">SKU</label>
         <input
             type="text"
@@ -166,11 +179,11 @@
         {#if errors.sku}
             <p class="text-sm text-red-500 mt-1">{errors.sku}</p>
         {/if}
-    </div>
+    </div> -->
 
-    <!-- Price & Quantity -->
+    <!-- Price & stock -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
+        <!-- <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
             <input
                 type="number"
@@ -181,17 +194,17 @@
             {#if errors.price}
                 <p class="text-sm text-red-500 mt-1">{errors.price}</p>
             {/if}
-        </div>
+        </div> -->
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">stock</label>
             <input
                 type="number"
-                bind:value={product.quantity}
+                bind:value={product.stock}
                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter quantity"
+                placeholder="Enter stock"
             />
-            {#if errors.quantity}
-                <p class="text-sm text-red-500 mt-1">{errors.quantity}</p>
+            {#if errors.stock}
+                <p class="text-sm text-red-500 mt-1">{errors.stock}</p>
             {/if}
         </div>
     </div>
@@ -234,7 +247,7 @@
     <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
         <!-- <EditorContent editor={$editor} /> -->
-
+        <TiptapEditor bind:content={editorContent} on:change={handleEditorChange} />
 
 
         {#if errors.description}
@@ -243,7 +256,7 @@
     </div>
 
     <!-- Images -->
-    <div class="mb-6">
+    <!-- <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
         <input
             type="file"
@@ -255,10 +268,10 @@
         {#if errors.images}
             <p class="text-sm text-red-500 mt-1">{errors.images}</p>
         {/if}
-    </div>
+    </div> -->
 
     <!-- Shipping Details -->
-    <div class="mb-6">
+    <!-- <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Shipping Details</label>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -294,7 +307,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Submit Button -->
     <div class="mt-8">
