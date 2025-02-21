@@ -1,9 +1,9 @@
 <script>
+  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { fade, slide } from 'svelte/transition';
   import { addToCart } from '../../../lib/stores/cart.js';
   import Reviews from '$lib/components/product/Reviews.svelte';
-  
   import  Icon  from '@iconify/svelte';
 
 
@@ -37,12 +37,52 @@
   }
   
   function formatPrice(price) {
-    return `₹ ${price.toFixed(2)}`;
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(price);
+  }
+
+  function calculateDiscount(mrp, price) {
+    if (!mrp || !price || mrp <= price) return null;
+    return Math.round(((mrp - price) / mrp) * 100);
   }
   
   function handleAddToCart() {
     for (let i = 0; i < quantity; i++) {
       addToCart(product_listing);
+    }
+  }
+
+  
+  let mainImage;
+  let currentImageIndex = 0;
+
+  // Add main image to gallery if not already included
+  $: allImages = [
+    product_listing.main_image,
+    ...(product_listing.images?.filter(img => img !== product_listing.main_image) || placeholderImages)
+  ];
+
+  $: {
+    if (selectedImage) {
+      currentImageIndex = allImages.indexOf(selectedImage);
+    }
+  }
+
+  
+
+  function handleImageHover(image) {
+    selectedImage = image;
+  }
+
+
+  function nextImage() {
+    if (currentImageIndex < allImages.length - 1) {
+      selectedImage = allImages[currentImageIndex + 1];
+    }
+  }
+
+  function prevImage() {
+    if (currentImageIndex > 0) {
+      selectedImage = allImages[currentImageIndex - 1];
     }
   }
 </script>
@@ -56,9 +96,9 @@
   <meta property="og:type" content="website" />
 </svelte:head>
 
-<div class="mx-4 md:mx-8">
+<div class="mx-4 md:mx-8 pb-[80px] md:pb-0">
   <!-- Breadcrumbs -->
-  <div class="text-sm breadcrumbs text-gray-600">
+  <div class="text-sm breadcrumbs text-gray-600 ">
     <ul>
       <li><a href="/">Home</a></li>
       <li><a href="/shop">Shop</a></li>
@@ -67,40 +107,97 @@
     </ul>
   </div>
 
+  
+
   <!-- Product Section -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
     <!-- Product Images -->
-    <div class="space-y-4">
-      <!-- Main Image -->
-      <div class="relative rounded-lg" in:fade>
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Thumbnail Gallery - Desktop -->
+      <div class="hidden md:flex flex-col gap-2 w-20">
+        {#each allImages as image, i}
+          <div 
+            class="relative w-20 h-20 border-2 rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg cursor-pointer"
+            class:border-primary={selectedImage === image}
+            class:border-gray-200={selectedImage !== image}
+            on:mouseenter={() => handleImageHover(image)}
+          >
+            <img 
+              src={image || "/placeholder.svg"} 
+              alt="Product thumbnail"
+              class="w-full h-full object-contain"
+              loading={i > 2 ? 'lazy' : 'eager'}
+            />
+          </div>
+        {/each}
+      </div>
+
+      <!-- Main Image Container -->
+      <div 
+        class="flex-1 relative rounded-lg overflow-hidden bg-white"
+       
+      >
+        <!-- Main Image -->
         <img 
-          src={selectedImage} 
+          src={selectedImage || "/placeholder.svg"} 
           alt={product_listing.name}
-          class="w-full h-auto object-contain rounded-lg"
+          class="w-full h-auto object-contain"
         />
+
+        <!-- Magnifier Lens -->
+        <div 
+          class="hidden md:block absolute w-[200px] h-[200px] border-2 border-gray-200 rounded-lg pointer-events-none bg-white opacity-0 transition-opacity duration-200 hover:opacity-100"
+          style="display: none;"
+        >
+          <div class="w-full h-full overflow-hidden rounded-lg">
+            <img 
+              
+              src={selectedImage || "/placeholder.svg"} 
+              alt={product_listing.name}
+              class="w-full h-full object-contain origin-top-left"
+            />
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Arrows -->
+        <div class="md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
+          <button 
+            class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
+            on:click={prevImage}
+            disabled={currentImageIndex === 0}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button 
+            class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
+            on:click={nextImage}
+            disabled={currentImageIndex === images.length - 1}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile Pagination Dots -->
+        <div class="flex md:hidden justify-center gap-2 absolute bottom-4 left-0 right-0">
+          {#each allImages as _, i}
+            <button 
+              class="w-2 h-2 rounded-full transition-all duration-200"
+              class:bg-primary={currentImageIndex === i}
+              class:bg-gray-300={currentImageIndex !== i}
+              on:click={() => selectedImage = images[i]}
+            />
+          {/each}
+        </div>
+
         {#if product_listing?.isBestSeller}
           <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
             BEST SELLER
           </span>
         {/if}
-      </div>
-      
-      <!-- Thumbnail Images -->
-      <div class="flex gap-4">
-        {#each images as image}
-          <button 
-            class="w-24 h-24 border-2 rounded-lg overflow-hidden transition-all duration-200"
-            class:border-primary={selectedImage === image}
-            class:border-gray-200={selectedImage !== image}
-            on:click={() => selectedImage = image}
-          >
-            <img 
-              src={image} 
-              alt="Product thumbnail"
-              class="w-full h-full object-cover"
-            />
-          </button>
-        {/each}
       </div>
     </div>
 
@@ -116,26 +213,116 @@
           Assured by NM
         </span>
       </h1>
+
+      <!-- Add mobile sticky header
+  <div class="md:hidden ">
+    <h1 class="text-xl font-semibold truncate">{product_listing.name}</h1>
+    <div class="flex items-center gap-2 mt-2">
+      <div class="flex items-center">
+        {#each Array(5) as _, i}
+          <Icon 
+            icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
+                 (i < product_listing.rating ? "ic:baseline-star-half" : "ic:baseline-star-outline")}
+            class="w-4 h-4 text-yellow-400"
+          />
+        {/each}
+      </div>
+    </div>
+  </div> -->
       
-      <!-- Price -->
-      <div class="flex items-center gap-2">
-        <span class="text-2xl font-bold text-primary">{formatPrice(product_listing.price)}</span>
+      <!-- Price Section -->
+      <div class="flex flex-col items-center md:items-start gap-2">
+        <!-- Update Price section for mobile -->
+  <div class="mobile-price-stack md:flex md:items-center gap-2">
+    <p class="text-2xl md:text-3xl font-bold text-primary">
+      {formatPrice(product_listing.price)}
+    </p>
+    <div class="flex items-center gap-2">
+      <span class="text-gray-500 line-through text-lg md:text-xl">
+        {formatPrice(product_listing.mrp)}
+      </span>
+      {#if calculateDiscount(product_listing.mrp, product_listing.price)}
+        <span class="text-green-600 text-lg md:text-xl font-semibold">
+          Save {calculateDiscount(product_listing.mrp, product_listing.price)}%!
+        </span>
+      {/if}
+    </div>
+  </div>
+        
+        <!-- Rating Section -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center">
+            {#each Array(5) as _, i}
+              <Icon 
+                icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
+                     (i < product_listing.rating ? "ic:baseline-star-half" : "ic:baseline-star-outline")}
+                class="w-5 h-5 text-yellow-400"
+              />
+            {/each}
+            <span class="ml-2 text-sm text-gray-600">
+              {product_listing.rating} ({product_listing.review_count} reviews)
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- Product Guarantees -->
-      <div class="flex flex-wrap gap-4">
-        <!-- Same Day Delivery Badge -->
-        <div class="flex items-center badge">
-          <Icon icon="charm:tick" class="w-3 h-3 pr-2 md:w-4 md:h-4 text-success" />
-          <span>Same Day Delivery</span>
+      <!-- <div class="flex items-center justify-between border-t border-b py-4 my-4">
+        <div class="flex flex-col items-center gap-2">
+          <Icon icon="mdi:refresh-circle" class="w-8 h-8 text-primary" />
+          <span class="text-xs text-center">10 days Return<br/>& Exchange</span>
         </div>
-        <!-- Cash on Delivery Badge -->
-        <div class="flex items-center badge ">
-          <Icon icon="charm:tick" class="w-3 h-3 pr-2 md:w-4 md:h-4 text-success" />
-          <span>Cash on Delivery</span>
+        
+        <div class="flex flex-col items-center gap-2">
+          <Icon icon="mdi:cash-multiple" class="w-8 h-8 text-primary" />
+          <span class="text-xs text-center">Pay on<br/>Delivery</span>
+        </div>
+        
+        <div class="flex flex-col items-center gap-2">
+          <Icon icon="mdi:truck-delivery" class="w-8 h-8 text-primary" />
+          <span class="text-xs text-center">Free<br/>Delivery</span>
+        </div>
+        
+        <div class="flex flex-col items-center gap-2">
+          <Icon icon="mdi:shield-check" class="w-8 h-8 text-primary" />
+          <span class="text-xs text-center">Top<br/>Brand</span>
+        </div>
+        
+        <div class="flex flex-col items-center gap-2">
+          <Icon icon="mdi:package-variant" class="w-8 h-8 text-primary" />
+          <span class="text-xs text-center">Naigaon Market<br/>Delivered</span>
+        </div>
+      </div> -->
+
+
+      <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
+        <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <Icon icon="mdi:refresh-circle" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">10 days Return<br/>& Exchange</span>
+          </div>
+          
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <Icon icon="mdi:cash-multiple" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Pay on<br/>Delivery</span>
+          </div>
+          
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <Icon icon="mdi:truck-delivery" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Free<br/>Delivery</span>
+          </div>
+          
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <Icon icon="mdi:shield-check" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Top<br/>Brand</span>
+          </div>
+          
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <Icon icon="mdi:package-variant" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Naigaon Market<br/>Delivered</span>
+          </div>
         </div>
       </div>
-
       <!-- Product Description -->
       <p class="text-gray-600">{product_listing.description}</p>
 
@@ -323,5 +510,120 @@
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+  }
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Smooth transitions */
+  .transition-transform {
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .cursor-zoom-in {
+      cursor: default;
+    }
+  }
+
+  /* Prevent text selection during zoom */
+  .overflow-hidden {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Enhanced zoom functionality */
+  .magnifier {
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Prevent image dragging */
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  /* Mobile touch slider */
+  @media (max-width: 768px) {
+    .image-slider {
+      touch-action: pan-y pinch-zoom;
+    }
+  }
+
+  /* Smooth transitions */
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+
+  /* Better focus states */
+  button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Mobile Specific Styles */
+  @media (max-width: 768px) {
+    /* Sticky header for mobile */
+    .mobile-sticky-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 20;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Scrollable guarantee icons */
+    .mobile-scroll-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 1rem 0;
+    }
+
+    .mobile-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Sticky add to cart bar */
+    .mobile-sticky-cart {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 30;
+    }
+
+    /* Full width tabs */
+    .mobile-tabs {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Compact price display */
+    .mobile-price-stack {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    /* Better touch targets */
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 </style>
