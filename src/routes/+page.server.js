@@ -4,6 +4,11 @@ import { myFetch } from '$lib/utils/myFetch';
 import { categoryApi } from '$lib/services/categoryApi';
 
 
+export const hydrate = false;
+
+export const prerender = true;
+
+
 export async function load() {
   
   let recentReviews = [];
