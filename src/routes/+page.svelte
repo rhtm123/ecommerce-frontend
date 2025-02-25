@@ -1,5 +1,7 @@
 <script>
 
+  export const prerender = true;
+
   export let data; 
   let recentReviews = data.recentReviews;
   let bestProducts = data.bestProducts;
