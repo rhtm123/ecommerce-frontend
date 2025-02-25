@@ -6,6 +6,7 @@
     export let recentReviews;
 
     import Slider from "../Slider.svelte";
+    import { onMount, onDestroy } from "svelte";
 
     // console.log(recentReviews);
 
@@ -38,7 +39,26 @@
 
     // const testimonials = data.testimonials;
 
-    let itemsPerView = 3; // Default for desktop
+    let itemsPerView = 2; // Default for desktop
+
+    function updateItemsPerView() {
+    if (window.innerWidth < 640) {
+      itemsPerView = 1; // Mobile: 1 item per slide
+    } else if (window.innerWidth < 1024) {
+      itemsPerView = 2; // Tablet: 2 items per slide
+    } else {
+      itemsPerView = 3; // Desktop: 3 items per slide
+    }
+  }
+
+  onMount(() => {
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('resize', updateItemsPerView);
+  });
 
   
     const StarIcon = ({ filled }) => `

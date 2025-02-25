@@ -118,7 +118,7 @@
   
 
   <!-- Product Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-2">
     <!-- Product Images -->
     <div class="flex flex-col md:flex-row gap-4">
       <!-- Thumbnail Gallery - Desktop -->
@@ -369,10 +369,10 @@
       </div>
 
       <!-- Additional Product Info -->
-      <div class="space-y-4 pt-4 border-t">
+      <div class="space-y-1 pt-4 border-t">
         <div class="flex gap-2">
           <span class="font-medium">SKU:</span>
-          <span class="text-gray-600">{product_listing.id}</span>
+          <span class="text-gray-600">NM_{product_listing.id}</span>
         </div>
         <div class="flex gap-2">
           <span class="font-medium">CATEGORY:</span>
@@ -420,7 +420,7 @@
   </div>
 
   <!-- Product Tabs Section -->
-  <div class="mt-16">
+  <div class="md:my-8 my-4">
     <!-- Tab Headers -->
     <div class="flex justify-center mb-8">
       <div class="tabs tabs-boxed bg-inherit gap-2">
@@ -446,7 +446,7 @@
     </div>
   
     <!-- Tab Content -->
-    <div class="py-8" in:fade={{ duration: 300 }}>
+    <div class="" in:fade={{ duration: 300 }}>
       {#if activeTab === 'DESCRIPTION'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
           <p class="text-gray-600">{product_listing.product.description}</p>
