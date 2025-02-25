@@ -18,6 +18,9 @@
   import BestSelling from '$lib/components/home/BestSelling.svelte';
   import Testimonials from '$lib/components/home/Testimonials.svelte';
   import ShopByBrands from '$lib/components/home/ShopByBrands.svelte';
+
+  // import ProductSlider from '$lib/components/home/ProductSlider.svelte';
+
 </script>
 
 
@@ -45,5 +48,7 @@
   <BestSelling products={bestProducts} />
   <!-- <Carousel /> -->
   <Testimonials recentReviews={recentReviews} />
+
+  <!-- <ProductSlider /> -->
   <!-- <Footer /> -->
 </div>

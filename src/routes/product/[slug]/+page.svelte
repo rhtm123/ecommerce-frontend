@@ -5,6 +5,8 @@
   import { addToCart } from '../../../lib/stores/cart.js';
   import Reviews from '$lib/components/product/Reviews.svelte';
   import  Icon  from '@iconify/svelte';
+  import { myFetch } from '$lib/utils/myFetch.js';
+  import { PUBLIC_API_URL } from '$env/static/public';
 
 
   export let data;
@@ -14,23 +16,17 @@
   let activeTab = 'DESCRIPTION';
   let quantity = 1;
   
-  console.log(product_listing);
+  // console.log(product_listing);
   
   // Selected image state (default to main image)
   let selectedImage = product_listing.main_image;
+
+
   
-  // Fallback placeholder images (if product_listing.images is empty)
-  let placeholderImages = [
-    "https://placehold.co/600x600?text=Image+1",
-    "https://placehold.co/600x600?text=Image+2",
-    "https://placehold.co/600x600?text=Image+3"
-  ];
+  let placeholderImages = [];
   
   // Use provided images if available, otherwise use placeholders
-  let images =
-    product_listing.images && product_listing.images.length > 0
-      ? product_listing.images
-      : placeholderImages;
+  let images = placeholderImages;
   
   function updateQuantity(change) {
     quantity = Math.max(1, quantity + change);
@@ -51,6 +47,14 @@
     }
   }
 
+  async function getProductListingImages(){
+    let url = `${PUBLIC_API_URL}/product/product-listing-images/?product_listing_id=${product_listing.id}`
+    let data = await myFetch(url);
+    // console.log(data);
+
+    placeholderImages = data.results.map(i => i.image); // Assign new array
+    images = placeholderImages; // Trigger reactivity
+  }
   
   let mainImage;
   let currentImageIndex = 0;
@@ -58,7 +62,7 @@
   // Add main image to gallery if not already included
   $: allImages = [
     product_listing.main_image,
-    ...(product_listing.images?.filter(img => img !== product_listing.main_image) || placeholderImages)
+    ...placeholderImages
   ];
 
   $: {
@@ -85,6 +89,10 @@
       selectedImage = allImages[currentImageIndex - 1];
     }
   }
+
+  onMount(()=>{
+    getProductListingImages();
+  })
 </script>
 
 <svelte:head>
@@ -298,27 +306,27 @@
       <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
         <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:refresh-circle" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <Icon icon="mdi:refresh-circle" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">10 days Return<br/>& Exchange</span>
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:cash-multiple" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <Icon icon="mdi:cash-multiple" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Pay on<br/>Delivery</span>
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:truck-delivery" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <Icon icon="mdi:truck-delivery" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Free<br/>Delivery</span>
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:shield-check" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <Icon icon="mdi:shield-check" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Top<br/>Brand</span>
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:package-variant" class="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <Icon icon="mdi:package-variant" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Naigaon Market<br/>Delivered</span>
           </div>
         </div>

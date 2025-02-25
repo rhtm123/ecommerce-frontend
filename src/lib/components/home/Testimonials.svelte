@@ -5,6 +5,8 @@
 
     export let recentReviews;
 
+    import Slider from "../Slider.svelte";
+
     // console.log(recentReviews);
 
     // import { onMount, onDestroy } from 'svelte';
@@ -35,6 +37,9 @@
 
 
     // const testimonials = data.testimonials;
+
+    let itemsPerView = 3; // Default for desktop
+
   
     const StarIcon = ({ filled }) => `
       <svg class="w-5 h-5 ${filled ? 'text-yellow-400' : 'text-gray-300'}" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,11 +56,11 @@
         <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2D3748]">WHAT OUR CUSTOMERS SAY</h2>
       </div>
   
-      <!-- Testimonials Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {#if recentReviews}
-          {#each recentReviews as review}
-            <div class="bg-white rounded-lg p-6 shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+
+      <Slider {itemsPerView} items={recentReviews} autoSlideInterval={5000}>
+        {#each recentReviews as review (review.id)}
+          <div class="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 p-4">
+            <div class="bg-white rounded-lg p-6 shadow-lg transform hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
               <div class="flex items-center mb-4">
                 <img
                   src={review?.product_listing?.main_image}
@@ -67,28 +72,21 @@
                   <p class="text-xs text-gray-600">Product: {review?.product_listing?.name}</p>
                 </div>
               </div>
-  
+      
               <!-- Star Rating -->
               <div class="flex mb-4">
                 {#each Array(5) as _, i}
                   {@html StarIcon({ filled: i < review.rating })}
                 {/each}
               </div>
-  
-              <p class="text-gray-700 italic">"{review.comment}"</p>
+      
+              <p class="text-gray-700 italic mt-auto">"{review.comment}"</p>
             </div>
-          {/each}
-        {:else}
-          <p>No reviews found.</p>
-        {/if}
-  
-        <!-- {#if loading}
-          <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
           </div>
-        {/if} -->
-      </div>
-    </div>
+        {/each}
+      </Slider>
+
+    
   </section>
   
   <style>
