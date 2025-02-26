@@ -14,7 +14,6 @@
 
   function AddToCardAlert(product) {
     addToCart(product);
-    addAlert('Product added to cart', 'success');
   }
 
   function handleWishlistClick(event) {

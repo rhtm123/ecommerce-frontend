@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { cart } from '../../lib/stores/cart';
+  import { addToCart, cart } from '../../lib/stores/cart';
   import { goto } from '$app/navigation';
   import { addAlert } from '$lib/stores/alert';
 
@@ -20,7 +20,14 @@
       addAlert("Can't add more than 10", "error");
       return selectedItems;
     }
+
     cart.update(items => {
+
+      const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+      if (totalQuantity>=25){
+        addAlert("Can't add to cart: Total cart limit (25) reached", "error")
+        return selectedItems;
+      }
       const index = items.findIndex(item => item.id === id);
       if (index !== -1) {
         items[index].quantity = Math.max(1, newQuantity);

@@ -48,7 +48,6 @@
   
   function handleAddToCart() {
     for (let i = 0; i < quantity; i++) {
-      addAlert("Item added to cart","success")
       addToCart(product_listing);
     }
   }
