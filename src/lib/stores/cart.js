@@ -1,6 +1,8 @@
 import { writable } from 'svelte/store';
 import { addAlert } from './alert';
 
+import { cartLimit } from '$lib/utils/myConstants';
+
 // Function to get cart data from localStorage
 function getCartFromLocalStorage() {
   if (typeof localStorage !== 'undefined') {
@@ -33,8 +35,8 @@ export function addToCart(product) {
         // console.log(`Cannot add more of ${product.name}: Item limit (10) reached`);
         return items; // No change
       }
-      if (totalQuantity >= 25) {
-        addAlert("Can't add to cart: Total cart limit (25) reached", "error")
+      if (totalQuantity >= cartLimit) {
+        addAlert(`Can't add to cart: Total cart limit (${cartLimit}) reached`, "error")
         // console.log('Cannot add to cart: Total cart limit (25) reached');
         return items; // No change
       }
