@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { cart } from '../../lib/stores/cart';
   import { goto } from '$app/navigation';
+  import { addAlert } from '$lib/stores/alert';
 
   let selectedItems = [];
   let totalPrice = 0;
@@ -14,6 +15,11 @@
   }
 
   function updateQuantity(id, newQuantity) {
+
+    if (newQuantity > 10) {
+      addAlert("Can't add more than 10", "error");
+      return selectedItems;
+    }
     cart.update(items => {
       const index = items.findIndex(item => item.id === id);
       if (index !== -1) {
@@ -84,46 +90,69 @@ goto('/checkout');
       <!-- Cart Items -->
       <div class="lg:col-span-2">
         <!-- Mobile Cart Items -->
-        <div class="md:hidden mt-10">
+        <div class=" mt-10">
           {#each selectedItems as item (item.id)}
-            <div class="cart-item" in:fly="{{ y: 20, duration: 300 }}" out:fade>
-              <div class="cart-item-image">
-                <img class="h-20 w-20 object-contain" src={item.main_image || "/placeholder.svg"} alt={item.name} />
-              </div>
-              <div class="cart-item-details">
-                <h3 class="font-medium">{item.name}</h3>
-                <p class="text-gray-600">₹ {item.price.toFixed(2)}</p>
-                <div class="quantity-controls">
-                  <div class="flex items-center border rounded-md">
-                    <button 
-                      on:click={() => updateQuantity(item.id, item.quantity - 1)}
-                      class="px-3 py-1 hover:bg-gray-100"
-                    >-</button>
-                    <input 
-                      type="number" 
-                      value={item.quantity}
-                      min="1"
-                      class="w-12 text-center border-x bg-white"
-                      on:change={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-                    />
-                    <button 
-                      on:click={() => updateQuantity(item.id, item.quantity + 1)}
-                      class="px-3 py-1 hover:bg-gray-100"
-                    >+</button>
-                  </div>
-                  <p class="ml-auto font-medium">₹ {(item.price * item.quantity).toFixed(2)}</p>
-                  <button 
-                    on:click={() => removeItem(item.id)}
-                    class="text-red-500 hover:text-red-700 ml-2"
-                  >×</button>
-                </div>
-              </div>
-            </div>
-          {/each}
+  <div 
+    class="cart-item grid grid-cols-1 md:grid-cols-[100px_1fr] gap-4 p-4 border-b border-gray-200"
+    in:fly="{{ y: 20, duration: 300 }}" 
+    out:fade
+  >
+    <!-- Image -->
+    <div class="cart-item-image flex justify-center md:justify-start">
+      <img 
+        class="h-20 w-20 object-contain" 
+        src={item.main_image || "/placeholder.svg"} 
+        alt={item.name} 
+      />
+    </div>
+
+    <!-- Details -->
+    <div class="cart-item-details flex flex-col gap-2">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h3 class="font-medium text-lg">{item.name}</h3>
+          <p class="text-gray-600">₹ {item.price.toFixed(2)}</p>
+        </div>
+
+        <div class="quantity-controls flex items-center gap-4 mt-2 md:mt-0">
+          <!-- Quantity Controls -->
+          <div class="flex items-center border border-gray-300 rounded-md">
+            <button 
+              on:click={() => updateQuantity(item.id, item.quantity - 1)}
+              class="px-3 py-1 hover:bg-gray-100 transition-colors"
+            >-</button>
+            <input 
+              type="number" 
+              value={item.quantity}
+              min="1"
+              disabled
+              max="10"
+              class="w-12 text-center border-x border-gray-300 bg-white focus:outline-none"
+              on:input={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+            />
+            <button 
+              on:click={() => updateQuantity(item.id, item.quantity + 1)}
+              class="px-3 py-1 hover:bg-gray-100 transition-colors"
+            >+</button>
+          </div>
+
+          <!-- Total and Remove -->
+          <div class="flex items-center gap-4">
+            <p class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</p>
+            <button 
+              on:click={() => removeItem(item.id)}
+              class="text-red-500 hover:text-red-700 text-xl font-bold transition-colors"
+            >×</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/each}
         </div>
 
         <!-- Desktop Table (hidden on mobile) -->
-        <div class="hidden md:block mt-10">
+        <!-- <div class="md:hidden md:block mt-10">
           <table class="w-full">
             <thead>
               <tr class="border-b">
@@ -173,7 +202,7 @@ goto('/checkout');
               {/each}
             </tbody>
           </table>
-        </div>
+        </div> -->
 
         <!-- Coupon Section -->
         <!-- <div class="coupon-section flex mt-8">
@@ -274,29 +303,7 @@ goto('/checkout');
       text-align: center;
     }
 
-    .cart-item {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      gap: 1rem;
-      padding: 1rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .cart-item-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .cart-item-image {
-      grid-row: span 2;
-    }
-
-    .quantity-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+   
 
     .coupon-section {
       flex-direction: column;

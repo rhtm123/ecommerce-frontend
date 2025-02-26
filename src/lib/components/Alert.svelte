@@ -33,12 +33,12 @@
     };
 </script>
 
-<div class={`${alertClasses[type]} shadow-lg flex items-center justify-between p-4 rounded-lg`}>
+<div class={`${alertClasses[type]} shadow-lg flex items-center justify-between px-4 py-2 rounded-lg`}>
     <div class="flex items-center gap-2">
         <Icon icon={iconMap[type]} class="w-6 h-6" />
         <span>{message}</span>
     </div>
-    <button on:click={handleClose} class="btn btn-sm btn-ghost">
+    <button on:click={handleClose} class="btn btn-sm px-1 btn-ghost">
         <Icon icon="mdi:close" class="w-5 h-5" />
     </button>
 </div>

@@ -7,6 +7,7 @@
   import  Icon  from '@iconify/svelte';
   import { myFetch } from '$lib/utils/myFetch.js';
   import { PUBLIC_API_URL } from '$env/static/public';
+  import { addAlert } from '$lib/stores/alert.js';
 
 
   export let data;
@@ -29,6 +30,10 @@
   let images = placeholderImages;
   
   function updateQuantity(change) {
+    if (change===1 && quantity >= product_listing.buy_limit) {
+      addAlert("Can't add more than 10", "error");
+      return;
+    }
     quantity = Math.max(1, quantity + change);
   }
   
@@ -43,6 +48,7 @@
   
   function handleAddToCart() {
     for (let i = 0; i < quantity; i++) {
+      addAlert("Item added to cart","success")
       addToCart(product_listing);
     }
   }
@@ -357,8 +363,10 @@
           <input 
             type="number" 
             bind:value={quantity}
+            disabled
             class="w-16 text-center bg-inherit border-x"
             min="1"
+            max="10"
           />
           <button 
             class="px-4 py-2 hover:bg-base-50"
