@@ -26,7 +26,6 @@
 
 
 <!-- Category Header Banner -->
-<div class="mx-4 md:mx-8">
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
@@ -34,7 +33,6 @@
         <li><a href="/blog">Blog</a></li>
         <li>Category : {category?.name}</li>
     </ul>
-</div>
 
   <!-- <div class="container text-black mx-auto px-4 py-16">
     <div class="flex items-center justify-between">

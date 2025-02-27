@@ -259,7 +259,7 @@
   
   
               {#if loading}
-                <div class="loading loading-spinner loading-lg"></div>
+                <div class="loading loading-spinner loading-sm"></div>
               {/if}
   
             {#if ( loadingMore )}

@@ -7,14 +7,14 @@
   // console.log(data);
 
   $: post = data.blog;
-  console.log(data);
+  // console.log(data);
   $: category = data.blog?.category;
 
 
 </script>
 
 {#if post}
-  <article class="container text-black mx-auto px-4 py-8 max-w-4xl">
+  <article class="mx-auto">
     <!-- Header -->
     <header class="mb-8">
       <div class="flex items-center gap-2 text-sm text-gray-600 mb-4">
@@ -58,7 +58,7 @@
             href={`/blog/tag/${tag.slug}`}
             class="badge badge-outline hover:badge-primary transition-colors"
           >
-            {tag}
+            {tag.name}
           </a>
         {/each}
       </div>

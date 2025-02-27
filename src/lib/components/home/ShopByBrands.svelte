@@ -48,10 +48,11 @@
         >
           <div class="relative flex flex-col h-full">
             <div class="w-full h-[80px] md:h-auto md:aspect-square mb-1 md:mb-4 rounded-lg bg-base-100/50 p-1 md:p-4 flex items-center justify-center">
+              
               <img 
-                src={brand?.image || `https://placehold.co/400x400?text=${encodeURIComponent(brand.name)}`} 
+                src={brand?.logo || `https://placehold.co/400x400?text=${encodeURIComponent(brand.name)}`} 
                 alt={brand.name}
-                class="w-[100%] h-[100%] md:w-[100%] md:h-[100%] object-contain filter drop-shadow-md"
+                class="w-[100%] h-[100%] md:w-[100%] md:h-[100%] rounded-lg"
                 loading="lazy"
               />
             </div>

@@ -28,7 +28,7 @@
               <img 
                 src={category.image || "/placeholder.svg"} 
                 alt={category.name}
-                class="w-[100%] h-[100%] md:w-[100%] md:h-[100%] object-contain filter drop-shadow-md"
+                class="w-[100%] h-[100%] md:w-[100%] md:h-[100%]"
                 loading="lazy"
               />
             </div>

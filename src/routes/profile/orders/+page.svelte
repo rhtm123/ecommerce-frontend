@@ -7,16 +7,10 @@
   import InvoiceGenerator from "$lib/components/InvoiceGenerator.svelte";
 
   let authUser;
-  const unsubscribe = user.subscribe(value => {
-    authUser = value;
-  });
+  $: authUser = $user;
 
   let loading = true;
   let loadingMore = false;
-
-  onDestroy(() => {
-    unsubscribe(); // Cleanup to avoid memory leaks
-  });
 
   let orders = [];
   let next;

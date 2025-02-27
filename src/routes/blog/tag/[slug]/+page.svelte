@@ -11,20 +11,13 @@
 
   $: tag = data?.tag;
 
-  $: currentTag = $page.params.slug.replace('-', ' ');
-  $: posts = blogData.posts.filter(post => 
-    post.tags.some(tag => tag.toLowerCase() === currentTag.toLowerCase())
-  );
 </script>
 
 {#if data?.error}
   <NotFound />
 {:else}
 
-
-
 <!-- Tag Header Banner -->
-<div class="mx-4 md:mx-8">
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
@@ -32,13 +25,10 @@
         <li><a href="/blog">Blog</a></li>
         <li>Tag: {tag?.name}</li>
       </ul>
-</div>
 
 <Blogs tag_id={tag.id} />
 
 
-</div>
-
-
+  </div>
 
 {/if}

@@ -6,7 +6,7 @@
 </script>
 
 <!-- Blog Header Banner -->
-<div class="mx-4 md:mx-8">
+<div class="">
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>
         <li><a href="/">Home</a></li>

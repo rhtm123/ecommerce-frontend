@@ -9,13 +9,8 @@
 
   let authUser;
 
-  const unsubscribe = user.subscribe(value => {
-    authUser = value;
-  });
+  $: authUser = $user;
 
-  onDestroy(() => {
-    unsubscribe(); // Cleanup to avoid memory leaks
-  });
 
 
   let userData;

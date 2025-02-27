@@ -17,13 +17,7 @@
     goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
   }
 
-  const unsubscribe = user.subscribe(value => {
-    authUser = value;
-  });
-
-  onDestroy(() => {
-    unsubscribe();
-  });
+  $: authUser = $user;
 
   let userData;
   let profile = {

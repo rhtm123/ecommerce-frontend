@@ -12,13 +12,7 @@
   let loading = false;
 
   
-  const unsubscribe = user.subscribe(value => {
-    authUser = value;
-  });
-
-  onDestroy(() => {
-    unsubscribe(); // Cleanup to avoid memory leaks
-  });
+  $: authUser = $user;
 
 
   let addresses=[];

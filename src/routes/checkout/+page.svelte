@@ -58,13 +58,7 @@
 
     let authUser;
 
-    const unsubscribe = user.subscribe(value => {
-      authUser = value;
-    });
-
-    onDestroy(() => {
-      unsubscribe(); // Cleanup to avoid memory leaks
-    });
+    $: authUser = $user;
 
   
     $: totalPrice = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -161,7 +155,7 @@
   </svelte:head>
   
 
-  <div class="px-4 mt-5 md:px-8">
+  <div class="px-4 mt-2 md:px-8 lg:px-16">
 
     <div class="text-sm breadcrumbs text-gray-600">
       <ul>

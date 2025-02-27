@@ -148,6 +148,7 @@
               <img 
                 src={slide?.main_image || "/placeholder.svg"} 
                 alt={slide?.name}
+                loading="lazy"
                 class="w-full h-full rounded-lg  transition-transform hover:scale-105"
               />
             </div>
