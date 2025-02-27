@@ -109,7 +109,7 @@
   <meta property="og:type" content="website" />
 </svelte:head>
 
-<div class="mx-4 md:mx-8 pb-[80px] md:pb-0">
+<div class="mx-4 md:mx-8 mt-2 lg:mx-16 md:pb-0">
   <!-- Breadcrumbs -->
   <div class="text-sm breadcrumbs text-gray-600 ">
     <ul>
@@ -337,7 +337,7 @@
         </div>
       </div>
       <!-- Product Description -->
-      <p class="text-gray-600">{product_listing.description}</p>
+      <!-- <p class="text-gray-600">{product_listing.description}</p> -->
 
       <!-- Color Selection (if applicable) -->
       {#if product_listing.color}
@@ -456,7 +456,7 @@
     <div class="" in:fade={{ duration: 300 }}>
       {#if activeTab === 'DESCRIPTION'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
-          <p class="text-gray-600">{product_listing.product.description}</p>
+          <div class="text-gray-600 prose-sm">{@html product_listing.product.description}</div>
         </div>
       {:else if activeTab === 'ADDITIONAL INFORMATION'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>

@@ -17,7 +17,7 @@
 <div class="md:hidden">
   {#if isProfileHome}
     <!-- Profile Home View -->
-    <div class="space-y-6">
+    <div class="space-y-4">
       <!-- User Info Card -->
       <div class="bg-white rounded-lg shadow p-4">
         <div class="flex items-center space-x-4 mb-4">
@@ -99,8 +99,8 @@
 </div>
 
 <!-- Content Area for Inner Pages -->
-{#if !isProfileHome}
+<!-- {#if !isProfileHome}
   <div class="md:hidden">
     <slot />
   </div>
-{/if} 
+{/if}  -->

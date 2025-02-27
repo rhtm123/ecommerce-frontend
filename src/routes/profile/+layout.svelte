@@ -4,35 +4,51 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
   import InitialsAvatar from '$lib/components/InitialsAvatar.svelte';
-
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import ProfileMobileNav from '$lib/components/ProfileMobileNav.svelte';
   import { productApi } from '$lib/services/productApi';
-
+  import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
 
   let authUser;
+  let isLoading = true;
+
+  $: if (browser && authUser === null && !isLoading) {
+    goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
+  }
 
   const unsubscribe = user.subscribe(value => {
     authUser = value;
   });
 
   onDestroy(() => {
-    unsubscribe(); // Cleanup to avoid memory leaks
+    unsubscribe();
   });
-
 
   let userData;
   let profile = {
     first_name: "",
-      last_name: "",
-      email: "",
-      mobile: "",
-      gender: '',
+    last_name: "",
+    email: "",
+    mobile: "",
+    gender: '',
   };
 
-  $: if (authUser) {
-    fetchUser();
-  }
+
+
+  // Handle auth check on client-side only
+  onMount(async () => {
+    if (!authUser) {
+      if (browser) {
+        goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
+      }
+      return;
+    }
+    isLoading = false;
+    await fetchUser();
+  });
+
+
 
   $: if (userData) {
     profile = {
@@ -45,10 +61,16 @@
     };
   }
 
-  async function fetchUser(){
-    let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
-    userData = await myFetch(url);
-    console.log(userData);
+  async function fetchUser() {
+    try {
+      let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
+      userData = await myFetch(url);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      if (browser) {
+        goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
+      }
+    }
   }
 
   const menuItems = [
@@ -70,26 +92,13 @@
         { title: 'Manage Addresses', href: '/profile/addresses' }
       ]
     },
-    // {
-    //   title: 'PAYMENTS',
-    //   icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    //           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-    //         </svg>`,
-    //   subItems: [
-    //     { title: 'Gift Cards', href: '/profile/gift-cards' },
-    //     { title: 'Saved UPI', href: '/profile/saved-upi' },
-    //     { title: 'Saved Cards', href: '/profile/saved-cards' }
-    //   ]
-    // },
     {
       title: 'MY STUFF',
       icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>`,
       subItems: [
-        // { title: 'My Coupons', href: '/profile/coupons' },
         { title: 'My Reviews & Ratings', href: '/profile/reviews' },
-        // { title: 'All Notifications', href: '/profile/notifications' },
         { title: 'My Wishlist', href: '/profile/wishlist' }
       ]
     }
@@ -97,98 +106,119 @@
 
   $: currentPath = $page.url.pathname;
 </script>
-<div class="">
-<div class="px-4 md:px-8 py-8">
-  <!-- Mobile Navigation with slot -->
-  <ProfileMobileNav {profile} {menuItems}>
-    <slot />
-  </ProfileMobileNav>
 
-  <!-- Desktop Layout (unchanged) -->
-  <div class="hidden md:grid md:grid-cols-4 gap-8">
-    <!-- Sidebar -->
-    <div class="md:col-span-1">
-      <div class="bg-white rounded-lg shadow p-6">
-        <!-- User Info -->
-        <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
-          <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+{#if isLoading}
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <p>Loading profile...</p>
+    </div>
+  </div>
+{:else}
+  <div class="min-h-screen">
+    <div class="px-4 md:px-8 py-4 md:py-8 lg:px-16">
+      <!-- Mobile Navigation with slot -->
+      <ProfileMobileNav {profile} {menuItems}>
+        <slot />
+      </ProfileMobileNav>
 
-            {#if profile.google_picture}
-            <img 
-              src={profile.google_picture}
-              alt="User profile"
-              class="h-12 w-12 text-gray-600 rounded-full"
-            />
-            {:else}
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg> -->
-            <InitialsAvatar 
-              firstName={profile.first_name} 
-              lastName={profile.last_name}
-              size="w-12 h-12"
-            />
-            {/if}
-          </div>
-          <div>
-            <h3 class="font-medium">Hello,</h3>
-            <p class="text-gray-600">{profile.first_name} {profile.last_name}</p>
+      <div class="md:grid md:grid-cols-4 gap-8">
+        <!-- Sidebar -->
+        <div class="md:col-span-1">
+          <div class="hidden md:block">
+            <div class="bg-white rounded-lg shadow p-6">
+              <!-- User Info -->
+              <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
+                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                  {#if profile.google_picture}
+                    <img 
+                      src={profile.google_picture}
+                      alt="User profile"
+                      class="h-12 w-12 rounded-full"
+                    />
+                  {:else}
+                    <InitialsAvatar 
+                      firstName={profile.first_name} 
+                      lastName={profile.last_name}
+                      size="w-12 h-12"
+                    />
+                  {/if}
+                </div>
+                <div>
+                  <h3 class="font-medium">Hello,</h3>
+                  <p class="text-gray-600">{profile.first_name} {profile.last_name}</p>
+                </div>
+              </div>
+
+              <!-- Navigation -->
+              <nav class="space-y-2">
+                {#each menuItems as item}
+                  <div class="space-y-2">
+                    {#if item.href}
+                      <a
+                        href={item.href}
+                        class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(item.href)? 'text-primary bg-base-200' : 'text-gray-700'}"
+                      >
+                        {@html item.icon}
+                        <span>{item.title}</span>
+                      </a>
+                    {:else}
+                      <div class="flex items-center space-x-2 p-2 text-gray-700">
+                        {@html item.icon}
+                        <span>{item.title}</span>
+                      </div>
+                      {#if item.subItems}
+                        <div class="ml-8 space-y-2">
+                          {#each item.subItems as subItem}
+                            <a
+                              href={subItem.href}
+                              class="block p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(subItem.href) ? 'text-primary bg-base-200' : 'text-gray-700'}"
+                            >
+                              {subItem.title}
+                            </a>
+                          {/each}
+                        </div>
+                      {/if}
+                    {/if}
+                  </div>
+                {/each}
+
+                <!-- Logout -->
+                <button
+                  class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700 w-full"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Logout</span>
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
 
-
-        <!-- Navigation -->
-        <nav class="space-y-2">
-          {#each menuItems as item}
-            <div class="space-y-2">
-              {#if item.href}
-                <a
-                  href={item.href}
-                  class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(item.href)? 'text-primary bg-base-200' : 'text-gray-700'}"
-                >
-                  {@html item.icon}
-                  <span>{item.title}</span>
-                </a>
-              {:else}
-                <div class="flex items-center space-x-2 p-2 text-gray-700">
-                  {@html item.icon}
-                  <span>{item.title}</span>
-                </div>
-                {#if item.subItems}
-                  <div class="ml-8 space-y-2">
-                    {#each item.subItems as subItem}
-                      <a
-                        href={subItem.href}
-                        class="block p-2 rounded-lg hover:bg-gray-100 {currentPath.includes(subItem.href) ? 'text-primary bg-base-200' : 'text-gray-700'}"
-                      >
-                        {subItem.title}
-                      </a>
-                    {/each}
-                  </div>
-                {/if}
-              {/if}
-            </div>
-          {/each}
-
-          <!-- Logout -->
-          <button
-            class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700 w-full"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span>Logout</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-
-    <!-- Content Area -->
-    <div class="md:col-span-3">
-      <div class="bg-white rounded-lg shadow p-6">
-        <slot />
+        <!-- Content Area -->
+        <div class="md:col-span-3">
+          <div class="bg-white rounded-lg shadow p-6">
+            <slot />
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div> 
-</div>
+{/if}
+
+<style>
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

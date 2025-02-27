@@ -2,7 +2,10 @@
     import { PUBLIC_API_URL, PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
     import { onMount } from "svelte";
     import { loginUser } from '$lib/stores/auth';
+    import { myFetch } from '$lib/utils/myFetch';
     import { goto } from '$app/navigation'; // Import the goto function for navigation
+
+    export let redirectAfterLogin;
 
     let googleToken = '';
     let username = '';
@@ -37,51 +40,33 @@
         });
     }
 
-    function handleLogin(event) {
+    async function handleLogin(event) {
         event.preventDefault();
         isLoading = true; // Start loading
 
-        fetch(`${PUBLIC_API_URL}/user/auth/login/`, {
+        try{
+
+        let res = await fetch(`${PUBLIC_API_URL}/user/auth/login/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.access_token) {
+
+        let data = await res.json();
+
+        if (data.access_token) {
                 loginUser(data);
-                // redirectAfterLogin(); // Redirect after successful login
+                redirectAfterLogin(); // Redirect after successful login
             } else {
                 errorMessage = 'Login failed: ' + data.error;
-            }
-        })
-        .catch((err) => {
-            console.error('Error:', err);
-            errorMessage = 'Failed to connect to the server.';
-        })
-        .finally(() => {
+        }
+        } catch (e) { 
+
+        } finally { 
             isLoading = false; // Stop loading
-        });
-    }
-
-    // onMount(()=>{
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     const nextPage = urlParams.get('next'); // 
-    //     console.log(nextPage);
-    // })
-    
-
-    function redirectAfterLogin() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const nextPage = urlParams.get('next'); // Get the 'next' query parameter
-        if (nextPage) {
-            // console.log(nextPage);
-            goto(nextPage); // Redirect to the specified page
-        } else {
-            // goto('/'); // Redirect to the home page if no 'next' parameter
         }
     }
-
+    
     function initializeGoogleSignIn() {
         google.accounts.id.initialize({
             client_id: PUBLIC_GOOGLE_CLIENT_ID,

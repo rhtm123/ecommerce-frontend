@@ -56,7 +56,7 @@
     <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h4v4H0V0zm8 0h4v4H8V0zm8 0h4v4h-4V0zM0 8h4v4H0V8zm8 0h4v4H8V8zm8 0h4v4h-4V8zM0 16h4v4H0v-4zm8 0h4v4H8v-4zm8 0h4v4h-4v-4z\' fill=\'%23000000\' fill-opacity=\'0.03\'%3E%3C/path%3E%3C/svg%3E')] opacity-30"></div>
   </div>
 
-  <div class="container mx-auto px-4 py-8 md:py-12 relative z-10">
+  <div class="mx-auto px-4 md:px-8 lg:px-16 py-8 md:py-12 relative z-10">
     {#if slides.length > 0}
       <div class="flex flex-col py-8 md:py-0 md:flex-row items-center justify-between gap-8 md:gap-12">
         <!-- Product Details -->
@@ -142,13 +142,13 @@
         <div class="w-full md:w-1/2 relative aspect-square md:aspect-auto md:h-[500px] z-10">
           {#each slides as slide, i}
             <div 
-              class="absolute rounded inset-0 transition-all duration-700"
+              class="absolute rounded-lg inset-0 transition-all duration-700"
               style="opacity: {currentSlide === i ? '1' : '0'};"
             >
               <img 
                 src={slide?.main_image || "/placeholder.svg"} 
                 alt={slide?.name}
-                class="w-full h-full rounded object-contain transition-transform hover:scale-105"
+                class="w-full h-full rounded-lg  transition-transform hover:scale-105"
               />
             </div>
           {/each}
@@ -211,10 +211,6 @@
     100% { transform: translateY(0px); }
   }
 
-  /* :global(img) {
-    animation: fadeIn 0.5s ease-out, float 6s ease-in-out infinite;
-  } */
-
   /* Enhanced transitions */
   button {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -225,33 +221,6 @@
     backdrop-filter: blur(12px);
   }
 
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .container {
-      padding: 0.75rem;
-    }
-    
-    :global(.space-y-4) > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 1rem;
-    }
-    
-    :global(.space-y-3) > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.75rem;
-    }
-    
-    :global(.aspect-square) {
-      height: 300px !important;
-    }
-    
-    :global(.text-4xl) {
-      font-size: 2rem;
-    }
-    
-    :global(.text-5xl) {
-      font-size: 2.5rem;
-    }
-  }
-
   /* Gradient text support for Safari */
   @supports (-webkit-background-clip: text) {
     .bg-clip-text {
@@ -259,13 +228,6 @@
       background-clip: text;
     }
   }
-
-  /* Remove any box shadows or borders that might be inherited */
-  img {
-    box-shadow: none;
-    border: none;
-  }
-
   /* Enhance transitions */
   .transition-all {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);

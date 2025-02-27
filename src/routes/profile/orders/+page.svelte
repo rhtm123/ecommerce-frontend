@@ -71,7 +71,7 @@
 
 <h2 class="text-2xl font-bold md:block hidden">My Orders</h2>
 
-<div class="space-y-6 md:mt-0 mt-2">
+<div class="space-y-4 md:my-4 my-2">
   {#if loading}
     <div class="p-4">
       <span class="loading loading-spinner loading-sm"></span>
@@ -89,7 +89,7 @@
               <!-- <p class="text-sm text-gray-600">Ordered on {formatDate(order.created)}</p> -->
             </div>
             <div class="text-right">
-              <a href={"/profile/orders/"+order.order_number}>Details & Track</a>
+              <a class="btn btn-sm btn-outline btn-secondary" href={"/profile/orders/"+order.order_number}>Details & Track</a>
             </div>
           </div>
 

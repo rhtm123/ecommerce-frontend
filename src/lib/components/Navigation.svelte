@@ -44,6 +44,10 @@
     isProfileDropdownOpen = !isProfileDropdownOpen;
   }
 
+  function toggleMenuDropdown(){
+    isMenuOpen = !isMenuOpen;
+  }
+
   function handleLogout(){
     logoutUser();
   }
@@ -51,11 +55,10 @@
 </script>
 
 <nav 
-use:clickOutside
-on:outclick={()=> isMenuOpen=false}
-
-class="bg-white shadow-md fixed top-0 w-full z-20">
-  <div class="mx-auto px-4 sm:px-6 lg:px-8">
+  use:clickOutside
+  on:outclick={()=> isMenuOpen=false}
+  class="bg-white shadow-md fixed top-0 w-full z-20">
+  <div class="mx-auto px-4 md:px-8 lg:px-16 ">
     <div class="flex items-center justify-between h-16">
       <!-- Left Section -->
       <div class="flex items-center">
@@ -122,8 +125,8 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
             </button>
             {#if isProfileDropdownOpen}
               <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                <a href="/profile/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
-                <a href="/profile/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
                 <div class="border-t my-2"></div>
                 <button on:click={handleLogout} class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Sign Out
@@ -138,20 +141,47 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
         {/if}
 
         <!-- Mobile Menu Button -->
-        <button 
+
+        <div class="relative"
+          
+          use:clickOutside
+          on:outclick={()=> isMenuOpen=false}
+
+          >
+            <button
+              on:click={toggleMenuDropdown}
+              class="p-1 rounded-full hover:bg-gray-100"
+            >
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+
+            </button>
+            {#if isMenuOpen}
+              <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                {#each menuItems as item}
+                  <a on:click={()=>{isMenuOpen=false}} href={item.href} class="block px-3 py-2 text-gray-700 hover:bg-gray-100">{item.label}</a>
+                {/each}
+              </div>
+            {/if}
+          </div>
+
+
+        <!-- <button 
           class="p-2 rounded-full hover:bg-gray-100"
           on:click={() => isMenuOpen = !isMenuOpen}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
 
   <!-- Mobile Menu -->
-  {#if isMenuOpen}
+  <!-- {#if isMenuOpen}
     <div class=" bg-white border-t">
       <div class="px-2 pt-2 pb-3 space-y-1">
         {#each menuItems as item}
@@ -159,7 +189,7 @@ class="bg-white shadow-md fixed top-0 w-full z-20">
         {/each}
       </div>
     </div>
-  {/if}
+  {/if} -->
 
   <!-- Mobile Search Overlay -->
   {#if isSearchOpen}

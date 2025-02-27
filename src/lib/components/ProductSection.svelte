@@ -39,7 +39,7 @@
 
 </script>
 
-<section class="bg-base-100 mx-auto px-4 md:px-8 py-12">
+<section class="bg-base-100 mx-auto px-4 md:px-8 lg:px-16 py-12">
   <div class="text-center mb-10">
     <h3 class="text-secondary font-medium mb-2">Our Products</h3>
     <h2 class="text-4xl font-bold text-primary">What's New?</h2>

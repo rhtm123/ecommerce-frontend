@@ -32,7 +32,7 @@
 
 </script>
 
-<section class="bg-base-100 mx-auto px-4 md:px-8 py-12">
+<section class="bg-base-100 mx-auto px-4 md:px-8 lg:px-16 py-12">
   <div class="text-center mb-10">
     <h3 class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 md:mb-3 bg-primary/10 px-3 py-1 rounded-full">Our Products</h3>
     <h2 class="text-4xl font-bold text-primary">BEST SELLING</h2>

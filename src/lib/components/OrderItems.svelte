@@ -12,7 +12,7 @@
         let url = `${PUBLIC_API_URL}/order/order-items/?order_id=${order_id}&need_reviews=true`
         let data = await myFetch(url);
         orderItems = data.results;
-        // console.log(data);
+        console.log(data);
         loading = false;
     }
 
@@ -35,7 +35,7 @@
     <div class="flex items-center justify-between">
 
         <div class="flex space-x-4">
-            <img src={"https://placehold.co/600x400"} alt={item.name} class="w-20 h-20 object-cover rounded"/>
+            <!-- <img src={item.main_image? item.main_image:"https://placehold.co/600x400"} alt={item.name} class="w-20 h-20 object-cover rounded"/> -->
             <div class="flex-1">
                 <h3 class="font-medium">{item?.product_listing?.name}</h3>
                 <p class="text-gray-600">Quantity: {item.quantity}</p>

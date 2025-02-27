@@ -11,7 +11,7 @@
 
 
 <section class="py-16 bg-[#FFF5F5]">
-  <div class="container mx-auto px-4">
+  <div class="mx-auto px-4 md:px-8 lg:px-16">
     <!-- Section Header -->
     <div class="mb-12">
       <h4 class="text-[#FF6B6B] text-sm text text-center font-medium mb-2 animate-fade-in">Client Feedback</h4>

@@ -33,13 +33,13 @@
     }
   </script>
   
-  <section class="py-12 bg-base-200">
+  <section class="py-12 mx-auto px-4 md:px-8 lg:px-16 bg-base-200">
     <div class="text-center mb-8">
       <p class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 md:mb-3 bg-primary/10 px-3 py-1 rounded-full">Shop By Brand</p>
       <h2 class="text-2xl font-bold">Your Favorite Brands</h2>
     </div>
   
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 px-4 md:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
       {#each brands as brand}
         
         <button
