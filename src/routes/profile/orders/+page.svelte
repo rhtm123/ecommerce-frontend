@@ -22,7 +22,7 @@
     orders = data.results;
     next = data.next;
     loading = false;
-    // console.log(data);
+    console.log("orders",data);
   })
 
   async function loadMore() {

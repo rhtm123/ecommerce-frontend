@@ -49,7 +49,7 @@
       try {
       const filtersData = await productApi.getFilters()
       filters = filtersData;
-      console.log(filters);
+      console.log("filters",filters);
       // Set initial price range from API
       selectedPriceRange = [
         parseFloat(filters.price_range?.min_price || 0),
