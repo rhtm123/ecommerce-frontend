@@ -3,7 +3,6 @@
 
   import { fade, fly } from 'svelte/transition';
   import { onMount } from 'svelte';
-  import blogData from '$lib/data/blog.json';
   import { PUBLIC_API_URL } from '$env/static/public';
   import { myFetch } from '$lib/utils/myFetch';
 

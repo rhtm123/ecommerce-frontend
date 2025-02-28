@@ -1,7 +1,6 @@
 <script>
   import { page } from '$app/stores';
   import { fade, fly } from 'svelte/transition';
-  import blogData from '$lib/data/blog.json';
 
   import NotFound from '$lib/components/error/NotFound.svelte';
   import Blogs from '$lib/components/blog/Blogs.svelte';
