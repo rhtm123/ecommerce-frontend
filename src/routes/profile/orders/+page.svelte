@@ -63,59 +63,53 @@
   }
 </script>
 
-<h2 class="text-2xl font-bold md:block hidden">My Orders</h2>
+<h2 class="text-2xl font-bold md:block hidden px-4 py-3 sticky top-0 bg-base-100 z-10 ">My Orders</h2>
 
-<div class="space-y-4 md:my-4 my-2">
+<div class="space-y-2 md:space-y-4">
   {#if loading}
-    <div class="p-4">
+    <div class="p-4 flex justify-center">
       <span class="loading loading-spinner loading-sm"></span>
     </div>
   {/if}
 
   {#if orders.length > 0}
-    <div class="space-y-4">
+    <div class="space-y-3">
       {#each orders as order}
-        <div class="border md:rounded-lg overflow-hidden">
+        <div class="bg-white shadow-sm border rounded-lg mx-1">
           <!-- Order Header -->
-          <div class="bg-gray-50 p-4 flex justify-between items-center">
-            <div>
-              <p class="text-sm text-gray-600">Order Number: {order.order_number}</p>
-              <!-- <p class="text-sm text-gray-600">Ordered on {formatDate(order.created)}</p> -->
-            </div>
-            <div class="text-right">
-              <a class="btn btn-sm btn-outline btn-secondary" href={"/profile/orders/"+order.order_number}>Details & Track</a>
-            </div>
+          <div class="p-3 flex justify-between items-center border-b">
+            <p class="text-sm text-gray-600">#{order.order_number}</p>
+            <a class="btn btn-xs btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
+              Details & Track
+            </a>
           </div>
 
           <OrderItems order_id={order.id} />
 
           <!-- Order Footer -->
-          <div class="bg-gray-50 p-4 flex justify-between items-center border-t">
-            <div class="space-x-4 flex">
-              <!-- <a href="/profile/orders/{order.id}" class="text-red-500 hover:text-red-600">View Details</a> -->
-              <InvoiceGenerator orderId={order.id} />
-            </div>
-            <div class="text-lg font-medium">
-              Total: {order.total_amount.toFixed(2)}
+          <div class="p-3 flex justify-between items-center border-t bg-gray-50">
+            <InvoiceGenerator orderId={order.id} />
+            <div class="text-base font-medium">
+              Total: ₹{order.total_amount.toFixed(2)}
             </div>
           </div>
         </div>
       {/each}
 
       {#if loadingMore}
-          <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
-          </div>
+        <div class="p-4 flex justify-center">
+          <span class="loading loading-spinner loading-sm"></span>
+        </div>
       {/if}
-
 
       {#if (next && !loadingMore && !loading)}
-        <button class="btn btn-sm my-4" on:click={loadMore}>Load More</button>
+        <div class="flex justify-center p-4">
+          <button class="btn btn-sm btn-outline" on:click={loadMore}>Load More</button>
+        </div>
       {/if}
-
     </div>
   {:else if (!loading)}
-    <div class="text-center py-12">
+    <div class="text-center py-8 px-4">
       <div class="mb-4">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -124,7 +118,7 @@
       <h3 class="text-lg font-medium text-gray-900">No orders yet</h3>
       <p class="mt-1 text-gray-500">Start shopping to see your orders here</p>
       <div class="mt-6">
-        <a href="/shop" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600">
+        <a href="/shop" class="btn btn-primary">
           Continue Shopping
         </a>
       </div>

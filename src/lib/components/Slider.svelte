@@ -84,6 +84,16 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
     </svg>
   </button>
+
+  <div class="md:hidden flex justify-center space-x-2 mt-4">
+    {#each items as _, i}
+      <button
+        class="w-2 h-2 rounded-full transition-all duration-300 {i === currentIndex ? 'bg-primary w-4' : 'bg-gray-300'}"
+        on:click={() => scrollToIndex(i)}
+        aria-label="Go to slide {i + 1}"
+      />
+    {/each}
+  </div>
 </div>
 
 <style>
