@@ -65,55 +65,76 @@
   
     let termsAccepted = false;
 
+    async function checkDailyOrderLimit() {
+        const url = `${PUBLIC_API_URL}/order/orders/?user_id=${authUser.user_id}`;
+        const response = await myFetch(url);
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+        // Count orders placed today
+        const todayOrdersCount = response.results.filter(order => {
+            const orderDate = new Date(order.created).toISOString().split('T')[0];
+            return orderDate === today;
+        }).length;
+
+        return todayOrdersCount;
+    }
+
     async function handleSubmit() {
-      if (!termsAccepted) {
-        addAlert("Please accept the terms and conditions", "error");
-        return;
-      }
+        const dailyOrderCount = await checkDailyOrderLimit();
 
-      if (!selectedAddress) {
-        addAlert("Address is required to place the order", "error");
-        return;
-      }
-
-      try {
-        orderPlacing = true;
-        let url = `${PUBLIC_API_URL}/order/orders/`;
-        console.log(selectedAddress);
-        let order = await myFetch(url, "POST", {
-          user_id: authUser?.user_id,
-          shipping_address_id: selectedAddress,
-          total_amount: totalPrice
-        }, authUser.access_token)
-
-        console.log(order);
-        orderData = order;
-
-        let url2 = `${PUBLIC_API_URL}/order/order-items/`;
-
-        console.log(cartItems);
-
-        for (let i = 0; i < cartItems.length; i++) {
-          myFetch(url2, "POST", {
-            order_id: order.id,
-            product_listing_id: cartItems[i].id,
-            quantity:cartItems[i].quantity,
-            price: cartItems[i].price,
-            subtotal: cartItems[i].price
-          }, authUser.access_token)
+        if (dailyOrderCount >= 5) {
+            addAlert("You cannot place more than 5 orders in a single day.", "error");
+            return;
         }
 
-        orderdCompleted = true
-        addAlert("Order placed successfully ", "success")
+        if (!termsAccepted) {
+            addAlert("Please accept the terms and conditions", "error");
+            return;
+        }
 
-      } catch (e) {
-        addAlert("Error placing order", "error");
-      } finally {
-        orderPlacing = false;
-      }
+        if (!selectedAddress) {
+            addAlert("Address is required to place the order", "error");
+            return;
+        }
 
-      cart.set([]);
-      // console.log('Order submitted:', { billingDetails, items: $cart });
+        try {
+            orderPlacing = true;
+            let url = `${PUBLIC_API_URL}/order/orders/`;
+            console.log(selectedAddress);
+            let order = await myFetch(url, "POST", {
+                user_id: authUser?.user_id,
+                shipping_address_id: selectedAddress,
+                total_amount: totalPrice
+            }, authUser.access_token)
+
+            console.log(order);
+            orderData = order;
+
+            let url2 = `${PUBLIC_API_URL}/order/order-items/`;
+
+            console.log(cartItems);
+
+            for (let i = 0; i < cartItems.length; i++) {
+                myFetch(url2, "POST", {
+                    order_id: order.id,
+                    product_listing_id: cartItems[i].id,
+                    quantity:cartItems[i].quantity,
+                    price: cartItems[i].price,
+                    subtotal: cartItems[i].price
+                }, authUser.access_token)
+            }
+
+            orderdCompleted = true
+            addAlert("Order placed successfully ", "success")
+
+        } catch (e) {
+            addAlert("Error placing order", "error");
+        } finally {
+            orderPlacing = false;
+        }
+
+        cart.set([]);
+        // console.log('Order submitted:', { billingDetails, items: $cart });
     }
 
 
