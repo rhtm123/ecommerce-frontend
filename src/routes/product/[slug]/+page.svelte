@@ -164,11 +164,11 @@
       </div>
 
       <!-- Main Image Container (Desktop Only) -->
-      <div class="flex-1 relative rounded-lg overflow-hidden bg-white hidden md:block">
+      <div class="flex-1 relative rounded-lg overflow-hidden bg-white   hidden md:block">
         <img 
           src={selectedImage || "/placeholder.svg"} 
           alt={product_listing.name}
-          class="w-full h-[300px] object-contain"
+          class="w-full h-auto object-contain"
         />
       </div>
 
