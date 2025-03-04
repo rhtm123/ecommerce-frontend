@@ -8,6 +8,7 @@
   import { myFetch } from '$lib/utils/myFetch.js';
   import { PUBLIC_API_URL } from '$env/static/public';
   import { addAlert } from '$lib/stores/alert.js';
+  import Slider from '$lib/components/Slider.svelte';
 
 
   export let data;
@@ -70,6 +71,7 @@
     ...placeholderImages
   ];
 
+  // console.log(allImages);
   $: {
     if (selectedImage) {
       currentImageIndex = allImages.indexOf(selectedImage);
@@ -97,6 +99,7 @@
 
   onMount(()=>{
     getProductListingImages();
+    // console.log(allImages);
   })
 </script>
 
@@ -145,73 +148,84 @@
         {/each}
       </div>
 
-      <!-- Main Image Container -->
-      <div 
-        class="flex-1 relative rounded-lg overflow-hidden bg-white"
-       
-      >
-        <!-- Main Image -->
+      <!-- Mobile Slider for Images -->
+      <div class="md:hidden">
+        <Slider items={allImages}>
+          {#each allImages as image}
+            <div class="item snap-start bg-white rounded-lg p-6  transform hover:-translate-y-2 transition-transform duration-300 w-[400px] flex-shrink-0">
+              <img 
+                src={image || "/placeholder.svg"} 
+                alt={product_listing.name}
+                class="w-full h-auto"
+              />
+            </div>
+          {/each}
+        </Slider>
+      </div>
+
+      <!-- Main Image Container (Desktop Only) -->
+      <div class="flex-1 relative rounded-lg overflow-hidden bg-white hidden md:block">
         <img 
           src={selectedImage || "/placeholder.svg"} 
           alt={product_listing.name}
-          class="w-full h-auto object-contain"
+          class="w-full h-[300px] object-contain"
         />
-
-        <!-- Magnifier Lens -->
-        <div 
-          class="hidden md:block absolute w-[200px] h-[200px] border-2 border-gray-200 rounded-lg pointer-events-none bg-white opacity-0 transition-opacity duration-200 hover:opacity-100"
-          style="display: none;"
-        >
-          <div class="w-full h-full overflow-hidden rounded-lg">
-            <img 
-              
-              src={selectedImage || "/placeholder.svg"} 
-              alt={product_listing.name}
-              class="w-full h-full object-contain origin-top-left"
-            />
-          </div>
-        </div>
-
-        <!-- Mobile Navigation Arrows -->
-        <div class="md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
-          <button 
-            class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
-            on:click={prevImage}
-            disabled={currentImageIndex === 0}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button 
-            class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
-            on:click={nextImage}
-            disabled={currentImageIndex === images.length - 1}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Mobile Pagination Dots -->
-        <div class="flex md:hidden justify-center gap-2 absolute bottom-4 left-0 right-0">
-          {#each allImages as _, i}
-            <button 
-              class="w-2 h-2 rounded-full transition-all duration-200"
-              class:bg-primary={currentImageIndex === i}
-              class:bg-gray-300={currentImageIndex !== i}
-              on:click={() => selectedImage = images[i]}
-            />
-          {/each}
-        </div>
-
-        {#if product_listing?.isBestSeller}
-          <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
-            BEST SELLER
-          </span>
-        {/if}
       </div>
+
+      <!-- Magnifier Lens -->
+      <div 
+        class="hidden md:block absolute w-[200px] h-[200px] border-2 border-gray-200 rounded-lg pointer-events-none bg-white opacity-0 transition-opacity duration-200 hover:opacity-100"
+        style="display: none;"
+      >
+        <div class="w-full h-full overflow-hidden rounded-lg">
+          <img 
+            
+            src={selectedImage || "/placeholder.svg"} 
+            alt={product_listing.name}
+            class="w-full h-full object-contain origin-top-left"
+          />
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Arrows -->
+      <!-- <div class="md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
+        <button 
+          class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
+          on:click={prevImage}
+          disabled={currentImageIndex === 0}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button 
+          class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
+          on:click={nextImage}
+          disabled={currentImageIndex === images.length - 1}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div> -->
+
+      <!-- Mobile Pagination Dots -->
+      <!-- <div class="flex md:hidden justify-center gap-2 absolute bottom-4 left-0 right-0">
+        {#each allImages as _, i}
+          <button 
+            class="w-2 h-2 rounded-full transition-all duration-200"
+            class:bg-primary={currentImageIndex === i}
+            class:bg-gray-300={currentImageIndex !== i}
+            on:click={() => selectedImage = images[i]}
+          />
+        {/each}
+      </div> -->
+
+      {#if product_listing?.isBestSeller}
+        <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
+          BEST SELLER
+        </span>
+      {/if}
     </div>
 
     <!-- Product Info -->

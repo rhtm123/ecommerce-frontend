@@ -5,6 +5,7 @@
   import { addToCart } from '../../stores/cart';
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
+  import Slider from '../Slider.svelte';
 
   $: isWishlisted = $wishlistIds.has(product.id);
 
