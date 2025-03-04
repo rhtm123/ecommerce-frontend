@@ -7,7 +7,9 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { myFetch } from "$lib/utils/myFetch";
     import { addAlert } from "$lib/stores/alert";
+    import { onMount } from 'svelte';
 
+    let validPins = [];
     let newEditAddress = {
     name: authUser? `${authUser.first_name} ${authUser.last_name}`:'',
     type: shipAddress? shipAddress.type:'home',
@@ -25,8 +27,24 @@
 
   };
 
+ // Fetch valid pin codes from the API
+ async function fetchValidPins() {
+        const url = `${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`;
+        const response = await myFetch(url);
+        validPins = response.results.map(pin => pin.pin_code);
+    }
+  // Check pin code validity
+  $: isPinValid = validPins.includes(newEditAddress.pin);
+
+  // Watch for changes in the pin code
+  $: if (newEditAddress.pin.length === 6) {
+        fetchValidPins();
+    }
   async function handleSubmit() {
-    // Add new address logic here
+    if (!isPinValid) {
+      addAlert("We do not deliver to this pin code.", "error");
+      return;
+    }
 
     // loading = true;
 
@@ -175,7 +193,10 @@
             required
             class="w-full p-2 border rounded-lg"
           />
-        </div>
+          {#if !isPinValid}
+            <p class="text-red-500">We are not delivering to this pin code. Please enter a valid pin.</p>
+          {/if}
+        </div>  
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
@@ -193,7 +214,7 @@
           <label class="inline-flex items-center">
             <input
               type="checkbox"
-              bind:checked={newEditAddress.isDefault}
+              bind:checked={newEditAddress.is_default}
               class="form-checkbox text-red-500"
             />
             <span class="ml-2">Make this my default address</span>
