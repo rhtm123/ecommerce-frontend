@@ -101,6 +101,25 @@
     getProductListingImages();
     // console.log(allImages);
   })
+
+  let pincode = '';
+  let pincodeResult = '';
+
+  async function checkPincodeAvailability() {
+    if (pincode.length === 6) {
+      const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
+      const data = await response.json();
+      const pinData = data.results.find(pin => pin.pin_code === pincode);
+      
+      if (pinData) {
+        pincodeResult = `Delivery is available in ${pinData.city}, ${pinData.state}. COD is ${pinData.cod_available ? 'available' : 'not available'}.`;
+      } else {
+        pincodeResult = 'Delivery is not available for this pincode.';
+      }
+    } else {
+      pincodeResult = 'Please enter a valid 6-digit pincode.';
+    }
+  }
 </script>
 
 <svelte:head>
@@ -421,21 +440,41 @@
             >
               <Icon icon="pajamas:twitter" class="w-5 h-5" />
             </a>
-            <!-- Instagram (Link to your profile, as Instagram doesn't support direct sharing) -->
-            
-
+            <!-- WhatsApp Share -->
             <a 
-      href={"https://wa.me/?text=" + encodeURIComponent(product_listing.name + " " + $page.url.href)}
-      target="_blank" rel="noopener noreferrer"
-      class="hover:text-primary"
-    >
-      <Icon icon="ic:outline-whatsapp" class="w-5 h-5" />
-    </a>
-
+              href={"https://wa.me/?text=" + encodeURIComponent(product_listing.name + " " + $page.url.href)}
+              target="_blank" rel="noopener noreferrer"
+              class="hover:text-primary"
+            >
+              <Icon icon="ic:outline-whatsapp" class="w-5 h-5" />
+            </a>
           </div>
         </div>
 
-        
+        <!-- New Pin Code Check Section -->
+        <div class="pincode-check mt-4">
+          <h3 class="font-medium">Check Delivery Availability</h3>
+          <div class="flex items-center gap-2">
+            <input 
+              type="text" 
+              placeholder="Enter Pincode" 
+              bind:value={pincode} 
+              class="border rounded-lg p-2 w-full md:w-1/3"
+              maxlength="6"
+              on:input={checkPincodeAvailability}
+            />
+            <button 
+              class="bg-primary text-white rounded-lg px-4 py-2"
+              on:click={checkPincodeAvailability}
+            >
+              Check
+            </button>
+          </div>
+          {#if pincodeResult}
+            <p class="mt-2 text-gray-600">{pincodeResult}</p>
+          {/if}
+        </div>
+
       </div>
     </div>
   </div>
@@ -654,5 +693,14 @@
       min-height: 44px;
       min-width: 44px;
     }
+  }
+
+  /* Add styles for the pincode check section */
+  .pincode-check {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
   }
 </style>
