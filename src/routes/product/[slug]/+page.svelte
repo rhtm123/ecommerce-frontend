@@ -18,7 +18,8 @@
   let activeTab = 'DESCRIPTION';
   let quantity = 1;
   
-  // console.log(product_listing);
+  console.log("product_listing",product_listing);
+  console.log(product_listing.return_exchange_policy.conditions);
   
   // Selected image state (default to main image)
   let selectedImage = product_listing.main_image;
@@ -119,6 +120,20 @@
     } else {
       pincodeResult = 'Please enter a valid 6-digit pincode.';
     }
+  }
+
+  let showModal = false;
+  let returnExchangeConditions = '';
+
+  function openModal(conditions) {
+    returnExchangeConditions = conditions;
+    showModal = true; // Open the modal
+    console.log("Modal opened with conditions:", conditions); // Debugging line
+  }
+
+  function closeModal() {
+    showModal = false; // Close the modal
+    console.log("Modal closed"); // Debugging line
   }
 </script>
 
@@ -344,8 +359,23 @@
       <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
         <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:refresh-circle" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">10 days Return<br/>& Exchange</span>
+            {#if product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available }
+            <button class="" on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
+              <Icon 
+                icon="mdi:refresh-circle" 
+                class="w-6 h-6 md:w-8 md:h-8 text-secondary cursor-pointer" 
+              />
+            </button>
+            {/if}
+            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">
+              {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policy.exchange_available}
+                {product_listing.return_exchange_policy.exchange_days} days Return<br/> & Exchange
+              {:else if product_listing.return_exchange_policy.return_available}
+                {product_listing.return_exchange_policy.return_days} days Return
+              {:else if product_listing.return_exchange_policy.exchange_available}
+                {product_listing.return_exchange_policy.exchange_days} days Exchange
+              {/if}
+            </span>
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
@@ -573,6 +603,19 @@
   </div>
 </div>
 
+<!-- Modal for Return and Exchange Conditions -->
+{#if showModal}
+  <div class="modal modal-open">
+    <div class="modal-box">
+      <h2 class="font-bold text-lg">Return & Exchange Conditions</h2>
+      <div class="py-4">{@html returnExchangeConditions}</div>
+      <div class="modal-action">
+        <button class="btn" on:click={closeModal}>Close</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <style>
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
@@ -702,5 +745,32 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: 500px;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-content {
+    background-color: white;
+    z-index: 1001; /* Add this */
+    position: relative; /* Add this */
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+  }
+  .close {
+    cursor: pointer;
+    float: right;
+    font-size: 20px;
   }
 </style>
