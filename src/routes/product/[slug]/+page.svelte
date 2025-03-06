@@ -19,7 +19,7 @@
   let quantity = 1;
   
   console.log("product_listing",product_listing);
-  console.log(product_listing.return_exchange_policy.conditions);
+  // console.log(product_listing.return_exchange_policy.conditions);
   
   // Selected image state (default to main image)
   let selectedImage = product_listing.main_image;
@@ -359,23 +359,23 @@
       <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
         <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            {#if product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available }
+            {#if product_listing.return_exchange_policy !=null && (product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available) }
             <button class="" on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
               <Icon 
                 icon="mdi:refresh-circle" 
                 class="w-6 h-6 md:w-8 md:h-8 text-secondary cursor-pointer" 
               />
             </button>
-            {/if}
             <span class="text-[10px] md:text-xs text-center whitespace-nowrap">
               {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policy.exchange_available}
-                {product_listing.return_exchange_policy.exchange_days} days Return<br/> & Exchange
+              {product_listing.return_exchange_policy.exchange_days} days Return<br/> & Exchange
               {:else if product_listing.return_exchange_policy.return_available}
-                {product_listing.return_exchange_policy.return_days} days Return
+              {product_listing.return_exchange_policy.return_days} days Return
               {:else if product_listing.return_exchange_policy.exchange_available}
-                {product_listing.return_exchange_policy.exchange_days} days Exchange
+              {product_listing.return_exchange_policy.exchange_days} days Exchange
               {/if}
             </span>
+            {/if}
           </div>
           
           <div class="flex flex-col items-center gap-2 flex-shrink-0">

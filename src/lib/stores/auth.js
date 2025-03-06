@@ -18,6 +18,15 @@ export const user = writable(storedUser);
 // Cache user data in memory
 let cachedUser = storedUser;
 
+export function updateUser(userData) {
+  // Merge existing user data with new data
+  user.update(currentUser => {
+    const updatedUser = { ...currentUser, ...userData }; // Merge the objects
+    saveUserToLocalStorage(updatedUser);
+    return updatedUser; // Return the updated user
+  });
+}
+
 function saveUserToLocalStorage(userData) {
   if (browser && typeof window !== 'undefined') {
     localStorage.setItem('user', JSON.stringify(userData));

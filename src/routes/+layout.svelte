@@ -6,7 +6,25 @@
   import 'nprogress/nprogress.css';
   import { navigating, page } from "$app/stores";
   import { onMount } from 'svelte';
-
+  import { user } from '$lib/stores/auth';
+  import { goto } from '$app/navigation';
+  
+  // Add this to your existing layout file
+  onMount(() => {
+    const unsubscribe = user.subscribe(userData => {
+      // Check if user is logged in but mobile is not verified
+      if (userData && !userData.mobile_verified && window.location.pathname !== '/verify-mobile') {
+        // Don't redirect if already on the verification page or login page
+        if (!['/verify-mobile', '/login'].includes(window.location.pathname)) {
+          goto('/verify-mobile?next=' + window.location.pathname);
+        }
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  });
   $: isAdmin = $page.url.pathname.includes("admin");
 
   let Footer, AlertContainer;
