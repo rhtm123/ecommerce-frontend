@@ -14,4 +14,4 @@
       <p class="mt-2 text-base-content">The page you're looking for doesn't exist or has been moved.</p>
       <a href="/" class="mt-6 btn btn-primary">Go Back Home</a>
     </div>
-  </div>
+</div>

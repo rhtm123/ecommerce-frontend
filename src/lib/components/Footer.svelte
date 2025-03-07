@@ -22,7 +22,7 @@
               <img 
                   src="/img/naigaonmarketlogo1.png" 
                   alt="Naigaon Market Logo" 
-                  class="h-16 hover:scale-105 transition-transform"
+                  class="h-16"
               />
               <p class="text-sm opacity-85">
                   Naigaon Market promotes a circular economy where money spent stays within the community. It helps small businesses embrace digital tools, preparing them for larger markets, and fosters local pride.

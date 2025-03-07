@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
 
   export let items = []; // Array of items to slide
-  console.log("items", items);
+  // console.log("items", items);
   let scrollContainer;
   let currentIndex = 0;
 

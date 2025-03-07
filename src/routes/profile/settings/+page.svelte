@@ -11,9 +11,8 @@
 
   $: authUser = $user;
 
-
-
   let userData;
+
   let profile = {
     first_name: "",
       last_name: "",
@@ -22,25 +21,25 @@
       gender: '',
   };
 
-  $: if (authUser) {
-    fetchUser();
-  }
+  // $: if (authUser) {
+  //   fetchUser();
+  // }
 
-  $: if (userData) {
+  $: if (authUser) {
     profile = {
-      first_name: userData?.first_name,
-      last_name: userData?.last_name,
-      email: userData?.email,
-      mobile: userData?.mobile,
-      gender: userData?.mobile,
+      first_name: authUser?.first_name,
+      last_name: authUser?.last_name,
+      email: authUser?.email,
+      mobile: authUser?.mobile,
+      gender: authUser?.mobile,
     };
   }
 
-  async function fetchUser(){
-    let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
-    userData = await myFetch(url);
+  // async function fetchUser(){
+  //   let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
+  //   userData = await myFetch(url);
 
-  }
+  // }
 
   let isEditing = false;
 
@@ -51,6 +50,8 @@
     authUser['first_name'] = userData?.first_name
     authUser['last_name'] = userData?.last_name
     authUser['email'] = userData?.email
+    authUser['gender'] = userData?.gender
+    authUser['mobile'] = userData?.mobile
     user.set(authUser);
   }
 

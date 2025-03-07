@@ -45,11 +45,14 @@
       "brand_ids": brand_ids? brand_ids : ""
     }
 
+
+    
+
     async function loadSideFilters(params) {
       try {
-      const filtersData = await productApi.getFilters()
+      const filtersData = await productApi.getFilters(params)
       filters = filtersData;
-      console.log("filters",filters);
+      // console.log("filters",filters);
       // Set initial price range from API
       selectedPriceRange = [
         parseFloat(filters.price_range?.min_price || 0),

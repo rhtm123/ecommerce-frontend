@@ -19,7 +19,6 @@
 
   $: authUser = $user;
 
-  let userData;
   let profile = {
     first_name: "",
     last_name: "",
@@ -39,33 +38,33 @@
       return;
     }
     isLoading = false;
-    await fetchUser();
+    // await fetchUser();
   });
 
 
 
-  $: if (userData) {
+  $: if (authUser) {
     profile = {
-      first_name: userData?.first_name,
-      last_name: userData?.last_name,
-      email: userData?.email,
-      mobile: userData?.mobile,
-      gender: userData?.gender,
-      google_picture: userData?.google_picture
+      first_name: authUser?.first_name,
+      last_name: authUser?.last_name,
+      email: authUser?.email,
+      mobile: authUser?.mobile,
+      gender: authUser?.gender,
+      google_picture: authUser?.google_picture
     };
   }
 
-  async function fetchUser() {
-    try {
-      let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
-      userData = await myFetch(url);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      if (browser) {
-        goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
-      }
-    }
-  }
+  // async function fetchUser() {
+  //   try {
+  //     let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
+  //     userData = await myFetch(url);
+  //   } catch (error) {
+  //     console.error('Error fetching user:', error);
+  //     if (browser) {
+  //       goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
+  //     }
+  //   }
+  // }
 
   const menuItems = [
     {
@@ -132,15 +131,15 @@
                     />
                   {:else}
                     <InitialsAvatar 
-                      firstName={profile.first_name} 
-                      lastName={profile.last_name}
+                      firstName={authUser.first_name} 
+                      lastName={authUser.last_name}
                       size="w-12 h-12"
                     />
                   {/if}
                 </div>
                 <div>
                   <h3 class="font-medium">Hello,</h3>
-                  <p class="text-gray-600">{profile.first_name} {profile.last_name}</p>
+                  <p class="text-gray-600">{authUser.first_name} {authUser.last_name}</p>
                 </div>
               </div>
 

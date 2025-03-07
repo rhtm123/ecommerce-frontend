@@ -28,13 +28,13 @@
     // })
     
   
-    function handleCategoryClick(id) {
+    function handleBrandClick(id) {
       goto(`/shop/?brand_ids=`+id);
     }
   </script>
   
   <section class="py-8 md:py-12 bg-base-200">
-    <div class="container mx-auto px-4">
+    <div class="mx-auto px-4 md:px-8 lg:px-16">
       <div class="text-center mb-6 md:mb-8">
         <p class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 bg-primary/10 px-3 py-1 rounded-full">
           Shop By Brand

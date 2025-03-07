@@ -43,8 +43,7 @@
 </script>
 
 <div 
-  class="bg-white rounded-lg p-4 hover:shadow-xl border rounded-lg relative flex flex-col h-full"
-  on:click={() => handleProductClick()}
+  class="bg-white p-4 hover:shadow-xl border rounded-lg relative flex flex-col h-full"
 >
   <!-- Discount Badge -->
   <!-- {#if calculateDiscount(product.mrp, product.price)}
@@ -79,6 +78,7 @@
   {/if} -->
 
   <div class="relative mb-2">
+    <a href={`/product/${product.slug}`}>
     <img 
       src={product.main_image || `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`} 
       alt={product.name}
@@ -86,10 +86,18 @@
       loading="lazy"
       on:error={(e) => e.target.src = `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`}
     />
+
+  </a>
   </div>
 
   <div class="flex flex-col flex-grow text-center">
+
+    <a href={`/product/${product.slug}`}>
+
     <h3 class="font-bold text-md mb-2">{product.name}</h3>
+
+    </a>
+
     <div class="flex items-center justify-center mb-0">
       <span class="bg-green-600 text-white px-2 py-0 text-sm font-semibold rounded">
         {product.rating} ★
@@ -110,6 +118,7 @@
         OFF!
       </span>
     </p>
+
 
     <!-- Push button to bottom -->
     <button 

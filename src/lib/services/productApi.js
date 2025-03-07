@@ -44,6 +44,7 @@ export const productApi = {
       const queryParams = new URLSearchParams({
         ...(params.category_id && { category_id: params.category_id }),
         ...(params.brand_ids && { brand_ids: params.brand_ids }),
+        ...(params.search && { search: params.search.trim() }),
         ...(params.min_price && { min_price: params.min_price }),
         ...(params.max_price && { max_price: params.max_price })
       });
