@@ -8,7 +8,11 @@
   import { onMount } from 'svelte';
   import { user } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
-  import { PUBLIC_ENV } from "$env/dynamic/public";
+
+  import { PUBLIC_NM_ENV } from '$env/static/public';
+  import TestBanner from "$lib/components/TestBanner.svelte";
+
+
 
   // Add this to your existing layout file
   onMount(() => {
@@ -28,13 +32,11 @@
   });
   $: isAdmin = $page.url.pathname.includes("admin");
 
-  let Footer, AlertContainer, TestBanner;
+  let Footer, AlertContainer;
 
   onMount(async () => {
     Footer = (await import("$lib/components/Footer.svelte")).default;
     AlertContainer = (await import("$lib/components/AlertContainer.svelte")).default;
-    TestBanner = (await import("$lib/components/TestBanner.svelte")).default
-
   });
 
 
@@ -55,9 +57,11 @@
   <AlertContainer />
 {/if}
 
-{#if (PUBLIC_ENV!="beta")}
+
+{#if (PUBLIC_NM_ENV=="beta")}
   <TestBanner />
 {/if}
+
 
 <div class="bg-base-100">
 

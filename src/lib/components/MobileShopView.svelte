@@ -38,15 +38,16 @@
 
   // Dynamic Price Range 
 
+  let priceRanges;
 
-  $: priceRanges = (() => {
-    // If no price_range or not an array, return empty array
-    if (!filters.price_range || !Array.isArray(filters.price_range) || filters.price_range.length < 2) {
+  function getPriceRanges(){
+
+    if (!filters.price_range) {
       return [];
     }
 
-    const minPrice = Number(filters.price_range[0]);
-    const maxPrice = Number(filters.price_range[1]);
+    const minPrice = Number(filters.price_range?.min_price)
+    const maxPrice = Number(filters.price_range?.max_price);
 
     // Validate numbers
     if (isNaN(minPrice) || isNaN(maxPrice) || minPrice >= maxPrice) {
@@ -60,6 +61,7 @@
 
     // Generate ranges
     for (let i = minPrice; i < maxPrice; i += step) {
+      console.log("i", i, i + step);
       const rangeEnd = Math.min(i + step, maxPrice);
       const label = i === minPrice 
         ? `Under ₹${rangeEnd.toLocaleString('en-IN')}`
@@ -73,8 +75,16 @@
       });
     }
 
+
+
     return ranges;
-  })();
+  }
+
+
+  $: if (filters.price_range) { 
+    priceRanges = getPriceRanges();
+
+  }
   
 
   // Initialize filters from URL params on mount
@@ -273,6 +283,7 @@
 
         <!-- Filter Content -->
         <div class="flex-1 overflow-y-auto">
+
           <!-- Price Ranges -->
           {#if priceRanges.length > 0}
             <div class="border-b">

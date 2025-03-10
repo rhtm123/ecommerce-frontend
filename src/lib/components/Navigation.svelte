@@ -7,6 +7,9 @@
   import { user } from '$lib/stores/auth';
   import { logoutUser } from '$lib/stores/auth';
 
+
+
+
   let authUser = null;
   $: authUser = $user;
 
@@ -54,10 +57,14 @@
 
 </script>
 
+
 <nav 
   use:clickOutside
   on:outclick={()=> isMenuOpen=false}
   class="bg-white shadow-md fixed top-0 w-full z-20">
+
+
+
   <div class="mx-auto px-4 md:px-8 lg:px-16 ">
     <div class="flex items-center justify-between h-16">
       <!-- Left Section -->
