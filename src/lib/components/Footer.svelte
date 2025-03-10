@@ -27,22 +27,22 @@
               <p class="text-sm opacity-85">
                   Naigaon Market promotes a circular economy where money spent stays within the community. It helps small businesses embrace digital tools, preparing them for larger markets, and fosters local pride.
               </p>
-              <div class="text-lg font-semibold">+91-9823000000</div>
+              <div class="text-lg font-semibold">+91-93703-94747</div>
               <address class="not-italic text-sm">
                   Address: 005, Jay Vijay Building 3, Naigaon East<br />
                   Maharashtra, India
               </address>
               <a href="mailto:support@naigaonmarket.com" class="block text-primary hover:underline">
-                  support@naigaonmarket.com
+                  naigaonmarket@gmail.com
               </a>
               <div class="flex space-x-4 mt-6">
                   {#each [
-                      { name: "facebook", icon: "mdi:facebook" },
-                      { name: "twitter", icon: "mdi:twitter" },
+                      { name: "facebook", icon: "mdi:facebook", url:"https://www.facebook.com/profile.php?id=61573791421210" },
+                    //   { name: "twitter", icon: "mdi:twitter" },
                       { name: "instagram", icon: "mdi:instagram" },
-                      { name: "linkedin", icon: "mdi:linkedin" }
+                      { name: "whatsapp", icon: "mdi:whatsapp" }
                   ] as social}
-                      <a href="#{social.name}" class="text-primary hover:text-primary-focus transition-colors">
+                      <a href="{social?.url}" class="text-primary hover:text-primary-focus transition-colors">
                           <Icon icon={social.icon} class="w-6 h-6" />
                       </a>
                   {/each}

@@ -31,6 +31,6 @@
     $: style = `background: linear-gradient(135deg, ${colors.color1}, ${colors.color2})`;
 </script>
 
-<div class="{size} rounded-full flex items-center justify-center text-white" {style}>
+<div class="w-{size} h-{size} rounded-full flex items-center justify-center text-white" {style}>
     <span class="font-medium text-lg">{initials.toUpperCase()}</span>
 </div>

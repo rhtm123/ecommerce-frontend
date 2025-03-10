@@ -32,7 +32,7 @@
     let selectedPriceRange = [0, 100];
 
     const brand_ids = $page.url.searchParams.get('brand_ids');
-    console.log(brand_ids)
+    // console.log(brand_ids)
 
 
     $: selectedBrands = brand_ids ? brand_ids.split(',') : [];
@@ -46,13 +46,11 @@
     }
 
 
-    
-
-    async function loadSideFilters(params) {
+    async function loadInitialSideFilters(params) {
       try {
       const filtersData = await productApi.getFilters(params)
       filters = filtersData;
-      // console.log("filters",filters);
+      console.log("filters",filters);
       // Set initial price range from API
       selectedPriceRange = [
         parseFloat(filters.price_range?.min_price || 0),
@@ -65,10 +63,17 @@
     }
     }
 
+    async function updateSideBarsFilters(params){
+      const filtersData = await productApi.getFilters(params)
+      filters['brands'] = filtersData.brands;
+      console.log(filters);
+    }
+
+
     onMount(()=>{
       loadProducts(params);
       fetchAllCategories();
-      loadSideFilters(params);
+      loadInitialSideFilters(params);
     })
   
 
@@ -77,7 +82,7 @@
       // console.log(currentCategory);
       loadProducts(params);
       fetchAllCategories();
-      // loadSideFilters(params);
+      // loadInitialSideFilters(params);
     }
   
     async function loadMore() {
@@ -96,7 +101,7 @@
     async function fetchAllCategories() {
       try {
       let data = await myFetch(`${PUBLIC_API_URL}/product/categories/?page=1&page_size=20&level=1&estore_id=${PUBLIC_ESTORE_ID}`);
-      console.log(data);
+      // console.log(data);
       categories = data.results;
       } catch (err){
         console.log(err);
@@ -121,8 +126,6 @@
         totalProducts = productsData.count;
         next = productsData.next;
         
-        // Update filters after loading products
-        // await loadSideFilters(params);
       } catch (err) { 
         error = 'Failed to load products';
         console.error(err);
@@ -133,6 +136,10 @@
   
     // Handle filters change
     async function applyFilters() {
+        let updateSideBar = false;
+        if (params['max_price'] != selectedPriceRange[1] || params['min_price'] != selectedPriceRange[0]){
+          updateSideBar = true;
+        }
     
         params = {
           page: currentPage,
@@ -143,6 +150,10 @@
           ordering: getSortOrder(sortOption)
         };
         loadProducts();
+
+        if (updateSideBar) {
+          updateSideBarsFilters(params);
+        }
     }
   
     function getSortOrder(option) {

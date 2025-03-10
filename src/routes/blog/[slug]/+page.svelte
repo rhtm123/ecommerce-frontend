@@ -2,6 +2,8 @@
   // import { page } from '$app/stores';
   // import Comments from '$lib/components/Comments.svelte';
 
+  import InitialsAvatar from "$lib/components/InitialsAvatar.svelte";
+
   export let data; 
 
   // console.log(data);
@@ -14,24 +16,42 @@
 </script>
 
 {#if post}
+
+<div class="text-sm breadcrumbs text-gray-600">
+
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href={"/blog/category/"+category.slug}>{category?.name} </a></li>
+    <li>Blog: {post.title}</li>
+  </ul>
+
+</div>
+
+
   <article class="mx-auto">
     <!-- Header -->
     <header class="mb-8">
+      
+      <h1 class="text-4xl font-bold py-4">{post.title}</h1>
+
       <div class="flex items-center gap-2 text-sm text-gray-600 mb-4">
-        <a href={`/blog/category/${category.slug}`} class="badge badge-primary">
-          {category.name}
-        </a>
-        <span>•</span>
+        
         <span>{post.read_time} Min</span>
         <span>•</span>
         <span>{new Date(post.created).toLocaleDateString()}</span>
       </div>
-      <h1 class="text-4xl font-bold mb-4">{post.title}</h1>
+
       <div class="flex items-center gap-4">
-        <div class="avatar">
-          <div class="w-12 h-12 rounded-full bg-gray-200"></div>
-        </div>
+        
+        <InitialsAvatar 
+                firstName={post.author?.first_name} 
+                lastName={post.author?.last_name}
+                size="10"
+              />
         <div>
+          
+
           <div class="font-medium">{post.author?.first_name} {post.author?.last_name}</div>
           <div class="text-sm text-gray-600">Author</div>
         </div>

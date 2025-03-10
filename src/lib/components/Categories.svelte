@@ -8,45 +8,39 @@
     let childrenCategories = [];
     let categories = [];
 
-    async function loadParentsChildrenCategories() {
-        let data = await categoryApi.getParentsChildrenCategories(currentCategory.id);
+    const loadParentsChildrenCategories = async () => {
+        const data = await categoryApi.getParentsChildrenCategories(currentCategory.id);
         parentsCategories = data.parents;
         childrenCategories = data.children;
-    }
+    };
 
-    $: if (currentCategory) {
-        loadParentsChildrenCategories();
-    }
+    $: if (currentCategory) loadParentsChildrenCategories();
 
     onMount(async () => {
-        if (!currentCategory) { 
-            let data = await categoryApi.getMainCategories();
+        if (!currentCategory) {
+            const data = await categoryApi.getMainCategories();
             categories = data.results;
         }
     });
 
-    function handleCategoryClick(slug) {
-        goto(`/shop/${slug}`);
-    }
+    const navigateToCategory = (slug) => goto(`/shop/${slug}`);
 
-    function handleBackClick() {
-        if (parentsCategories.length > 0) {
-            const parentSlug = parentsCategories[parentsCategories.length - 1].slug;
-            handleCategoryClick(parentSlug);
-        } else {
-            goto('/shop');
-        }
-    }
+    const handleBackClick = () => {
+        const parentSlug = parentsCategories.length > 0 
+            ? parentsCategories[parentsCategories.length - 1].slug 
+            : null;
+        parentSlug ? navigateToCategory(parentSlug) : goto('/shop');
+    };
 </script>
 
 <div class="categories-container">
-    <h3 class="font-bold text-lg mb-2 flex items-center gap-3">
+    <h3 class="flex items-center gap-3 mb-2 text-lg font-bold">
         {#if currentCategory}
             <button 
                 class="p-1 rounded-full hover:bg-gray-100 transition-colors"
                 on:click={handleBackClick}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M15 18l-6-6 6-6"/>
                 </svg>
             </button>
@@ -55,31 +49,29 @@
     </h3>
 
     <div class="space-y-1">
-        <!-- Parent Categories -->
-        {#each parentsCategories as category, i}
+        {#each parentsCategories as category (category.id)}
             <div class="category-item">
                 <button 
-                    class="w-full text-left py-1 rounded-lg transition-colors flex items-center text-gray-600 hover:text-gray-900"
-                    on:click={() => handleCategoryClick(category.slug)}
+                    class="category-button text-gray-600 hover:text-gray-900"
+                    on:click={() => navigateToCategory(category.slug)}
                 >
                     <span>{category.name}</span>
-                    <svg class="ml-auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 18l6-6-6-6"/>
                     </svg>
                 </button>
             </div>
         {/each}
 
-        <!-- Current Category -->
         {#if currentCategory}
             <div class="category-item">
-                <div class="w-full py-1 px-2 bg-amber-50 rounded-lg flex items-center font-medium">
+                <div class="current-category">
                     {#if parentsCategories.length > 0}
                         <span class="connector"></span>
                     {/if}
                     <span>{currentCategory.name}</span>
                     {#if childrenCategories.length > 0}
-                        <svg class="ml-auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M9 18l6-6-6-6"/>
                         </svg>
                     {/if}
@@ -87,36 +79,34 @@
             </div>
         {/if}
 
-        <!-- Children Categories -->
-        {#each childrenCategories as category, i}
+        {#each childrenCategories as category (category.id)}
             <div class="category-item child">
                 <button 
-                    class="w-full text-left py-1 px-2 rounded-lg transition-colors flex items-center relative group"
-                    on:click={() => handleCategoryClick(category.slug)}
+                    class="category-button group"
+                    on:click={() => navigateToCategory(category.slug)}
                 >
                     <span class="connector"></span>
                     <span class="relative z-10">{category.name}</span>
-                    <svg class="ml-auto relative z-10" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="chevron relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 18l6-6-6-6"/>
                     </svg>
-                    <div class="absolute inset-0 rounded-lg opacity-0 bg-amber-50 transition-opacity group-hover:opacity-100"></div>
+                    <div class="absolute inset-0 rounded-lg bg-blue-50 opacity-0 transition-opacity group-hover:opacity-100"></div>
                 </button>
             </div>
         {/each}
 
-        <!-- Main Categories -->
         {#if !currentCategory}
-            {#each categories as category}
+            {#each categories as category (category.id)}
                 <div class="category-item">
                     <button 
-                        class="w-full text-left py-1 rounded-lg transition-colors flex items-center relative group"
-                        on:click={() => handleCategoryClick(category.slug)}
+                        class="category-button group"
+                        on:click={() => navigateToCategory(category.slug)}
                     >
                         <span class="relative z-10">{category.name}</span>
-                        <svg class="ml-auto relative z-10" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="chevron relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M9 18l6-6-6-6"/>
                         </svg>
-                        <div class="absolute inset-0 rounded-lg opacity-0 bg-amber-50 transition-opacity group-hover:opacity-100"></div>
+                        <div class="absolute inset-0 rounded-lg bg-blue-50 opacity-0 transition-opacity group-hover:opacity-100"></div>
                     </button>
                 </div>
             {/each}
@@ -126,37 +116,35 @@
 
 <style>
     .categories-container {
-        background-color: white;
-        border-radius: 1rem;
-        padding: 1rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        @apply bg-white rounded-2xl p-4 shadow-sm;
     }
 
     .category-item {
-        position: relative;
+        @apply relative;
     }
 
     .category-item.child {
-        padding-left: 1.25rem;
+        @apply pl-5;
+    }
+
+    .category-button {
+        @apply w-full flex items-center py-1 rounded-lg transition-colors text-left relative;
+    }
+
+    .current-category {
+        @apply w-full py-1 px-2 bg-blue-50 rounded-lg flex items-center font-medium relative;
+    }
+
+    .chevron {
+        @apply w-4 h-4 ml-auto;
     }
 
     .connector {
-        position: absolute;
-        left: -1rem;
-        top: 50%;
-        width: 1rem;
-        height: 2px;
-        background-color: rgb(253 230 138);
+        @apply absolute -left-4 top-1/2 w-4 h-0.5 bg-blue-50;
     }
 
     .category-item.child .connector::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 2px;
-        height: 14px;
-        background-color: rgb(253 230 138);
-        transform: translateY(-100%);
+        content: '';
+        @apply absolute left-0 top-0 w-0.5 h-3.5 bg-blue-50 -translate-y-full;
     }
 </style>

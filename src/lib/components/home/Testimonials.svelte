@@ -10,11 +10,11 @@
 </script>
 
 
-<section class="py-16 bg-[#FFF5F5]">
+<section class="py-16 bg-blue-50 bg-opacity-60">
   <div class="mx-auto px-4 md:px-8 lg:px-16">
     <!-- Section Header -->
     <div class="mb-12">
-      <h4 class="text-[#FF6B6B] text-sm text text-center font-medium mb-2 animate-fade-in">Client Feedback</h4>
+      <h4 class="text-primary text-sm text text-center font-medium mb-2 animate-fade-in">Client Feedback</h4>
       <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2D3748]">WHAT OUR CUSTOMERS SAY</h2>
     </div>
 

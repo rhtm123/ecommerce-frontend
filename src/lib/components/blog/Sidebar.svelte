@@ -80,12 +80,12 @@
 
   <!-- Categories -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold mb-4">CATEGORIES</h2>
-    <div class="flex flex-col gap-2">
+    <h2 class="text-xl font-semibold mb-2">CATEGORIES</h2>
+    <div class="flex flex-col gap-0">
       {#each categories as category}
         <a 
           href={`/blog/category/${category.slug}`}
-          class="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors"
+          class="flex items-center justify-between py-2 hover:bg-gray-50 rounded transition-colors"
         >
           <span>{category.name}</span>
         </a>

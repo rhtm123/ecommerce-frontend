@@ -8,7 +8,8 @@
   import { onMount } from 'svelte';
   import { user } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
-  
+  import { PUBLIC_ENV } from "$env/dynamic/public";
+
   // Add this to your existing layout file
   onMount(() => {
     const unsubscribe = user.subscribe(userData => {
@@ -27,11 +28,13 @@
   });
   $: isAdmin = $page.url.pathname.includes("admin");
 
-  let Footer, AlertContainer;
+  let Footer, AlertContainer, TestBanner;
 
   onMount(async () => {
     Footer = (await import("$lib/components/Footer.svelte")).default;
     AlertContainer = (await import("$lib/components/AlertContainer.svelte")).default;
+    TestBanner = (await import("$lib/components/TestBanner.svelte")).default
+
   });
 
 
@@ -47,8 +50,13 @@
   }
 </script>
 
+
 {#if AlertContainer}
-<AlertContainer />
+  <AlertContainer />
+{/if}
+
+{#if (PUBLIC_ENV!="beta")}
+  <TestBanner />
 {/if}
 
 <div class="bg-base-100">

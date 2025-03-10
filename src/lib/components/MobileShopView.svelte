@@ -29,12 +29,53 @@
   ];
 
   // Initialize price ranges based on the API data
-  $: priceRanges = filters.price_range ? [
-    { id: `${filters.price_range.min_price}-10000`, label: 'Under ₹10,000' },
-    { id: '10000-20000', label: '₹10,000 - ₹20,000' },
-    { id: '20000-30000', label: '₹20,000 - ₹30,000' },
-    { id: `30000-${filters.price_range.max_price}`, label: 'Above ₹30,000' }
-  ] : [];
+  // $: priceRanges = filters.price_range ? [
+  //   { id: `${filters.price_range.min_price}-10000`, label: 'Under ₹10,000' },
+  //   { id: '10000-20000', label: '₹10,000 - ₹20,000' },
+  //   { id: '20000-30000', label: '₹20,000 - ₹30,000' },
+  //   { id: `30000-${filters.price_range.max_price}`, label: 'Above ₹30,000' }
+  // ] : [];
+
+  // Dynamic Price Range 
+
+
+  $: priceRanges = (() => {
+    // If no price_range or not an array, return empty array
+    if (!filters.price_range || !Array.isArray(filters.price_range) || filters.price_range.length < 2) {
+      return [];
+    }
+
+    const minPrice = Number(filters.price_range[0]);
+    const maxPrice = Number(filters.price_range[1]);
+
+    // Validate numbers
+    if (isNaN(minPrice) || isNaN(maxPrice) || minPrice >= maxPrice) {
+      return [];
+    }
+
+    // Calculate appropriate range step
+    const rangeDiff = maxPrice - minPrice;
+    const step = Math.ceil(rangeDiff / 4); // Creates approximately 4-5 ranges
+    const ranges = [];
+
+    // Generate ranges
+    for (let i = minPrice; i < maxPrice; i += step) {
+      const rangeEnd = Math.min(i + step, maxPrice);
+      const label = i === minPrice 
+        ? `Under ₹${rangeEnd.toLocaleString('en-IN')}`
+        : i + step >= maxPrice
+          ? `Above ₹${i.toLocaleString('en-IN')}`
+          : `₹${i.toLocaleString('en-IN')} - ₹${rangeEnd.toLocaleString('en-IN')}`;
+
+      ranges.push({
+        id: `${i}-${rangeEnd}`,
+        label
+      });
+    }
+
+    return ranges;
+  })();
+  
 
   // Initialize filters from URL params on mount
   onMount(() => {

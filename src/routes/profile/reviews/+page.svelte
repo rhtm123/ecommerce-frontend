@@ -18,7 +18,7 @@
     
     let url = `${PUBLIC_API_URL}/review/reviews/?user_id=${authUser.user_id}`;
     let data = await myFetch(url);
-    console.log(data);
+    // console.log(data);
 
     reviews = data.results;
     next = data.next;
@@ -29,21 +29,6 @@
   onMount(()=>{
     fetchReviews();
   })
-
-  // let reviews = [
-  //   {
-  //     id: 1,
-  //     productId: 'prod123',
-  //     productName: "Baby's First Blocks Set",
-  //     productImage: '/img/Toy-Names-For-Kids.webp',
-  //     rating: 4,
-  //     review: "Great product! My baby loves it.",
-  //     date: '2024-02-10',
-  //     likes: 12,
-  //     status: 'published'
-  //   }
-  //   // Add more reviews as needed
-  // ];
 
   function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-US', {
