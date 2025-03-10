@@ -5,6 +5,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { PUBLIC_API_URL } from '$env/static/public';
     import { myFetch } from '$lib/utils/myFetch';
+    import { goto } from '$app/navigation';
 
     import { shipaddresses } from '$lib/stores/address';
     import AddressAddEdit from '$lib/components/AddressAddEdit.svelte';
@@ -80,6 +81,13 @@
     }
 
     async function handleSubmit() {
+        // First check if mobile is verified
+        if (!authUser.mobile_verified) {
+            // Save current path for redirect after verification
+            goto('/verify-mobile?next=/checkout');
+            return;
+        }
+
         const dailyOrderCount = await checkDailyOrderLimit();
 
         if (dailyOrderCount >= 5) {

@@ -26,7 +26,11 @@
         .then((data) => {
             if (data.access_token) {
                 loginUser(data);
-                // redirectAfterLogin(); // Redirect after successful login
+                if (!data.user.mobile_verified) {
+                    goto('/verify-mobile?next=' + encodeURIComponent(redirectAfterLogin));
+                } else {
+                    redirectAfterLogin(); // Only redirect if mobile is verified
+                }
             } else {
                 errorMessage = 'Login failed: ' + data.error;
             }
@@ -55,10 +59,14 @@
         let data = await res.json();
 
         if (data.access_token) {
-                loginUser(data);
-                redirectAfterLogin(); // Redirect after successful login
+            loginUser(data);
+            if (!data.user.mobile_verified) {
+                goto('/verify-mobile?next=' + encodeURIComponent(redirectAfterLogin));
             } else {
-                errorMessage = 'Login failed: ' + data.error;
+                redirectAfterLogin(); // Only redirect if mobile is verified
+            }
+        } else {
+            errorMessage = 'Login failed: ' + data.error;
         }
         } catch (e) { 
 

@@ -4,6 +4,7 @@
   import { addToCart, cart } from '../../lib/stores/cart';
   import { goto } from '$app/navigation';
   import { addAlert } from '$lib/stores/alert';
+  import { user } from '$lib/stores/auth';
    
   import { cartLimit } from '$lib/utils/myConstants';
 
@@ -48,8 +49,23 @@
   }
 
   function proceedToCheckout() {
-goto('/checkout');
-}
+    // Get current user data
+    const currentUser = $user;
+    
+    // Check if user is logged in and mobile is verified
+    if (!currentUser) {
+      goto('/login?next=/checkout');
+      return;
+    }
+    
+    if (!currentUser.mobile_verified) {
+      goto('/verify-mobile?next=/checkout');
+      return;
+    }
+    
+    // If all checks pass, proceed to checkout
+    goto('/checkout');
+  }
 </script>
 
 <svelte:head>
