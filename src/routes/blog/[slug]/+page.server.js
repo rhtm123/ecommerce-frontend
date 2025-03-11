@@ -4,8 +4,9 @@ import { myFetch } from '$lib/utils/myFetch.js';
 
 export async function load({ params }) {
 
+  // console.log(params.slug);
   let url = `${PUBLIC_API_URL}/blog/blogs/slug/${params.slug}`
-  console.log(url);
+  // console.log(url);
 
   try {
     let blog = await myFetch(url);

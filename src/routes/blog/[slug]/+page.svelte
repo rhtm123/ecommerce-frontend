@@ -22,7 +22,7 @@
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/blog">Blog</a></li>
-    <li><a href={"/blog/category/"+category.slug}>{category?.name} </a></li>
+    <li><a href={"/blog/category/"+category?.slug}>{category?.name} </a></li>
     <li>Blog: {post.title}</li>
   </ul>
 

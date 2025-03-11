@@ -19,7 +19,7 @@
         let url = `${PUBLIC_API_URL}/blog/blogs?estore_id=${PUBLIC_ESTORE_ID}${category_id?`&category_id=${category_id}`:""}${tag_id?`&tag_id=${tag_id}`:""}`
         let data = await myFetch(url);
         blogs = data.results;
-        console.log(data);
+        // console.log(data);
         next = data.next;
 
         } catch (e) {
@@ -47,7 +47,7 @@
 
   
 
-  <div class="grid  grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+  <div class="grid  grid-cols-1 md:grid-cols-2 gap-8 mb-12 py-4">
 
     {#each blogs as blog (blog.id)}
 
