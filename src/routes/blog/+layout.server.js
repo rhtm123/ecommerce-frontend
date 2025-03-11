@@ -2,7 +2,6 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import { PUBLIC_ESTORE_ID } from '$env/static/public';
 import { myFetch } from '$lib/utils/myFetch';
 
-export const prerender = true;
  
 export async function load() {
   let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&ordering=-id`;
