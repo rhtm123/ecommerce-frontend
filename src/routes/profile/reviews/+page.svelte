@@ -154,7 +154,7 @@
       <h3 class="text-lg font-medium text-gray-900">No reviews yet</h3>
       <p class="mt-1 text-gray-500">Share your experience by reviewing products you've purchased</p>
       <div class="mt-6">
-        <a href="/orders" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600">
+        <a href="/profile/orders" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600">
           View Orders
         </a>
       </div>

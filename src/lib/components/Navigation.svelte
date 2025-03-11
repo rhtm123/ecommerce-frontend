@@ -130,7 +130,8 @@
             </button>
             {#if isProfileDropdownOpen}
               <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</a>
+                <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
+                <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/wishlist" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Wishlist</a>
                 <a on:click={()=>{isProfileDropdownOpen=false}} href="/profile/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
                 <div class="border-t my-2"></div>
                 <button on:click={handleLogout} class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

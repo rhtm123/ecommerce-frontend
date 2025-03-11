@@ -15,7 +15,7 @@
   const { product_listing, category } = data;
   
   let relatedProducts = [];
-  let activeTab = 'DESCRIPTION';
+  let activeTab = 'DETAIL';
   let quantity = 1;
   
   console.log("product_listing",product_listing);
@@ -198,11 +198,11 @@
       </div>
 
       <!-- Main Image Container (Desktop Only) -->
-      <div class="flex-1 relative rounded-lg overflow-hidden bg-white   hidden md:block">
+      <div class="flex-1 relative overflow-hidden hidden md:block">
         <img 
           src={selectedImage || "/placeholder.svg"} 
           alt={product_listing.name}
-          class="w-full h-auto object-contain"
+          class="w-full h-auto rounded-lg"
         />
       </div>
 
@@ -221,39 +221,6 @@
         </div>
       </div>
 
-      <!-- Mobile Navigation Arrows -->
-      <!-- <div class="md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
-        <button 
-          class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
-          on:click={prevImage}
-          disabled={currentImageIndex === 0}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button 
-          class="bg-white/80 rounded-full p-2 shadow-lg backdrop-blur-sm"
-          on:click={nextImage}
-          disabled={currentImageIndex === images.length - 1}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div> -->
-
-      <!-- Mobile Pagination Dots -->
-      <!-- <div class="flex md:hidden justify-center gap-2 absolute bottom-4 left-0 right-0">
-        {#each allImages as _, i}
-          <button 
-            class="w-2 h-2 rounded-full transition-all duration-200"
-            class:bg-primary={currentImageIndex === i}
-            class:bg-gray-300={currentImageIndex !== i}
-            on:click={() => selectedImage = images[i]}
-          />
-        {/each}
-      </div> -->
 
       {#if product_listing?.isBestSeller}
         <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
@@ -482,7 +449,7 @@
         </div>
 
         <!-- New Pin Code Check Section -->
-        <div class="pincode-check mt-4">
+        <div class="bg-blue-50 border px-4 py-2 rounded-lg mt-4">
           <h3 class="font-medium">Check Delivery Availability</h3>
           <div class="flex items-center gap-2">
             <input 
@@ -515,16 +482,16 @@
     <div class="flex justify-center mb-8">
       <div class="tabs tabs-boxed bg-inherit gap-2">
         <button 
-          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'DESCRIPTION' ? 'tab-active bg-primary text-white' : ''}"
-          on:click={() => activeTab = 'DESCRIPTION'}
+          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'DETAIL' ? 'tab-active bg-primary text-white' : ''}"
+          on:click={() => activeTab = 'DETAIL'}
         >
-          DESCRIPTION
+          DETAIL
         </button>
         <button 
-          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'ADDITIONAL INFORMATION' ? 'tab-active bg-primary text-white' : ''}"
-          on:click={() => activeTab = 'ADDITIONAL INFORMATION'}
+          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'INFO' ? 'tab-active bg-primary text-white' : ''}"
+          on:click={() => activeTab = 'INFO'}
         >
-          ADDITIONAL INFORMATION
+          INFO
         </button>
         <button 
           class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
@@ -537,11 +504,11 @@
   
     <!-- Tab Content -->
     <div class="" in:fade={{ duration: 300 }}>
-      {#if activeTab === 'DESCRIPTION'}
+      {#if activeTab === 'DETAIL'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
           <div class="text-gray-600 prose-sm">{@html product_listing.product.description}</div>
         </div>
-      {:else if activeTab === 'ADDITIONAL INFORMATION'}
+      {:else if activeTab === 'INFO'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
           <div class="overflow-x-auto">
             <table class="table border-4 w-full">
@@ -739,13 +706,7 @@
   }
 
   /* Add styles for the pincode check section */
-  .pincode-check {
-    background-color: #f9f9f9;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-  }
+
 
   .modal {
     position: fixed;
