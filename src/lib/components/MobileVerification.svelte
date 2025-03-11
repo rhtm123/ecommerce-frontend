@@ -4,7 +4,7 @@
     import { myFetch } from '$lib/utils/myFetch';
     import { user,updateUser } from '$lib/stores/auth';
     import { goto } from '$app/navigation';
-  
+    import { addAlert } from '$lib/stores/alert';
     export let redirectAfterVerification = '/';
     
     let mobile = '';
@@ -18,6 +18,8 @@
     let canResend = false;
     let timer;
     let otpDigits = ['', '', '', '', '', ''];
+
+    let authUser = $user;
     
     // Auto-fill mobile if available in user store
     onMount(() => {
@@ -87,6 +89,7 @@
     
     // Send OTP
     async function sendOtp() {
+      
       if (!mobile || mobile.length < 10) {
         errorMessage = 'Please enter a valid mobile number';
         return;
@@ -95,6 +98,14 @@
       errorMessage = '';
       successMessage = '';
       isSendingOtp = true;
+
+
+      let url = `${PUBLIC_API_URL}/user/users/${authUser.user_id}/`;
+
+      let userData = await myFetch(url, "PUT", {"mobile": mobile}, authUser.access_token);
+      authUser['mobile'] = userData?.mobile;
+      // console.log(userData);
+      user.set(authUser);
       
       try {
         fetch(`${PUBLIC_API_URL}/user/send-otp/`, {
@@ -145,6 +156,8 @@
             console.log(data);
             if (data.message) {
                 successMessage = 'Mobile number verified successfully!';
+
+                addAlert("Mobile number verified successfully", "success")
                 
           // Update user store with verified mobile
           updateUser({ mobile_verified: true });

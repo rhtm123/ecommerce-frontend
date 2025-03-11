@@ -13,7 +13,7 @@
         // Set up interval to show banner every minute
         intervalId = setInterval(() => {
             showBanner = true;
-        }, 60000);
+        }, 120000);
     }
 
     onMount(() => {

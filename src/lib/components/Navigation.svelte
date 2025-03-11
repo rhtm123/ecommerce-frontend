@@ -8,8 +8,6 @@
   import { logoutUser } from '$lib/stores/auth';
 
 
-
-
   let authUser = null;
   $: authUser = $user;
 

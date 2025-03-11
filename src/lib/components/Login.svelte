@@ -26,8 +26,11 @@
         .then((data) => {
             if (data.access_token) {
                 loginUser(data);
-                if (!data.user.mobile_verified) {
-                    goto('/verify-mobile?next=' + encodeURIComponent(redirectAfterLogin));
+                const urlParams = new URLSearchParams(window.location.search);
+                const nextPage = urlParams.get('next'); // Get the 'next' query parameter
+
+                if (!data.mobile_verified) {
+                    goto('/verify-mobile?next=' + encodeURIComponent(nextPage));
                 } else {
                     redirectAfterLogin(); // Only redirect if mobile is verified
                 }

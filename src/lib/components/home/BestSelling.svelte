@@ -8,7 +8,7 @@
   import Slider from '../Slider.svelte';
 
   export let products;
- console.log(products)
+//  console.log(products)
 
   // async function fetchProductListings() {
   //   let url = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=24&ordering=-popularity";

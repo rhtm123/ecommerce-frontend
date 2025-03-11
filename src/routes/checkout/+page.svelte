@@ -225,7 +225,8 @@
         </div>
     </div>
 
-  
+    
+    <div class="py-4">
     
 
     {#if !orderdCompleted }
@@ -378,11 +379,14 @@
       </div>
 
         <div class="text-center py-8" in:fade>
-          <a href="/shop" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
-            Continue Shopping
+          <a href="/profile/orders" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
+            Go to orders
           </a>
         </div>
       {/if}
+
+
+    </div>
 
 
 
