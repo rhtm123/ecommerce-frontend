@@ -1,7 +1,4 @@
 {
-	"engines": {
-		"node": "20.x"
-	},
 	"name": "frontend",
 	"version": "0.0.1",
 	"type": "module",
