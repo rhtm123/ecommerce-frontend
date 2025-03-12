@@ -39,8 +39,8 @@
                   {#each [
                       { name: "facebook", icon: "mdi:facebook", url:"https://www.facebook.com/profile.php?id=61573791421210" },
                     //   { name: "twitter", icon: "mdi:twitter" },
-                      { name: "instagram", icon: "mdi:instagram" },
-                      { name: "whatsapp", icon: "mdi:whatsapp" }
+                      { name: "instagram", icon: "mdi:instagram", url:"https://www.instagram.com/naigaonmarket/" },
+                      { name: "whatsapp", icon: "mdi:whatsapp", url:"https://whatsapp.com/channel/0029Vb7g3Q21Hsq2NLrtZX28 " }
                   ] as social}
                       <a href="{social?.url}" class="text-primary hover:text-primary-focus transition-colors">
                           <Icon icon={social.icon} class="w-6 h-6" />
