@@ -105,7 +105,7 @@
             <div class="bg-white rounded-lg shadow p-6">
               <!-- User Info -->
               <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
-                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center">
                   {#if profile.google_picture}
                     <img 
                       src={profile.google_picture}
@@ -116,7 +116,7 @@
                     <InitialsAvatar 
                       firstName={authUser.first_name} 
                       lastName={authUser.last_name}
-                      size="w-12 h-12"
+                      size="12"
                     />
                   {/if}
                 </div>

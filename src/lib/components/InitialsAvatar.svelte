@@ -1,7 +1,7 @@
 <script>
     export let firstName = '';
     export let lastName = '';
-    export let size = 'w-10 h-10';
+    export let size = '10'
 
     // Get initials from first and last name
     $: initials = (firstName?.[0] || '') + (lastName?.[0] || '');
