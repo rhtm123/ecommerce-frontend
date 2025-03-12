@@ -54,7 +54,7 @@
               <div>
                   <h3 class="font-semibold text-lg mb-3">Quick Links</h3>
                   <ul class="space-y-2">
-                      {#each [ "About", "Shop", "contact", "Blog"] as link}
+                      {#each [ "About", "Shop", "Contact", "Blog"] as link}
                           <li><a href="/{link.toLowerCase()}" class="hover:underline">{link}</a></li>
                       {/each}
                   </ul>
