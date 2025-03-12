@@ -135,6 +135,32 @@
     showModal = false; // Close the modal
     console.log("Modal closed"); // Debugging line
   }
+
+  let reviews = [];
+  let reviewsLoading = false;
+  let reviewsNext = null;
+  let reviewsLoaded = false;
+
+  async function fetchReviews() {
+    if (reviewsLoaded) return;
+    reviewsLoading = true;
+    try {
+      let url = `${PUBLIC_API_URL}/review/reviews/?product_listing_id=${product_listing.id}&ordering=-id`;
+      let data = await myFetch(url);
+      reviews = data.results;
+      reviewsNext = data.next;
+      reviewsLoaded = true;
+    } catch (e) {
+      console.error("Error fetching reviews:", e);
+    } finally {
+      reviewsLoading = false;
+    }
+  }
+
+  // Watch activeTab changes
+  $: if (activeTab === 'REVIEWS' && !reviewsLoaded) {
+    fetchReviews();
+  }
 </script>
 
 <svelte:head>
@@ -497,7 +523,7 @@
           class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'REVIEWS'}
         >
-          REVIEWS
+          REVIEWS ({product_listing.review_count})
         </button>
       </div>
     </div>
@@ -562,7 +588,19 @@
       {:else}
         <div in:fade>
           <div class="overflow-x-auto max-w-3xl mx-auto">
-            <Reviews product_listing={product_listing} />
+            <Reviews 
+              {product_listing}
+              {reviews}
+              loading={reviewsLoading}
+              next={reviewsNext}
+              on:loadMore={async () => {
+                reviewsLoading = true;
+                const dataNew = await myFetch(reviewsNext);
+                reviews = [...reviews, ...dataNew.results];
+                reviewsNext = dataNew.next;
+                reviewsLoading = false;
+              }}
+            />
           </div>
         </div>
       {/if}
