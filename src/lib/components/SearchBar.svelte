@@ -119,7 +119,9 @@
     e.preventDefault();
     if (searchQuery.trim()) {
       saveToHistory(searchQuery);
-      goto(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      goto(`/shop?q=${encodeURIComponent(searchQuery.trim())}`, {
+        replaceState: true
+      });
       showSuggestions = false;
       closeSearch();
     }

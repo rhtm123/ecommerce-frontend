@@ -17,6 +17,7 @@
     import Categories from './Categories.svelte';
     import MobileShopView from './MobileShopView.svelte';
     export let currentCategory;
+    export let searchQuery = '';
   
     // State
     let products = [];
@@ -32,6 +33,7 @@
     let selectedPriceRange = [0, 100];
 
     const brand_ids = $page.url.searchParams.get('brand_ids');
+    const search = $page.url.searchParams.get('q');
     // console.log(brand_ids)
 
 
@@ -42,7 +44,8 @@
     let totalProducts = 0;
     $: params = {
       "category_id": currentCategory?.id,
-      "brand_ids": brand_ids? brand_ids : ""
+      "brand_ids": brand_ids? brand_ids : "",
+      "search": search ? search : ""
     }
 
 
@@ -166,6 +169,11 @@
       }
     }
   
+    $: if (search !== undefined) {
+      params['search'] = search;
+      loadProducts(params);
+      loadInitialSideFilters(params);
+    }
   </script>
   
 <!-- Mobile Shop View -->
@@ -184,6 +192,11 @@
           <span>{error}</span>
         </div>
       {:else}
+        {#if search}
+          <div class="mb-4 text-sm text-gray-600">
+            Showing {products.length} of {totalProducts} results for "{search}"
+          </div>
+        {/if}
         <div class="flex flex-col lg:flex-row gap-8 ">
           <!-- Sidebar Filters -->
           <div class="w-full lg:w-1/4 hidden md:block" in:fly="{{ x: -50, duration: 500 }}">
