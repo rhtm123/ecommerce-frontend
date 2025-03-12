@@ -27,9 +27,6 @@
     gender: '',
   };
 
-
-
-  // Handle auth check on client-side only
   onMount(async () => {
     if (!authUser) {
       if (browser) {
@@ -38,10 +35,7 @@
       return;
     }
     isLoading = false;
-    // await fetchUser();
   });
-
-
 
   $: if (authUser) {
     profile = {
@@ -53,18 +47,6 @@
       google_picture: authUser?.google_picture
     };
   }
-
-  // async function fetchUser() {
-  //   try {
-  //     let url = `${PUBLIC_API_URL}/user/users/${authUser?.user_id}/`;
-  //     userData = await myFetch(url);
-  //   } catch (error) {
-  //     console.error('Error fetching user:', error);
-  //     if (browser) {
-  //       goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
-  //     }
-  //   }
-  // }
 
   const menuItems = [
     {
@@ -109,7 +91,8 @@
   </div>
 {:else}
   <div class="min-h-screen">
-    <div class="px-4 md:px-8 py-4 md:py-8 lg:px-16">
+    <!-- Remove px-4 md:px-8 lg:px-16 for mobile, keep for desktop -->
+    <div class="py-4 md:py-8 md:px-8 lg:px-16">
       <!-- Mobile Navigation with slot -->
       <ProfileMobileNav {profile} {menuItems}>
         <slot />
@@ -192,7 +175,7 @@
 
         <!-- Content Area -->
         <div class="md:col-span-3">
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white rounded-lg shadow md:p-6 p-4">
             <slot />
           </div>
         </div>
