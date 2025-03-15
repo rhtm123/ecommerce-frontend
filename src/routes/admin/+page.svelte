@@ -4,7 +4,6 @@
     import { myFetch } from "$lib/utils/myFetch";
 
     import { user } from "$lib/stores/auth";
-    import LeftNav from "$lib/components/admin/LeftNav.svelte";
     import { onMount, onDestroy } from "svelte";
 
     import SalesChart from "$lib/components/admin/SalesChart.svelte";
@@ -44,12 +43,9 @@
 
 </script>
 
-<div class="min-h-screen bg-gray-50">
-    <!-- Left Navigation Bar -->
-    <LeftNav />
+
 
     <!-- Main Content -->
-    <main class="ml-64 p-8">
             <div class="max-w-7xl mx-auto">
                 <h1 class="text-3xl font-bold text-gray-900 mb-8">Analytics Dashboard</h1>
                 
@@ -98,5 +94,3 @@
 
                 
             </div>
-    </main>
-</div>

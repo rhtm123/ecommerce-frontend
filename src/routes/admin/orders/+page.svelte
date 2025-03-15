@@ -1,5 +1,4 @@
 <script>
-    import LeftNav from "$lib/components/admin/LeftNav.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     import { user } from "$lib/stores/auth";
@@ -64,12 +63,8 @@
     }
 </script>
 
-<div class="min-h-screen bg-gray-50">
-    <!-- Left Navigation Bar -->
-    <LeftNav />
 
     <!-- Main Content -->
-    <main class="ml-64 p-8">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
@@ -166,5 +161,3 @@
                 </div>
             </div>
         </div>
-    </main>
-</div>

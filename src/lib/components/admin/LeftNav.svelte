@@ -7,7 +7,7 @@
      import { onMount, onDestroy } from "svelte";
 
 
-     let authUser;
+    let authUser;
 
     const unsubscribe = user.subscribe(value => {
       authUser = value;
@@ -30,7 +30,11 @@
         email: authUser?.email
     };
 
-    const activePage = $page.url.pathname;
+    let activePage = $page.url.pathname;
+
+    $: if (page) {
+        activePage = $page.url.pathname;
+    }
 
 </script>
 <aside class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg flex flex-col">

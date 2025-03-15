@@ -1,7 +1,6 @@
 <!-- SellerAdmin.svelte -->
 <script>
 
-    import LeftNav from "$lib/components/admin/LeftNav.svelte";
     import { user } from "$lib/stores/auth";
     import { PUBLIC_API_URL } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
@@ -29,6 +28,7 @@
     async function fetchProductListings(){
         loading = true
         let url = `${PUBLIC_API_URL}/product/product-listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
+        console.log(url);
         let data = await myFetch(url);
         product_listings = data.results;
         next = data.next;
@@ -62,18 +62,12 @@
     };
 </script>
 
-<div class="min-h-screen bg-gray-50">
-    <!-- Left Navigation Bar -->
-    <LeftNav />
-
-    <!-- Main Content -->
-    <main class="ml-64 p-8">
         <!-- Analytics Page (same as before) -->
 
             <div class="max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
-                    <a href="/admin/add-product">
+                    <a href="/admin/inventory/add-product">
                     <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -89,10 +83,11 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th> -->
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
+
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
@@ -113,10 +108,13 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">{product.sku}</td>
                                     <td class="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
                                     <td class="px-6 py-4 text-sm text-gray-900">₹ {product.price.toFixed(2)}</td>
-                                    <td class="px-6 py-4">
+
+                                    <td class="px-6 py-4 text-sm text-gray-900">{product.approved}</td>
+
+
+                                    <!-- <td class="px-6 py-4">
                                         {#if product.status === 'In Stock'}
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                 In Stock
@@ -130,7 +128,7 @@
                                                 Out of Stock
                                             </span>
                                         {/if}
-                                    </td>
+                                    </td> -->
                                     <td class="px-6 py-4 text-sm font-medium">
                                         <button class="text-blue-600 hover:text-blue-900">Edit</button>
                                         <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>
@@ -164,7 +162,5 @@
                 </div>
 
             </div>
-    </main>
-</div>
 
 <!-- Keep the global style tag -->

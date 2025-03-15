@@ -15,21 +15,7 @@
 
 
   // Add this to your existing layout file
-  onMount(() => {
-    const unsubscribe = user.subscribe(userData => {
-      // Check if user is logged in but mobile is not verified
-      if (userData && !userData.mobile_verified && window.location.pathname !== '/verify-mobile') {
-        // Don't redirect if already on the verification page or login page
-        if (!['/verify-mobile', '/login'].includes(window.location.pathname)) {
-          goto('/verify-mobile?next=' + window.location.pathname);
-        }
-      }
-    });
-    
-    return () => {
-      unsubscribe();
-    };
-  });
+  
   $: isAdmin = $page.url.pathname.includes("admin");
 
   let Footer, AlertContainer;
@@ -39,8 +25,6 @@
     AlertContainer = (await import("$lib/components/AlertContainer.svelte")).default;
   });
 
-
-  // const protectedRoutes = ["/checkout", "/profile", "/settings", "/admin"];
 
   $: {
       if ($navigating) {
