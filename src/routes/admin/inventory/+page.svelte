@@ -130,7 +130,9 @@
                                         {/if}
                                     </td> -->
                                     <td class="px-6 py-4 text-sm font-medium">
-                                        <button class="text-blue-600 hover:text-blue-900">Edit</button>
+                                        <a href={`/admin/inventory/add-product?product_id=${product.product_id}`}>
+                                            <button class="text-blue-600 hover:text-blue-900">Edit</button>
+                                        </a>
                                         <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>
                                     </td>
                                 </tr>
