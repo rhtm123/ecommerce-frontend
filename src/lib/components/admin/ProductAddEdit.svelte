@@ -92,10 +92,19 @@
     async function fetchProductData(id) {
         try {
             const productRes = await myFetch(`${PUBLIC_API_URL}/product/products/${id}/`, 'GET', null, authUser.access_token);
-            product = { ...productRes, category: productRes.category?.id, brand: productRes.brand?.id };
-            editorContent = product.description || '<p></p>';
             const listingRes = await myFetch(`${PUBLIC_API_URL}/product/product-listings/?product_id=${id}`, 'GET', null, authUser.access_token);
-            console.log(listingRes);
+            console.log("listingRes", listingRes);
+            
+            // Get category and brand from the first listing if available
+            const firstListing = listingRes.results[0];
+            product = { 
+                ...productRes,
+                // Use category and brand from the listing
+                category: firstListing?.category || null,
+                brand: firstListing?.brand || null
+            };
+            
+            editorContent = product.description || '<p></p>';
             productListings = listingRes.results;
             variants = productRes.variants || [];
             step = productListings.length > 0 ? 2 : 1;
@@ -405,8 +414,8 @@
                 <div class="collapse-content">
                     <div class="space-y-4">
                         <p><strong>Name:</strong> {product.name}</p>
-                        <p><strong>Category:</strong> {categories.find(c => c.id === product.category)?.name || 'N/A'}</p>
-                        <p><strong>Brand:</strong> {brands.find(b => b.id === product.brand)?.name || 'N/A'}</p>
+                        <p><strong>Category:</strong> {product.category?.name || 'N/A'}</p>
+                        <p><strong>Brand:</strong> {product.brand?.name || 'N/A'}</p>
                         <p><strong>Country of Origin:</strong> {product.country_of_origin}</p>
                         <p><strong>About:</strong> {product.about || 'N/A'}</p>
                         <p><strong>Important Info:</strong> {product.important_info || 'N/A'}</p>
