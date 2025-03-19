@@ -172,7 +172,7 @@
     $: if (search !== undefined) {
       params['search'] = search;
       loadProducts(params);
-      loadInitialSideFilters(params);
+      // loadInitialSideFilters(params);
     }
   </script>
   

@@ -62,7 +62,7 @@
               <div>
                   <h3 class="font-semibold text-lg mb-3">Resources</h3>
                   <ul class="space-y-2">
-                      {#each ["Privacy Policy", "Terms of Service",] as resource}
+                      {#each ["Terms of Service","Privacy Policy","Return Policy","Seller Policy"] as resource}
                           <li><a href="/{resource.toLowerCase().replace(/ /g, "-")}" class="hover:underline">{resource}</a></li>
                       {/each}
                   </ul>
