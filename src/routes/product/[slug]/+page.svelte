@@ -9,7 +9,8 @@
   import { PUBLIC_API_URL } from '$env/static/public';
   import { addAlert } from '$lib/stores/alert.js';
   import Slider from '$lib/components/Slider.svelte';
-
+  import { user } from '$lib/stores/auth.js';
+  import { goto } from '$app/navigation';
 
   export let data;
   const { product_listing, category } = data;
@@ -98,27 +99,53 @@
     }
   }
 
-  onMount(()=>{
+  onMount(async () => {
+    // Subscribe to user store
+    const unsubscribe = user.subscribe(value => {
+      if (value) {
+        currentUser = value;
+        userId = value.user_id;
+        // Set role based on entity field
+        userRole = value.entity ? 'seller' : 'buyer';
+        console.log("User data:", { userId, userRole, entity: value.entity });
+        checkPurchaseHistory();
+      } else {
+        currentUser = null;
+        userId = null;
+        userRole = null;
+        hasPurchased = false;
+      }
+    });
+
+    // Get product listing images
     getProductListingImages();
-    // console.log(allImages);
-  })
+
+    // Cleanup subscription on component destroy
+    return () => {
+      unsubscribe();
+    };
+  });
 
   let pincode = '';
   let pincodeResult = '';
+  let pinData = null;
 
   async function checkPincodeAvailability() {
     if (pincode.length === 6) {
       const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
       const data = await response.json();
-      const pinData = data.results.find(pin => pin.pin_code === pincode);
+      const foundPinData = data.results.find(pin => pin.pin_code === pincode);
       
-      if (pinData) {
-        pincodeResult = `Delivery is available in ${pinData.city}, ${pinData.state}. COD is ${pinData.cod_available ? 'available' : 'not available'}.`;
+      pinData = foundPinData;
+      
+      if (foundPinData) {
+        pincodeResult = `Delivery is available in ${foundPinData.city}, ${foundPinData.state}. COD is ${foundPinData.cod_available ? 'available' : 'not available'}.`;
       } else {
         pincodeResult = 'Delivery is not available for this pincode.';
       }
     } else {
       pincodeResult = 'Please enter a valid 6-digit pincode.';
+      pinData = null;
     }
   }
 
@@ -146,7 +173,7 @@
     reviewsLoading = true;
     try {
       let url = `${PUBLIC_API_URL}/review/reviews/?product_listing_id=${product_listing.id}&ordering=-id`;
-      let data = await myFetch(url);
+      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
       reviews = data.results;
       reviewsNext = data.next;
       reviewsLoaded = true;
@@ -160,6 +187,139 @@
   // Watch activeTab changes
   $: if (activeTab === 'REVIEWS' && !reviewsLoaded) {
     fetchReviews();
+  }
+
+
+  // Add these to your existing variables
+  let questions = [];
+  let questionsLoading = false;
+  let questionsNext = null;
+  let questionsLoaded = false;
+  let newQuestion = '';
+  let newAnswer = {};
+  let userRole = null;
+  let userId = null;
+  let hasPurchased = false;
+  let currentUser = null;
+
+  // Fetch questions
+  async function fetchQuestions() {
+    if (questionsLoaded) return;
+    questionsLoading = true;
+    try {
+      let url = `${PUBLIC_API_URL}/qna/questions/?product_listing_id=${product_listing.id}&ordering=-id&answers_required=true`;
+      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
+      questions = data.results;
+      questionsNext = data.next;
+      questionsLoaded = true;
+      console.log("questions",questions);
+    } catch (e) {
+      console.error("Error fetching questions:", e);
+    } finally {
+      questionsLoading = false;
+    }
+  }
+
+  // Check if user has purchased the product
+  async function checkPurchaseHistory() {
+    if (!userId) return;
+    try {
+      // First get user's orders
+      const ordersResponse = await myFetch(
+        `${PUBLIC_API_URL}/order/orders/?user_id=${userId}`,
+        'GET',
+        {},
+        currentUser?.access_token
+      );
+      
+      // Get all order IDs
+      const orderIds = ordersResponse.results.map(order => order.id);
+      
+      // If there are orders, check order items
+      if (orderIds.length > 0) {
+        const orderItemsResponse = await myFetch(
+          `${PUBLIC_API_URL}/order/order-items/?page=1&page_size=100&need_reviews=true`,
+          'GET',
+          {},
+          currentUser?.access_token
+        );
+        
+        // Check if any order item matches the current product
+        hasPurchased = orderItemsResponse.results.some(item => 
+          orderIds.includes(item.order_id) && 
+          item.product_listing.id === product_listing.id &&
+          ['delivered', 'ready_for_delivery'].includes(item.status)
+        );
+      }
+    } catch (e) {
+      console.error("Error checking purchase history:", e);
+    }
+  }
+
+  // Submit new question
+  async function submitQuestion() {
+    if (!userId) {
+      goto('/login');
+      return;
+    }
+    if (!newQuestion.trim()) return;
+
+    try {
+      const response = await myFetch(
+        `${PUBLIC_API_URL}/qna/questions/`, 
+        'POST',
+        {
+          question_text: newQuestion,
+          user_id: userId,
+          product_listing_id: product_listing.id
+        },
+        currentUser?.access_token
+      );
+      
+      if (response) {
+        newQuestion = '';
+        questionsLoaded = false;
+        fetchQuestions();
+      }
+    } catch (e) {
+      console.error("Error submitting question:", e);
+    }
+  }
+
+  // Submit new answer
+  async function submitAnswer(questionId) {
+    if (!userId) {
+      goto('/login');
+      return;
+    }
+    if (!newAnswer[questionId]?.trim()) return;
+
+    try {
+      const response = await myFetch(
+        `${PUBLIC_API_URL}/qna/answers/`,
+        'POST',
+        {
+          answer_text: newAnswer[questionId],
+          user_id: userId,
+          question_id: questionId
+        },
+        currentUser?.access_token
+      );
+      console.log("response",response);
+      
+      if (response) {
+        newAnswer[questionId] = '';
+        questionsLoaded = false;
+        fetchQuestions();
+      }
+    } catch (e) {
+      console.error("Error submitting answer:", e);
+    }
+  }
+
+  // Watch activeTab changes
+  $: if (activeTab === 'QNA' && !questionsLoaded) {
+    fetchQuestions();
   }
 </script>
 
@@ -475,26 +635,43 @@
         </div>
 
         <!-- New Pin Code Check Section -->
-        <div class="bg-blue-50 border px-4 py-2 rounded-lg mt-4">
-          <h3 class="font-medium">Check Delivery Availability</h3>
+        <div class="bg-blue-50 border px-4 py-3 rounded-lg mt-4">
+          <h3 class="font-medium text-lg mb-2">Check Delivery Availability</h3>
           <div class="flex items-center gap-2">
             <input 
               type="text" 
               placeholder="Enter Pincode" 
               bind:value={pincode} 
-              class="border rounded-lg p-2 w-full md:w-1/3"
+              class="border rounded-lg p-2 w-full md:w-1/3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
               maxlength="6"
               on:input={checkPincodeAvailability}
             />
             <button 
-              class="bg-primary text-white rounded-lg px-4 py-2"
+              class="bg-primary text-white rounded-lg px-6 py-2 hover:bg-primary/90 transition-colors duration-200"
               on:click={checkPincodeAvailability}
             >
               Check
             </button>
           </div>
           {#if pincodeResult}
-            <p class="mt-2 text-gray-600">{pincodeResult}</p>
+            <div class="mt-3 flex items-start gap-2">
+              <Icon 
+                icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"} 
+                class="w-5 h-5 mt-0.5 {pinData ? 'text-green-500' : 'text-red-500'}"
+              />
+              <div class="flex flex-col gap-1">
+                {#if pinData}
+                  <p class="text-green-700">
+                    Delivery is available in <span class="font-medium">{pinData.city}, {pinData.state}</span>
+                  </p>
+                  <p class={pinData.cod_available ? 'text-green-700' : 'text-red-600'}>
+                    COD is <span class="font-medium">{pinData.cod_available ? 'available' : 'not available'}</span>
+                  </p>
+                {:else}
+                  <p class="text-red-600">{pincodeResult}</p>
+                {/if}
+              </div>
+            </div>
           {/if}
         </div>
 
@@ -519,6 +696,12 @@
         >
           INFO
         </button>
+        <button 
+        class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'QNA' ? 'tab-active bg-primary text-white' : ''}"
+        on:click={() => activeTab = 'QNA'}
+      >
+        Q&A ({questions.length})
+      </button>
         <button 
           class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'REVIEWS'}
@@ -585,6 +768,121 @@
             </table>
           </div>
         </div>
+
+        {:else if activeTab === 'QNA'}
+        <div class="max-w-3xl mx-auto space-y-6">
+          <!-- Question Input -->
+          <div class="bg-white rounded-lg shadow-sm border p-4">
+            <h3 class="text-lg font-medium mb-3">Ask a Question</h3>
+            <div class="flex gap-3">
+              <textarea
+                bind:value={newQuestion}
+                placeholder="Type your question here..."
+                class="textarea textarea-bordered w-full  resize-none text-sm focus:ring-2 focus:ring-primary/20"
+                disabled={questionsLoading}
+              ></textarea>
+              <button
+                on:click={submitQuestion}
+                class="btn btn-primary px-6 h-auto"
+                disabled={questionsLoading || !newQuestion.trim()}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <!-- Questions List -->
+          {#if questionsLoading}
+            <div class="flex justify-center py-6">
+              <span class="loading loading-spinner loading-md text-primary"></span>
+            </div>
+          {:else if questions.length === 0}
+            <div class="text-center py-8 text-gray-500">
+              No questions yet. Be the first to ask!
+            </div>
+          {:else}
+            <div class="space-y-4">
+              {#each questions as question}
+                <div class="bg-white rounded-lg shadow-sm border p-4">
+                  <!-- Question -->
+                  <div class="flex gap-3">
+                    <div class="avatar placeholder flex-shrink-0">
+                      <div class="bg-neutral-focus text-neutral-content rounded-full w-8 h-8">
+                        <span class="text-sm">{question.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
+                      </div>
+                    </div>
+                    <div class="flex-1 space-y-1">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium text-sm">
+                          {question.user?.first_name} {question.user?.last_name}
+                        </span>
+                        {#if question.user?.role === 'entity'}
+                          <span class="badge badge-warning badge-sm">Seller</span>
+                        {:else if hasPurchased}
+                          <span class="badge badge-success badge-sm">Verified Buyer</span>
+                        {/if}
+                      </div>
+                      <p class="text-gray-700">{question.question_text}</p>
+                      <p class="text-xs text-gray-500">
+                        Asked on {new Date(question.created).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Answers -->
+                  {#if question.answers?.length}
+                    <div class="ml-11 mt-3 space-y-3">
+                      {#each question.answers as answer}
+                        <div class="border-l-2 border-primary/20 pl-4 py-2">
+                          <div class="flex items-start gap-2">
+                            <div class="avatar placeholder flex-shrink-0">
+                              <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
+                                <span class="text-xs">{answer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
+                              </div>
+                            </div>
+                            <div class="flex-1 space-y-1">
+                              <div class="flex items-center gap-2">
+                                <span class="font-medium text-sm">{answer.user?.first_name} {answer.user?.last_name}</span>
+                                {#if answer.user?.role === 'entity'}
+                                  <span class="badge badge-warning badge-sm">Seller</span>
+                                {:else if hasPurchased}
+                                  <span class="badge badge-success badge-sm">Verified Buyer</span>
+                                {/if}
+                              </div>
+                              <p class="text-gray-600 text-sm">{answer.answer_text}</p>
+                              <p class="text-xs text-gray-500">
+                                Answered on {new Date(answer.created).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
+
+                  <!-- Answer Input -->
+                  <div class="ml-11 mt-3">
+                    <div class="flex gap-2">
+                      <input
+                        type="text"
+                        bind:value={newAnswer[question.id]}
+                        placeholder="Write a reply..."
+                        class="input input-bordered input-sm w-full text-sm focus:ring-2 focus:ring-primary/20"
+                      />
+                      <button
+                        on:click={() => submitAnswer(question.id)}
+                        class="btn btn-sm btn-outline btn-primary"
+                        disabled={!newAnswer[question.id]?.trim()}
+                      >
+                        Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
       {:else}
         <div in:fade>
           <div class="overflow-x-auto max-w-3xl mx-auto">
@@ -595,7 +893,7 @@
               next={reviewsNext}
               on:loadMore={async () => {
                 reviewsLoading = true;
-                const dataNew = await myFetch(reviewsNext);
+                const dataNew = await myFetch(reviewsNext, 'GET', {}, currentUser?.access_token);
                 reviews = [...reviews, ...dataNew.results];
                 reviewsNext = dataNew.next;
                 reviewsLoading = false;
@@ -771,5 +1069,40 @@
     cursor: pointer;
     float: right;
     font-size: 20px;
+  }
+
+  /* Custom styles for Q&A section */
+  .qna-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .question-card {
+    transition: all 0.3s ease;
+  }
+
+  .question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .qna-container {
+      padding: 0 1rem;
+    }
+
+    .textarea {
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+    }
+
+    .avatar {
+      width: 2rem;
+      height: 2rem;
+    }
   }
 </style>
