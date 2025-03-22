@@ -131,6 +131,8 @@
   let pinData = null;
 
   async function checkPincodeAvailability() {
+    if (!pincode) return; // Don't do anything if pincode is empty
+    
     if (pincode.length === 6) {
       const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
       const data = await response.json();
@@ -143,7 +145,7 @@
       } else {
         pincodeResult = 'Delivery is not available for this pincode.';
       }
-    } else {
+    } else if (pincode.length > 0) {
       pincodeResult = 'Please enter a valid 6-digit pincode.';
       pinData = null;
     }
@@ -321,6 +323,8 @@
   $: if (activeTab === 'QNA' && !questionsLoaded) {
     fetchQuestions();
   }
+
+  let isExpanded = false;
 </script>
 
 <svelte:head>
@@ -635,40 +639,39 @@
         </div>
 
         <!-- New Pin Code Check Section -->
-        <div class="bg-blue-50 border px-4 py-3 rounded-lg mt-4">
-          <h3 class="font-medium text-lg mb-2">Check Delivery Availability</h3>
+        <div class="flex flex-col gap-2">
+          <div class=" font-medium">Check Delivery Availability</div>
           <div class="flex items-center gap-2">
             <input 
               type="text" 
               placeholder="Enter Pincode" 
-              bind:value={pincode} 
-              class="border rounded-lg p-2 w-full md:w-1/3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+              bind:value={pincode}
+              class="input input-bordered input-sm h-9 w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
               maxlength="6"
-              on:input={checkPincodeAvailability}
             />
             <button 
-              class="bg-primary text-white rounded-lg px-6 py-2 hover:bg-primary/90 transition-colors duration-200"
+              class="btn btn-primary btn-sm h-9 px-4"
               on:click={checkPincodeAvailability}
             >
               Check
             </button>
           </div>
-          {#if pincodeResult}
-            <div class="mt-3 flex items-start gap-2">
+          {#if pincode && pincodeResult}
+            <div class="flex items-start gap-2">
               <Icon 
                 icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"} 
-                class="w-5 h-5 mt-0.5 {pinData ? 'text-green-500' : 'text-red-500'}"
+                class="w-4 h-4 mt-0.5 {pinData ? 'text-green-500' : 'text-red-500'}"
               />
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col">
                 {#if pinData}
-                  <p class="text-green-700">
+                  <p class="text-xs text-green-700">
                     Delivery is available in <span class="font-medium">{pinData.city}, {pinData.state}</span>
                   </p>
-                  <p class={pinData.cod_available ? 'text-green-700' : 'text-red-600'}>
+                  <p class="text-xs {pinData.cod_available ? 'text-green-700' : 'text-red-600'}">
                     COD is <span class="font-medium">{pinData.cod_available ? 'available' : 'not available'}</span>
                   </p>
                 {:else}
-                  <p class="text-red-600">{pincodeResult}</p>
+                  <p class="text-xs text-red-600">{pincodeResult}</p>
                 {/if}
               </div>
             </div>
@@ -683,30 +686,36 @@
   <div class="md:my-8 my-4">
     <!-- Tab Headers -->
     <div class="flex justify-center mb-8">
-      <div class="tabs tabs-boxed bg-inherit gap-2">
+      <div class="tabs tabs-boxed bg-inherit gap-2 flex-nowrap overflow-x-auto">
         <button 
-          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'DETAIL' ? 'tab-active bg-primary text-white' : ''}"
+          class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'DETAIL' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'DETAIL'}
         >
           DETAIL
         </button>
         <button 
-          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'INFO' ? 'tab-active bg-primary text-white' : ''}"
+          class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'INFO' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'INFO'}
         >
           INFO
         </button>
         <button 
-        class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'QNA' ? 'tab-active bg-primary text-white' : ''}"
-        on:click={() => activeTab = 'QNA'}
-      >
-        Q&A ({questions.length})
-      </button>
+          class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'QNA' ? 'tab-active bg-primary text-white' : ''}"
+          on:click={() => activeTab = 'QNA'}
+        >
+          <span>Q&A</span>
+          {#if questions.length > 0}
+            <span class="ml-1">({questions.length})</span>
+          {/if}
+        </button>
         <button 
-          class="tab tab-lg transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
+          class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'REVIEWS'}
         >
-          REVIEWS ({product_listing.review_count})
+          <span>REVIEWS</span>
+          {#if product_listing.review_count > 0}
+            <span class="ml-1">({product_listing.review_count})</span>
+          {/if}
         </button>
       </div>
     </div>
@@ -715,7 +724,18 @@
     <div class="" in:fade={{ duration: 300 }}>
       {#if activeTab === 'DETAIL'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
-          <div class="text-gray-600 prose-sm">{@html product_listing.product.description}</div>
+          <div class="text-gray-600 prose-sm description-container">
+            <div class="description-text" class:expanded={isExpanded}>
+              {@html product_listing.product.description}
+            </div>
+            <!-- Show More button only on mobile when text is truncated -->
+            <button 
+              class="show-more-btn md:hidden"
+              on:click={() => isExpanded = !isExpanded}
+            >
+              {isExpanded ? 'Show Less' : 'Show More'}
+            </button>
+          </div>
         </div>
       {:else if activeTab === 'INFO'}
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
@@ -832,31 +852,68 @@
                   <!-- Answers -->
                   {#if question.answers?.length}
                     <div class="ml-11 mt-3 space-y-3">
-                      {#each question.answers as answer}
+                      <!-- Show first verified buyer answer or first answer -->
+                      {#if question.answers.length > 0}
+                        {@const verifiedBuyerAnswer = question.answers.find(a => a.user?.role !== 'entity')}
+                        {@const firstAnswer = verifiedBuyerAnswer || question.answers[0]}
                         <div class="border-l-2 border-primary/20 pl-4 py-2">
                           <div class="flex items-start gap-2">
                             <div class="avatar placeholder flex-shrink-0">
                               <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
-                                <span class="text-xs">{answer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
+                                <span class="text-xs">{firstAnswer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
                               </div>
                             </div>
                             <div class="flex-1 space-y-1">
                               <div class="flex items-center gap-2">
-                                <span class="font-medium text-sm">{answer.user?.first_name} {answer.user?.last_name}</span>
-                                {#if answer.user?.role === 'entity'}
+                                <span class="font-medium text-sm">{firstAnswer.user?.first_name} {firstAnswer.user?.last_name}</span>
+                                {#if firstAnswer.user?.role === 'entity'}
                                   <span class="badge badge-warning badge-sm">Seller</span>
                                 {:else if hasPurchased}
                                   <span class="badge badge-success badge-sm">Verified Buyer</span>
                                 {/if}
                               </div>
-                              <p class="text-gray-600 text-sm">{answer.answer_text}</p>
+                              <p class="text-gray-600 text-sm">{firstAnswer.answer_text}</p>
                               <p class="text-xs text-gray-500">
-                                Answered on {new Date(answer.created).toLocaleDateString()}
+                                Answered on {new Date(firstAnswer.created).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                         </div>
-                      {/each}
+                        
+                        <!-- Show expand button if there are more answers -->
+                        {#if question.answers.length > 1}
+                          <details class="ml-4">
+                            <summary class="cursor-pointer text-sm text-primary hover:text-primary/80 mb-2">
+                              Show {question.answers.length - 1} more {question.answers.length - 1 === 1 ? 'reply' : 'replies'}
+                            </summary>
+                            {#each question.answers.filter(a => a !== firstAnswer) as answer}
+                              <div class="border-l-2 border-primary/20 pl-4 py-2">
+                                <div class="flex items-start gap-2">
+                                  <div class="avatar placeholder flex-shrink-0">
+                                    <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
+                                      <span class="text-xs">{answer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
+                                    </div>
+                                  </div>
+                                  <div class="flex-1 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                      <span class="font-medium text-sm">{answer.user?.first_name} {answer.user?.last_name}</span>
+                                      {#if answer.user?.role === 'entity'}
+                                        <span class="badge badge-warning badge-sm">Seller</span>
+                                      {:else if hasPurchased}
+                                        <span class="badge badge-success badge-sm">Verified Buyer</span>
+                                      {/if}
+                                    </div>
+                                    <p class="text-gray-600 text-sm">{answer.answer_text}</p>
+                                    <p class="text-xs text-gray-500">
+                                      Answered on {new Date(answer.created).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            {/each}
+                          </details>
+                        {/if}
+                      {/if}
                     </div>
                   {/if}
 
@@ -1103,6 +1160,93 @@
     .avatar {
       width: 2rem;
       height: 2rem;
+    }
+  }
+
+  /* Mobile tab improvements */
+  @media (max-width: 768px) {
+    .tabs {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .tab {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      height: auto;
+      min-height: 2.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  /* Description text container styles */
+  @media (max-width: 768px) {
+    .description-container {
+      position: relative;
+    }
+
+    .description-text {
+      max-height: 300px; /* Adjust this value as needed */
+      overflow: hidden;
+      position: relative;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .description-text::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent, white);
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .description-text.expanded {
+      max-height: none;
+    }
+
+    .description-text.expanded::after {
+      opacity: 0;
+    }
+
+    .show-more-btn {
+      width: 100%;
+      padding: 0.5rem;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 500;
+      background: white;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .show-more-btn:hover {
+      color: var(--primary-color-dark);
+    }
+  }
+
+  /* Add these styles for better mobile responsiveness */
+  @media (max-width: 768px) {
+    .input-sm {
+      font-size: 0.875rem;
+    }
+    
+    .btn-sm {
+      font-size: 0.875rem;
     }
   }
 </style>
