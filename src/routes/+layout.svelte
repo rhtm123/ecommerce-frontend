@@ -5,12 +5,16 @@
   import NProgress from 'nprogress';
   import 'nprogress/nprogress.css';
   import { navigating, page } from "$app/stores";
+  import OrderNotification from '$lib/components/OrderNotification.svelte';
+  import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
+  import { notifications } from '$lib/stores/notifications';
   import { onMount } from 'svelte';
   import { user } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
 
   import { PUBLIC_NM_ENV } from '$env/static/public';
   import TestBanner from "$lib/components/TestBanner.svelte";
+  import { myFetch } from "$lib/utils/myFetch";
 
 
 
@@ -18,11 +22,12 @@
   
   $: isAdmin = $page.url.pathname.includes("admin");
 
-  let Footer, AlertContainer;
+  let Footer, AlertContainer,OrderNotificationContainer;
 
   onMount(async () => {
     Footer = (await import("$lib/components/Footer.svelte")).default;
     AlertContainer = (await import("$lib/components/AlertContainer.svelte")).default;
+    OrderNotificationContainer = (await import("$lib/components/OrderNotification.svelte")).default;
   });
 
 
@@ -34,35 +39,60 @@
           NProgress.done();
       }
   }
+
+  onMount(async () => {
+    // Fetch recent orders periodically
+    async function fetchRecentOrders() {
+      try {
+        const data = await myFetch(`${PUBLIC_API_URL}/order/order-items/?page=1&page_size=10&need_order_user=true`);
+        
+        // Add new notifications
+        data.results.forEach(order => {
+          notifications.update(n => {
+            if (!n.find(existing => existing.id === order.id)) {
+              return [order, ...n].slice(0, 5);
+            }
+            return n;
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching recent orders:', error);
+      }
+    }
+
+    // Initial fetch
+    fetchRecentOrders();
+
+    // Set up periodic fetch (every 30 seconds)
+    const interval = setInterval(fetchRecentOrders, 30000);
+
+    return () => clearInterval(interval);
+  });
 </script>
 
-
-{#if AlertContainer}
-  <AlertContainer />
-{/if}
-
-
-{#if (PUBLIC_NM_ENV=="beta")}
-  <TestBanner />
-{/if}
-
-
 <div class="bg-base-100">
+  {#if AlertContainer}
+    <AlertContainer />
+  {/if}
 
-      {#if !isAdmin}
+  {#if (PUBLIC_NM_ENV=="beta")}
+    <TestBanner />
+  {/if}
 
-      <Navigation />
-      {/if}
-      <div class={isAdmin?"":"pt-16"}> <!-- Only add padding when Navigation is present -->
-        <slot />
-      </div>
+  {#if !isAdmin}
+    <Navigation />
+  {/if}
+  
+  <div class={isAdmin ? "" : "pt-16"}>
+    <slot />
+  </div>
 
-      {#if !isAdmin}
+  <!-- Only show notifications on home page -->
+  {#if OrderNotificationContainer && $page.url.pathname === '/'}
+    <OrderNotification />
+  {/if}
 
-        {#if Footer}
-        <Footer />
-
-        {/if}
-      {/if}
-
+  {#if !isAdmin && Footer}
+    <Footer />
+  {/if}
 </div>
