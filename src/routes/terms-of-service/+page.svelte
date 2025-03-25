@@ -14,8 +14,8 @@
       <p class="leading-relaxed">
         By accessing and using Naigaon Market, operated by Learning Setu Private Limited, you agree to be bound by these Terms and Conditions, our 
         <a href="/privacy-policy" class="text-primary hover:underline">Privacy Policy</a>, 
-        <a href="/return-policy" class="text-primary hover:underline">Return Policy</a>, and 
-        <a href="/seller-policy" class="text-primary hover:underline">Seller Policy</a>. 
+        <a href="/shipping-policy" class="text-primary hover:underline">Shipping Policy</a>, and 
+        <a href="/return-policy" class="text-primary hover:underline">Return Policy</a>. 
         If you do not agree, please refrain from using our services.
       </p>
     </section>
@@ -50,7 +50,7 @@
     <section>
       <h2 class="text-2xl font-semibold mb-4">5. Shipping and Delivery</h2>
       <p class="leading-relaxed">
-        Refer to our <a href="/return-policy" class="text-primary hover:underline">Return Policy</a> for detailed shipping terms. Delivery times are estimates, and shipping costs are calculated at checkout.
+        Refer to our  <a href="/shipping-policy" class="text-primary hover:underline">Shipping Policy</a> and  <a href="/return-policy" class="text-primary hover:underline">Return Policy</a> for detailed shipping terms. Delivery times are estimates, and shipping costs are calculated at checkout.
       </p>
     </section>
 

@@ -16,7 +16,7 @@
         <li>Personal data: name, email, shipping address, phone number.</li>
         <li>Payment details (processed securely via third-party gateways).</li>
         <li>Browsing history and preferences.</li>
-        <li>Device information and cookies for analytics.</li>
+        <li>Device information, IP address and cookies for analytics.</li>
       </ul>
     </section>
 
@@ -60,7 +60,17 @@
     </section>
 
     <section>
-      <h2 class="text-2xl font-semibold mb-4">6. Contact Us</h2>
+      <h2 class="text-2xl font-semibold mb-4">6. Cookies & Tracking</h2>
+      <ul class="list-disc ml-6 leading-relaxed">
+        <li>We use cookies to enhance browsing experience and track website performance.</li>
+        <li>Users can disable cookies via browser settings.</li>
+      </ul>
+    </section>
+
+
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">7. Contact Us</h2>
       <p class="leading-relaxed">
         Email: <a href="mailto:naigaonmarket@gmail.com" class="text-primary hover:underline">naigaonmarket@gmail.com</a><br />
         Address: 005, Jay Vijay Nagar Building 3, Naigaon East, Maharashtra
