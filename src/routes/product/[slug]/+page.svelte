@@ -573,27 +573,32 @@
       {/if}
 
       <!-- Quantity and Add to Cart -->
-      <div class="flex items-center gap-4">
-        <div class="flex items-center border rounded-lg">
-          <button 
-            class="px-4 py-2 hover:bg-base-50"
-            on:click={() => updateQuantity(-1)}
-          >-</button>
-          <input 
-            type="number" 
-            bind:value={quantity}
-            disabled
-            class="w-16 text-center bg-inherit border-x"
-            min="1"
-            max="10"
-          />
-          <button 
-            class="px-4 py-2 hover:bg-base-50"
-            on:click={() => updateQuantity(1)}
-          >+</button>
+      {#if product_listing.stock && product_listing.stock > 0}
+        <div class="flex items-center gap-4">
+          <div class="flex items-center border rounded-lg">
+            <button 
+              class="px-4 py-2 hover:bg-base-50"
+              on:click={() => updateQuantity(-1)}
+            >-</button>
+            <input 
+              type="number" 
+              bind:value={quantity}
+              disabled
+              class="w-16 text-center bg-inherit border-x"
+              min="1"
+              max="10"
+            />
+            <button 
+              class="px-4 py-2 hover:bg-base-50"
+              on:click={() => updateQuantity(1)}
+            >+</button>
+          </div>
+          <button class="border bg-primary text-white rounded-lg px-4 py-2" on:click={handleAddToCart}>ADD TO CART</button>
         </div>
-        <button class="border bg-primary text-white rounded-lg px-4 py-2" on:click={handleAddToCart}>ADD TO CART</button>
-      </div>
+      {:else}
+        <div class="text-red-500 font-medium text-lg">Out of Stock</div>
+      {/if}
+
 
       <!-- Additional Product Info -->
       <div class="space-y-1 pt-4 border-t">
