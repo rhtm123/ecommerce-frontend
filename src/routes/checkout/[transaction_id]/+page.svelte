@@ -35,7 +35,7 @@
           </div>
           <div class="flex justify-between border-b pb-2">
             <span class="font-medium text-gray-700">Order Number:</span>
-            <span>{payment.order_id || 'N/A'}</span>
+            <span>{payment.order_number || 'N/A'}</span>
           </div>
           <div class="flex justify-between border-b pb-2">
             <span class="font-medium text-gray-700">Date:</span>
@@ -63,7 +63,7 @@
         <div class="space-y-4">
           <div class="flex justify-between border-b pb-2">
             <span class="font-medium text-gray-700">Order Number:</span>
-            <span>{payment.order_id || 'N/A'}</span>
+            <span>{payment.order_number || 'N/A'}</span>
           </div>
           <div class="flex justify-between border-b pb-2">
             <span class="font-medium text-gray-700">Date:</span>

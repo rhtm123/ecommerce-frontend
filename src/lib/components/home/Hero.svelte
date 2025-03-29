@@ -139,7 +139,7 @@
         </div>
 
         <!-- Enhanced Product Image Display -->
-        <div class="w-full md:w-1/2 relative aspect-square md:aspect-auto md:h-[500px] z-10">
+        <div class="w-full md:w-1/2 relative aspect-square z-10">
           {#each slides as slide, i}
             <div 
               class="absolute rounded-lg inset-0 transition-all duration-700"

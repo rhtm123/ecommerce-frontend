@@ -1,12 +1,15 @@
 <script>
     import { myFetch } from "$lib/utils/myFetch";
     import Icon from '@iconify/svelte';
-    export let order_id;
+    // export let order_id;
     import { PUBLIC_API_URL } from "$env/static/public";
     import { onMount } from "svelte";
+    export let items;
+    let orderItems = items;
+    console.log(items);
 
-    let orderItems = [];
-    let loading = true;
+    import OrderItemReview from "./OrderItemReview.svelte";
+    // let loading = true;
 
     // Status configurations with icons and colors
     const statusConfig = {
@@ -79,27 +82,23 @@
         );
     }
 
-    async function fetchItemOrders() {
-        let url = `${PUBLIC_API_URL}/order/order-items/?order_id=${order_id}&need_reviews=true`;
-        let data = await myFetch(url);
-        orderItems = data.results;
-        console.log("Order Items",orderItems)
-        loading = false;
-    }
+    // async function fetchItemOrders() {
+    //     let url = `${PUBLIC_API_URL}/order/order-items/?order_id=${order_id}&need_reviews=true`;
+    //     let data = await myFetch(url);
+    //     orderItems = data.results;
+    //     console.log("Order Items",orderItems)
+    //     loading = false;
+    // }
 
-    $: if (order_id) {
-        fetchItemOrders();
-    }
+    // $: if (order_id) {
+    //     fetchItemOrders();
+    // }
 
     // Get unique statuses for an order
     $: orderStatuses = [...new Set(orderItems.map(item => item.status))];
 </script>
 
-{#if loading}
-    <div class="flex justify-center p-4">
-        <div class="loading loading-spinner loading-sm"></div>
-    </div>
-{:else}
+
     <!-- Order Status Summary -->
     {#if orderItems.length > 0}
         <div class="px-4 py-2 border-b">
@@ -125,7 +124,7 @@
                 <div class="flex items-start space-x-4">
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <h3 class="font-medium">{item?.product_listing?.name}</h3>
+                            <h3 class="font-medium">{item?.product_listing_name}</h3>
                             <!-- Individual Item Status -->
                             <div class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color}">
                                 <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
@@ -139,39 +138,12 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    {#if item.review}
-                        <div class="flex flex-col items-end">
-                            <p class="text-sm text-gray-600">Your Rating:</p>
-                            <div class="flex items-center space-x-1">
-                                {#each Array(item.review.rating) as _}
-                                    <Icon icon="material-symbols:star" class="w-4 h-4 text-yellow-400" />
-                                {/each}
-                                {#each Array(5 - item.review.rating) as _}
-                                    <Icon icon="material-symbols:star-outline" class="w-4 h-4 text-gray-300" />
-                                {/each}
-                            </div>
-                            <a 
-                                class="text-sm text-primary hover:underline mt-1" 
-                                href={"/profile/add-review/" + item.id}
-                            >
-                                View Review
-                            </a>
-                        </div>
-                    {:else}
-                        <a 
-                            class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                            href={"/profile/add-review/" + item.id}
-                        >
-                            <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />
-                            Add Review
-                        </a>
-                    {/if}
-                </div>
+                <OrderItemReview order_item_id={item.id} />
+
+                    
             </div>
         </div>
     {/each}
-{/if}
 
 <style>
     /* Smooth transitions */

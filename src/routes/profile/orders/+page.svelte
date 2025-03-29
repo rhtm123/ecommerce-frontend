@@ -17,7 +17,7 @@
 
   onMount(async ()=>{
 
-    let url = `${PUBLIC_API_URL}/order/orders/?user_id=${authUser.user_id}&ordering=-id`;
+    let url = `${PUBLIC_API_URL}/order/orders/?items_needed=true&user_id=${authUser.user_id}&ordering=-id`;
     let data = await myFetch(url);
     orders = data.results;
     next = data.next;
@@ -84,7 +84,7 @@
             </a>
           </div>
 
-          <OrderItems order_id={order.id} />
+          <OrderItems order_id={order.id} items={order.items} />
 
           <!-- Order Footer -->
           <div class="p-3 flex justify-between items-center border-t bg-gray-50">

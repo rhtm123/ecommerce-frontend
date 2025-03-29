@@ -109,14 +109,15 @@
         try {
             orderPlacing = true;
             let url = `${PUBLIC_API_URL}/order/orders/`;
-            console.log(selectedAddress);
+            // console.log(selectedAddress);
             let order = await myFetch(url, "POST", {
                 user_id: authUser?.user_id,
+                estore_id: PUBLIC_ESTORE_ID,
                 shipping_address_id: selectedAddress,
                 total_amount: totalPrice,
             }, authUser.access_token)
 
-            console.log(order);
+            // console.log(order);
             orderData = order;
 
             let urlp = `${PUBLIC_API_URL}/payment/payments/`;

@@ -50,15 +50,15 @@
     }
   
     async function checkReview() {
-      let url = `${PUBLIC_API_URL}/review/reviews/?order_item_id=${orderItemId}`;
-      let data = await myFetch(url);
-      console.log(data);
-      if (data.results.length > 0) {
-        review = data.results[0];
+      let url = `${PUBLIC_API_URL}/review/reviews/order-item/${orderItemId}`;
+      // console.log(url);
+      try {
+        let data = await myFetch(url);
+        review = data;
         reviewFound = true;
+      } catch (e) {
       }
     }
-  
     onMount(() => {
       getOrderItem();
       checkReview();
