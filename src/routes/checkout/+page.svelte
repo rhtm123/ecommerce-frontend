@@ -3,7 +3,8 @@
     import { fade } from 'svelte/transition';
     import { user } from '$lib/stores/auth';
     import { onDestroy, onMount } from 'svelte';
-    import { PUBLIC_API_URL } from '$env/static/public';
+    import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
+
     import { myFetch } from '$lib/utils/myFetch';
     import { goto } from '$app/navigation';
 
@@ -90,8 +91,8 @@
 
         const dailyOrderCount = await checkDailyOrderLimit();
 
-        if (dailyOrderCount >= 5) {
-            addAlert("You cannot place more than 5 orders in a single day.", "error");
+        if (dailyOrderCount >= 10) {
+            addAlert("You cannot place more than 10 orders in a single day.", "error");
             return;
         }
 
@@ -112,15 +113,28 @@
             let order = await myFetch(url, "POST", {
                 user_id: authUser?.user_id,
                 shipping_address_id: selectedAddress,
-                total_amount: totalPrice
+                total_amount: totalPrice,
             }, authUser.access_token)
 
             console.log(order);
             orderData = order;
 
+            let urlp = `${PUBLIC_API_URL}/payment/payments/`;
+            console.log(urlp)
+            let payment = await myFetch(urlp, "POST", {
+              "order_id": order.id,
+              "amount": totalPrice,
+              "estore_id": PUBLIC_ESTORE_ID,
+              payment_method: selectedPaymentMethod,
+            }, authUser.access_token);
+
+            
+
+            // console.log(payment);
+
             let url2 = `${PUBLIC_API_URL}/order/order-items/`;
 
-            console.log(cartItems);
+            // console.log(cartItems);
 
             for (let i = 0; i < cartItems.length; i++) {
                 myFetch(url2, "POST", {
@@ -132,8 +146,14 @@
                 }, authUser.access_token)
             }
 
-            orderdCompleted = true
             addAlert("Order placed successfully ", "success")
+
+            if (payment.payment_method=="pg") {
+              window.location = payment.payment_url 
+            } else {
+              goto("/checkout/"+payment.transaction_id);
+            }
+            orderdCompleted = true
 
         } catch (e) {
             addAlert("Error placing order", "error");
@@ -144,14 +164,6 @@
         cart.set([]);
         // console.log('Order submitted:', { billingDetails, items: $cart });
     }
-
-
-    // function handleChange(event) {
-      
-    //   // selectedAddress = event.target.value;
-    //   console.log('Selected Value:', event.target.value);
-    // }
-
 
     let modal;
 
@@ -175,6 +187,9 @@
       function closeModalEdits(id) {
         modalEdit[id].close(); // Closes the modal
       }
+
+
+      let selectedPaymentMethod = "cod"
 
 
   </script>
@@ -327,6 +342,28 @@
                       <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
                   </span>
               </label>
+              
+              <div class="flex items-center gap-4">
+                  <label>
+                      <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="cod" 
+                          bind:group={selectedPaymentMethod} 
+                          checked 
+                      />
+                      Cash on Delivery
+                  </label>
+                  <label>
+                      <input 
+                          type="radio" 
+                          name="paymentMethod" 
+                          value="pg" 
+                          bind:group={selectedPaymentMethod} 
+                      />
+                      Pay Online
+                  </label>
+              </div>
 
               <button 
                   on:click={handleSubmit}
@@ -342,47 +379,7 @@
 
 
 
-    {:else}
-
-        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
-          <h1 class="text-2xl font-bold text-center mb-4">Thank you. Your order has been received.</h1>
-
-          <!-- Order Details -->
-          <div class="space-y-4">
-              <!-- Order Number -->
-              <div class="flex justify-between border-b pb-2">
-                  <span class="font-medium">ORDER NUMBER:</span>
-                  <span>{orderData?.id}</span>
-              </div>
-
-              <!-- Date -->
-              <div class="flex justify-between border-b pb-2">
-                  <span class="font-medium">DATE:</span>
-                  <span>{new Date(orderData?.created).toLocaleDateString()}</span>
-              </div>
-
-              <!-- Total -->
-              <div class="flex justify-between border-b pb-2">
-                  <span class="font-medium">TOTAL:</span>
-                  <span>{orderData?.total_amount}</span>
-              </div>
-
-              <!-- Payment Method -->
-              <div class="flex justify-between border-b pb-2">
-                  <span class="font-medium">PAYMENT METHOD:</span>
-                  <span>Cash on delivery</span>
-              </div>
-          </div>
-
-          <!-- Payment Note -->
-          <p class="text-center text-gray-700 mt-4">**Pay with cash upon delivery.**</p>
-      </div>
-
-        <div class="text-center py-8" in:fade>
-          <a href="/profile/orders" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors">
-            Go to orders
-          </a>
-        </div>
+    
       {/if}
 
 

@@ -13,7 +13,7 @@
   import { goto } from '$app/navigation';
 
   import { PUBLIC_NM_ENV } from '$env/static/public';
-  import TestBanner from "$lib/components/TestBanner.svelte";
+  // import TestBanner from "$lib/components/TestBanner.svelte";
   import { myFetch } from "$lib/utils/myFetch";
 
 
@@ -27,7 +27,7 @@
   onMount(async () => {
     Footer = (await import("$lib/components/Footer.svelte")).default;
     AlertContainer = (await import("$lib/components/AlertContainer.svelte")).default;
-    OrderNotificationContainer = (await import("$lib/components/OrderNotification.svelte")).default;
+    // OrderNotificationContainer = (await import("$lib/components/OrderNotification.svelte")).default;
   });
 
 
@@ -75,9 +75,9 @@
     <AlertContainer />
   {/if}
 
-  {#if (PUBLIC_NM_ENV=="beta")}
+  <!-- {#if (PUBLIC_NM_ENV=="beta")}
     <TestBanner />
-  {/if}
+  {/if} -->
 
   {#if !isAdmin}
     <Navigation />
@@ -88,9 +88,9 @@
   </div>
 
   <!-- Only show notifications on home page -->
-  {#if OrderNotificationContainer && $page.url.pathname === '/'}
+  <!-- {#if OrderNotificationContainer && $page.url.pathname === '/'}
     <OrderNotification />
-  {/if}
+  {/if} -->
 
   {#if !isAdmin && Footer}
     <Footer />
