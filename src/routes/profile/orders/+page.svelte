@@ -63,7 +63,7 @@
   }
 </script>
 
-<h2 class="text-2xl font-bold md:block hidden px-4 py-3 sticky top-0 bg-base-100 z-10 ">My Orders</h2>
+<h2 class="text-2xl font-bold md:block hidden py-4 sticky top-0 z-10 ">My Orders</h2>
 
 <div class="space-y-2 md:space-y-4">
   {#if loading}
@@ -73,13 +73,13 @@
   {/if}
 
   {#if orders.length > 0}
-    <div class="space-y-3">
+    <div class="space-y-6">
       {#each orders as order}
-        <div class="bg-white shadow-sm border rounded-lg mx-1">
+        <div class="bg-white border rounded-lg">
           <!-- Order Header -->
           <div class="p-3 flex justify-between items-center border-b">
-            <p class="text-sm text-gray-600">#{order.order_number}</p>
-            <a class="btn btn-xs btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
+            <p class="text text-gray-600">#{order.order_number}</p>
+            <a class="btn btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
               Details & Track
             </a>
           </div>
