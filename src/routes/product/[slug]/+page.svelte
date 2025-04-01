@@ -11,15 +11,15 @@
   import Slider from '$lib/components/Slider.svelte';
   import { user } from '$lib/stores/auth.js';
   import { goto } from '$app/navigation';
+    import Product from '$lib/components/product/Product.svelte';
 
   export let data;
   const { product_listing, category } = data;
   
-  let relatedProducts = [];
+  
   let activeTab = 'DETAIL';
   let quantity = 1;
   
-  console.log("product_listing",product_listing);
   // console.log(product_listing.return_exchange_policy.conditions);
   
   // Selected image state (default to main image)
@@ -52,6 +52,21 @@
   function handleAddToCart() {
     for (let i = 0; i < quantity; i++) {
       addToCart(product_listing);
+    }
+  }
+
+  let relatedProducts = [];
+  let loadingRelatedProducts = true;
+  async function getRelatedProducts() {
+    try{
+    let url = `${PUBLIC_API_URL}/product/product-listings/related/${product_listing.id}/`
+    let data = await myFetch(url);
+    relatedProducts = data.results;
+    console.log(relatedProducts);
+    } catch(e){
+
+    }finally{
+      loadingRelatedProducts = false
     }
   }
 
@@ -118,7 +133,9 @@
     });
 
     // Get product listing images
-    getProductListingImages();
+    await getProductListingImages();
+
+    await getRelatedProducts();
 
     // Cleanup subscription on component destroy
     return () => {
@@ -690,7 +707,7 @@
   <!-- Product Tabs Section -->
   <div class="md:my-8 my-4">
     <!-- Tab Headers -->
-    <div class="flex justify-center mb-8">
+    <div class="flex justify-center mb-4">
       <div class="tabs tabs-boxed bg-inherit gap-2 flex-nowrap overflow-x-auto">
         <button 
           class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'DETAIL' ? 'tab-active bg-primary text-white' : ''}"
@@ -966,7 +983,30 @@
       {/if}
     </div>
   </div>
+
+  <!-- Related Products Section -->
+  <div class="mx-4 md:mx-8 lg:mx-16 mt-12 mb-8">
+    <h2 class="text-2xl font-bold text-primary mb-6">Related Products</h2>
+    
+    {#if loadingRelatedProducts}
+      <div class="flex justify-center items-center py-8">
+        <div class="loading loading-spinner loading-lg"></div>
+      </div>
+    {:else if relatedProducts.length > 0}
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {#each relatedProducts as product (product.id)}
+          <Product product={product} />
+        {/each}
+      </div>
+    {:else}
+      <div class="text-center py-8 text-gray-500">
+        No related products found
+      </div>
+    {/if}
+  </div>
 </div>
+
+
 
 <!-- Modal for Return and Exchange Conditions -->
 {#if showModal}

@@ -86,11 +86,6 @@
     scroll-behavior: smooth;
   }
 
-  /* Container max-width */
-  .container {
-    max-width: 1280px;
-  }
-
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .hover\:shadow-lg:hover {
