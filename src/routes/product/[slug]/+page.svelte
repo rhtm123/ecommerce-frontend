@@ -990,7 +990,7 @@
     
     {#if loadingRelatedProducts}
       <div class="flex justify-center items-center py-8">
-        <div class="loading loading-spinner loading-lg"></div>
+        <div class="loading loading-spinner loading-sm"></div>
       </div>
     {:else if relatedProducts.length > 0}
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -1032,19 +1032,11 @@
     -khtml-user-drag: none;
     -moz-user-drag: none;
     -o-user-drag: none;
-    user-drag: none;
   }
 
   /* Smooth transitions */
   .transition-transform {
     transition: transform 0.1s ease-out;
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .cursor-zoom-in {
-      cursor: default;
-    }
   }
 
   /* Prevent text selection during zoom */
@@ -1055,11 +1047,6 @@
     user-select: none;
   }
 
-  /* Enhanced zoom functionality */
-  .magnifier {
-    pointer-events: none;
-    z-index: 10;
-  }
 
   /* Prevent image dragging */
   img {
@@ -1067,12 +1054,6 @@
     user-select: none;
   }
 
-  /* Mobile touch slider */
-  @media (max-width: 768px) {
-    .image-slider {
-      touch-action: pan-y pinch-zoom;
-    }
-  }
 
   /* Smooth transitions */
   .transition-all {
@@ -1087,15 +1068,7 @@
 
   /* Mobile Specific Styles */
   @media (max-width: 768px) {
-    /* Sticky header for mobile */
-    .mobile-sticky-header {
-      position: sticky;
-      top: 0;
-      background: white;
-      z-index: 20;
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-    }
+
 
     /* Scrollable guarantee icons */
     .mobile-scroll-container {
@@ -1110,36 +1083,12 @@
       display: none;
     }
 
-    /* Sticky add to cart bar */
-    .mobile-sticky-cart {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 1rem;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      z-index: 30;
-    }
-
-    /* Full width tabs */
-    .mobile-tabs {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
 
     /* Compact price display */
     .mobile-price-stack {
       flex-direction: column;
       align-items: flex-start;
       gap: 0.5rem;
-    }
-
-    /* Better touch targets */
-    .mobile-touch-target {
-      min-height: 44px;
-      min-width: 44px;
     }
   }
 
