@@ -368,9 +368,15 @@
 
               <button 
                   on:click={handleSubmit}
-                  class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors"
+                  class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+                  disabled={orderPlacing}
               >
-                  {orderPlacing ? "PLACING ORDER" : "PLACE ORDER"}
+                  {#if orderPlacing}
+                      <span class="loading loading-spinner loading-sm mr-2"></span>
+                      PLACING ORDER
+                  {:else}
+                      PLACE ORDER
+                  {/if}
               </button>
           </div>
       </div>
