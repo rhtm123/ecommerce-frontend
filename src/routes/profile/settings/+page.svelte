@@ -31,7 +31,7 @@
       last_name: authUser?.last_name,
       email: authUser?.email,
       mobile: authUser?.mobile,
-      gender: authUser?.mobile,
+      gender: authUser?.gender,
     };
   }
 
