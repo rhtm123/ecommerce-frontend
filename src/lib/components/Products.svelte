@@ -149,6 +149,7 @@
       case 'price_desc': return '-price';
       case 'popularity': return '-popularity';
       case 'rating': return '-rating';
+      case 'newest': return '-created';
       default: return '';
     }
   }
@@ -249,6 +250,7 @@
             <option value="price_desc">Price: High to Low</option>
             <option value="popularity">Sort by Popularity</option>
             <option value="rating">Sort by Rating</option>
+            <option value="newest">Sort by Newest</option>
           </select>
         </div>
       </div>

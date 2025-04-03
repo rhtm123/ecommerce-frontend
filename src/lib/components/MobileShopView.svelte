@@ -125,7 +125,7 @@
       case 'price_asc': return 'price';
       case 'price_desc': return '-price';
       case 'popularity': return '-popularity';
-      case 'newest': return '-created_at';
+      case 'newest': return '-created';
       default: return '';
     }
   }
