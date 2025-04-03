@@ -61,6 +61,14 @@
       day: 'numeric'
     });
   }
+
+
+  // Add this helper function
+  function getPaymentStatusIcon(status) {
+    return status === 'paid' 
+      ? '<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
+      : '<svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 002 0V7zm-1 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>';
+  }
 </script>
 
 <h2 class="text-2xl font-bold md:block hidden py-4 sticky top-0 z-10 ">My Orders</h2>
@@ -75,15 +83,19 @@
   {#if orders.length > 0}
     <div class="space-y-6">
       {#each orders as order}
-        <div class="bg-white border rounded-lg">
-          <!-- Order Header -->
-          <div class="p-3 flex justify-between items-center border-b">
+      <div class="bg-white border rounded-lg">
+        <div class="p-3 flex justify-between items-center border-b">
+          <div class="flex items-center gap-2">
             <p class="text text-gray-600">#{order.order_number}</p>
-            <a class="btn btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
-              Details & Track
-            </a>
+            <span class="flex items-center gap-1">
+              {@html getPaymentStatusIcon(order.payment_status)}
+              <span class="text-sm capitalize">{order.payment_status}</span>
+            </span>
           </div>
-
+          <a class="btn btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
+            Details & Track
+          </a>
+        </div>
           <OrderItems order_id={order.id} items={order.items} />
 
           <!-- Order Footer -->

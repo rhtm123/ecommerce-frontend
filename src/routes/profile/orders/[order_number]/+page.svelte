@@ -1,11 +1,19 @@
 <script>
   export let data;
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from "$env/static/public";
   import { convertToIST } from "$lib/utils/myFunctions";
+  import { user } from "$lib/stores/auth";
+  import { myFetch } from "$lib/utils/myFetch";
+  import { goto } from '$app/navigation';
+
+
+  let authUser;
+  $: authUser = $user;
 
   let order = {};
   let loading = true;
   let error = null;
+  let paymentLoading = false;
 
   let statuses = ['order_placed', 'shipped', "ready_for_delivery", 'out_for_delivery', 'delivered'];
 
@@ -43,6 +51,45 @@
     }
   }
 
+  async function handlePayment() {
+    if (!authUser) {
+      goto('/login');
+      return;
+    }
+
+    try {
+      paymentLoading = true;
+      console.log(order);
+      console.log('Payment payload:', {
+        order_id: order.id,
+        amount: order.total_amount,
+        estore_id: PUBLIC_ESTORE_ID || '1',
+        payment_method: "pg"
+      });
+      // Create payment request similar to checkout
+      const paymentUrl = `${PUBLIC_API_URL}/payment/payments/`;
+      const payment = await myFetch(paymentUrl, "POST", {
+        "order_id": order.order_id,
+        "amount": order.total_amount,
+        "estore_id": PUBLIC_ESTORE_ID || '1', // You might need to adjust this
+        "payment_method": 'pg' // PhonePe payment gateway
+      }, authUser.access_token);
+
+      console.log(payment);
+      if (payment.payment_url) {
+        window.location = payment.payment_url; // Redirect to PhonePe payment page
+      }
+      else {
+        error = `Payment initiation failed: ${payment.error}`;
+        goto("/profile/orders/"+data.order_number);
+      }
+
+    } catch (err) {
+      error = `Payment initiation failed: ${err.message}`;
+    } finally {
+      paymentLoading = false;
+    }
+  }
   fetchOrderDetails();
 </script>
 
@@ -60,11 +107,33 @@
   </div>
 </div>
 {:else}
-  <div class="mx-auto max-w-4xl ">
-    <div class="mb-8">
-      <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
-      <p class="text-sm text-gray-600 mt-1">Order #{data.order_number}</p>
+<div class="mx-auto max-w-4xl ">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
+    <div class="flex items-center gap-2">
+      <p class="text-sm text-gray-600">Order #{data.order_number}</p>
+      <span class="badge {order.payment_status === 'paid' ? 'badge-success' : 'badge-warning'}">
+        {order.payment_status}
+      </span>
     </div>
+    
+    {#if order.payment_status === 'pending'}
+      <div class="mt-4">
+        <button 
+          on:click={handlePayment}
+          class="btn btn-primary"
+          disabled={paymentLoading}
+        >
+          {#if paymentLoading}
+            <span class="loading loading-spinner"></span>
+            Processing...
+          {:else}
+            Pay Now via PhonePe
+          {/if}
+        </button>
+      </div>
+    {/if}
+  </div>
 
     <div class="bg-white shadow rounded-lg mb-4 overflow-hidden">
       <!-- Package Items -->
@@ -140,13 +209,18 @@
       {/if}
 
       <!-- Order Total -->
-      <div class="p-4 bg-gray-50 border-t">
-        <div class="flex justify-between items-center">
+    <div class="p-4 bg-gray-50 border-t">
+      <div class="flex justify-between items-center">
+        <div>
           <span class="font-medium text-gray-900">Order Total</span>
-          <span class="text-xl font-bold text-gray-900">₹{order.total_amount}</span>
+          {#if order.payment_status === 'pending'}
+            <p class="text-sm text-warning">Payment Pending</p>
+          {/if}
         </div>
+        <span class="text-xl font-bold text-gray-900">₹{order.total_amount}</span>
       </div>
     </div>
+  </div>
 
     <h1 class="text-2xl mb-4">Track Your Items</h1>
 
