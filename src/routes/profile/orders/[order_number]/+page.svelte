@@ -112,8 +112,8 @@
     <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
     <div class="flex items-center gap-2">
       <p class="text-sm text-gray-600">Order #{data.order_number}</p>
-      <span class="badge {order.payment_status === 'paid' ? 'badge-success' : 'badge-warning'}">
-        {order.payment_status}
+      <span class="badge {order.payment_status === 'completed' ? 'badge-success' : 'badge-warning'}">
+       Payment : {order.payment_status}
       </span>
     </div>
     
@@ -213,9 +213,9 @@
       <div class="flex justify-between items-center">
         <div>
           <span class="font-medium text-gray-900">Order Total</span>
-          {#if order.payment_status === 'pending'}
+          <!-- {#if order.payment_status === 'pending'}
             <p class="text-sm text-warning">Payment Pending</p>
-          {/if}
+          {/if} -->
         </div>
         <span class="text-xl font-bold text-gray-900">₹{order.total_amount}</span>
       </div>

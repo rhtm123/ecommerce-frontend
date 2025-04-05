@@ -15,72 +15,191 @@
         myFetch(`${PUBLIC_API_URL}/order/orders/${orderId}/`),
         myFetch(`${PUBLIC_API_URL}/order/order-items/?order_id=${orderId}`)
       ]);
-      
-      console.log(orderData);
-      console.log(orderItemsData);
-      
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      
+            
       // Use unicode rupee symbol
       const rupeeSymbol = 'INR';
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
       
-      // Header Section with better alignment
-      doc.setFontSize(24);
+      // Set document properties
+      doc.setProperties({
+        title: `Invoice KB-${orderId}`,
+        subject: 'Invoice',
+        author: 'Naigaon Market',
+        creator: 'Invoice Generator'
+      });
+      
+      // Add border to the page - slightly thicker for more professional look
+      doc.setDrawColor(100, 100, 100);
+      doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+      
+      // Header Section
+      doc.setFontSize(22);
       doc.setTextColor(71, 52, 3);
-      doc.text('INVOICE', pageWidth / 2, 20, { align: 'center' });
+      doc.text('INVOICE', pageWidth / 2, 25, { align: 'center' });
       
-      // Business Info - Left aligned
+      // Business Info - fixed alignment
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
-      doc.text('Naigaon Market', 20, 35);
-      doc.text('123 Street Address, City, State, Zip | GSTIN: XXXXXXXXXXXXX', 20, 40);
-      doc.text('Phone: +91 9876543210 | Email: hello@khilonabuddy.com', 20, 45);
-
-      // Invoice Details Box with proper spacing
-      doc.setFillColor(245, 230, 200);
-      doc.rect(20, 55, pageWidth - 40, 15, 'F');
-      doc.setFontSize(10);
-      doc.text(`Invoice #: KB-${orderData.id}`, 25, 63);
-      doc.text(`Date: ${new Date(orderData.created).toLocaleDateString('en-IN')}`, pageWidth - 25, 63, { align: 'right' });
-
-      // Billing/Shipping Section with improved layout
-      const startY = 80;
-      doc.setFontSize(10);
-      doc.setDrawColor(200, 200, 200);
+      doc.text('Naigaon Market', 20, 40);
       
-      // Billing Section - Left column
-      let currentY = startY;
-      doc.text('BILL TO:', 20, currentY);
-      currentY += 5;
-      doc.text(`${orderData.user?.first_name} ${orderData.user?.last_name}`, 20, currentY);
-      currentY += 5;
-      doc.text(`${orderData.user?.email}`, 20, currentY);
-      currentY += 5;
-      doc.text(`${orderData.user?.mobile}`, 20, currentY);
+      // Handle long address with proper wrapping and fixed position
+      const address = '005, Jay Vijay Nagar Building 3, Opposite Seven Square Academy School, Naigaon East, Maharashtra | GSTIN: 27AAECA000000000';
+      const addressLines = doc.splitTextToSize(address, pageWidth - 40);
+      doc.text(addressLines, 20, 45);
+      
+      // Calculate position for contact info based on address height
+      const contactY = 45 + (addressLines.length * 5);
+      doc.text('Phone: +91 9876543210 | Email: hello@khilonabuddy.com', 20, contactY);
 
-      // Shipping Section - Right column
-      currentY = startY;
-      const address = orderData.shipping_address;
-      doc.text('SHIP TO:', pageWidth - 90, currentY);
-      currentY += 5;
-      doc.text(address?.name, pageWidth - 90, currentY);
-      currentY += 5;
-      doc.text(`${address.address.line1}`, pageWidth - 90, currentY);
-      if (address.address.line2) {
-        currentY += 5;
-        doc.text(`${address.address.line2}`, pageWidth - 90, currentY);
+      // Invoice Details Box with border - aligned with page border
+      const invoiceBoxY = contactY + 10;
+      doc.setFillColor(245, 230, 200);
+      doc.rect(20, invoiceBoxY, pageWidth - 40, 15, 'F');
+      doc.setDrawColor(0);
+      doc.rect(20, invoiceBoxY, pageWidth - 40, 15);
+      doc.setFontSize(10);
+      doc.text(`Invoice #: KB-${orderData.id || 'N/A'}`, 25, invoiceBoxY + 10);
+      doc.text(`Date: ${orderData.created ? new Date(orderData.created).toLocaleDateString('en-IN') : 'N/A'}`, pageWidth - 25, invoiceBoxY + 10, { align: 'right' });
+
+      // Billing/Shipping Section with proper alignment and borders
+      const addressBoxY = invoiceBoxY + 25;
+      doc.setFontSize(10);
+      doc.setDrawColor(0);
+      
+      // Calculate box widths to align with invoice box
+      const boxWidth = (pageWidth - 40 - 10) / 2; // Total width minus margins minus gap
+      
+      // Set consistent border style for boxes
+      doc.setDrawColor(0, 0, 0); // Pure black for borders
+
+      // Function to draw a complete box with header
+      function drawBox(x, y, width, height, headerText) {
+        // Draw the main box with stroke
+        doc.setDrawColor(0);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(x, y, width, height, 0, 0, 'FD'); // Fill and Draw
+
+        // Draw header background
+        doc.setFillColor(245, 245, 245);
+        doc.rect(x, y, width, 6, 'F');
+
+        // Redraw borders to ensure they're complete
+        doc.setDrawColor(0);
+        // Top
+        doc.line(x, y, x + width, y);
+        // Right
+        doc.line(x + width, y, x + width, y + height);
+        // Bottom
+        doc.line(x, y + height, x + width, y + height);
+        // Left
+        doc.line(x, y, x, y + height);
+
+        // Add header text
+        doc.text(headerText, x + 5, y + 4);
       }
-      currentY += 5;
-      doc.text(`${address.address.city}, ${address.address.state} - ${address.address.pin}`, pageWidth - 90, currentY);
 
+      // Draw Billing Box
+      drawBox(20, addressBoxY, boxWidth, 35, 'BILL TO:');
+      
+      // Add Billing Content
+      const billName = `${orderData.user?.first_name || ''} ${orderData.user?.last_name || ''}`.trim() || 'N/A';
+      const billEmail = orderData.user?.email || 'N/A';
+      const billPhone = orderData.user?.mobile || 'N/A';
+      
+      doc.text(billName, 25, addressBoxY + 12);
+      doc.text(billEmail, 25, addressBoxY + 19);
+      doc.text(billPhone, 25, addressBoxY + 26);
+      
+      // Draw Shipping Box
+      const shippingBoxX = 20 + boxWidth + 10;
+      drawBox(shippingBoxX, addressBoxY, boxWidth, 35, 'SHIP TO:');
+      
+      // Shipping Content
+      const address_data = orderData.shipping_address || {};
+      const shipName = address_data.name || 'N/A';
+      
+      let shipAddressLine1 = 'N/A';
+      let shipAddressLine2 = '';
+      let shipCity = '';
+      
+      if (address_data.address) {
+        shipAddressLine1 = address_data.address.line1 || 'N/A';
+        shipAddressLine2 = address_data.address.line2 || '';
+        shipCity = `${address_data.address.city || ''}, ${address_data.address.state || ''} - ${address_data.address.pin || ''}`.trim() || 'N/A';
+      }
+      
+      doc.text(shipName, shippingBoxX + 5, addressBoxY + 12);
+      doc.text(shipAddressLine1, shippingBoxX + 5, addressBoxY + 19);
+      
+      if (shipAddressLine2) {
+        doc.text(shipAddressLine2, shippingBoxX + 5, addressBoxY + 26);
+        if (shipCity) {
+          doc.text(shipCity, shippingBoxX + 5, addressBoxY + 33);
+        }
+      } else if (shipCity) {
+        doc.text(shipCity, shippingBoxX + 5, addressBoxY + 26);
+      }
+
+      // Items Table with improved styling - aligned with address boxes
+      const tableStartY = addressBoxY + 45;
+      
       // Calculate totals and taxes
       let grandTotal = 0;
       let totalCGST = 0;
       let totalSGST = 0;
       let totalIGST = 0;
+      
+      const tableRows = (orderItemsData.results || []).map(item => {
+        const product = item.product_listing || {};
+        const quantity = item.quantity || 0;
+        const subtotal = item.subtotal || 0;
+        
+        const cgstRate = product.cgst_rate || 0;
+        const sgstRate = product.sgst_rate || 0;
+        const igstRate = product.igst_rate || 0;
+        
+        // Calculate unit price (price before tax)
+        const totalTaxRate = cgstRate + sgstRate + igstRate;
+        const unitPriceBeforeTax = totalTaxRate > 0 
+          ? (subtotal / (1 + totalTaxRate / 100)) / quantity 
+          : subtotal / quantity;
+        
+        // Calculate tax amounts
+        const cgstAmount = (unitPriceBeforeTax * quantity * cgstRate / 100);
+        const sgstAmount = (unitPriceBeforeTax * quantity * sgstRate / 100);
+        const igstAmount = (unitPriceBeforeTax * quantity * igstRate / 100);
+        
+        // Add to totals
+        totalCGST += cgstAmount;
+        totalSGST += sgstAmount;
+        totalIGST += igstAmount;
+        grandTotal += subtotal;
+        
+        // Format tax display with proper rupee symbol
+        let taxDisplay = '';
+        if (cgstRate > 0) taxDisplay += `CGST@${cgstRate}%: ${rupeeSymbol}${cgstAmount.toFixed(2)}`;
+        if (sgstRate > 0) {
+          taxDisplay += taxDisplay ? '\n' : '';
+          taxDisplay += `SGST@${sgstRate}%: ${rupeeSymbol}${sgstAmount.toFixed(2)}`;
+        }
+        if (igstRate > 0) {
+          taxDisplay += taxDisplay ? '\n' : '';
+          taxDisplay += `IGST@${igstRate}%: ${rupeeSymbol}${igstAmount.toFixed(2)}`;
+        }
+        
+        return {
+          description: product.name || 'N/A',
+          qty: quantity,
+          unitPrice: `${rupeeSymbol}${unitPriceBeforeTax.toFixed(2)}`,
+          tax: taxDisplay || 'N/A',
+          total: `${rupeeSymbol}${subtotal.toFixed(2)}`
+        };
+      });
 
-      // Items Table with improved spacing and alignment and tax calculations
+      // Define table columns
       const tableColumns = [
         { header: 'Description', dataKey: 'description' },
         { header: 'Qty', dataKey: 'qty' },
@@ -89,95 +208,53 @@
         { header: 'Total', dataKey: 'total' }
       ];
 
-      const tableRows = orderItemsData.results.map(item => {
-        const product = item.product_listing;
-        const quantity = item.quantity;
-        const subtotal = item.subtotal;
-        
-        // Get tax rates from product
-        const cgstRate = product?.cgst_rate || 0;
-        const sgstRate = product?.sgst_rate || 0;
-        const igstRate = product?.igst_rate || 0;
-        
-        // Calculate total tax rate
-        const totalTaxRate = cgstRate + sgstRate + igstRate;
-        
-        // Calculate unit price (price before tax)
-        const unitPriceBeforeTax = subtotal / (1 + totalTaxRate / 100);
-        
-        // Calculate taxes based on unit price
-        const cgstAmount = (unitPriceBeforeTax * cgstRate / 100) * quantity;
-        const sgstAmount = (unitPriceBeforeTax * sgstRate / 100) * quantity;
-        const igstAmount = (unitPriceBeforeTax * igstRate / 100) * quantity;
-        
-        // Add to totals
-        totalCGST += cgstAmount;
-        totalSGST += sgstAmount;
-        totalIGST += igstAmount;
-        grandTotal += subtotal;
-        
-        // Format tax display
-        let taxDisplay = '';
-        if (cgstRate > 0) taxDisplay += `CGST@${cgstRate}%: ${rupeeSymbol}${cgstAmount.toFixed(2)}`;
-        if (sgstRate > 0) taxDisplay += taxDisplay ? `, ` : '';
-        if (sgstRate > 0) taxDisplay += `SGST@${sgstRate}%: ${rupeeSymbol}${sgstAmount.toFixed(2)}`;
-        if (igstRate > 0) taxDisplay += taxDisplay ? `, ` : '';
-        if (igstRate > 0) taxDisplay += `IGST@${igstRate}%: ${rupeeSymbol}${igstAmount.toFixed(2)}`;
-        
-        return {
-          description: product?.name,
-          qty: quantity,
-          unitPrice: `${rupeeSymbol}${unitPriceBeforeTax.toFixed(2)}`,
-          tax: taxDisplay,
-          total: `${rupeeSymbol}${subtotal.toFixed(2)}`
-        };
-      });
-
+      // Create table with proper styling and alignment
       doc.autoTable({
-        startY: currentY + 15,
+        startY: tableStartY,
         columns: tableColumns,
         body: tableRows,
         theme: 'grid',
         styles: {
-          fontSize: 8,
-          cellPadding: 5,
+          fontSize: 9,
+          cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
           textColor: [40, 40, 40],
           valign: 'middle',
-          font: 'helvetica'
+          lineColor: [0, 0, 0]
         },
-        headerStyles: {
+        headStyles: {
           fillColor: [71, 52, 3],
-          textColor: 255,
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
-          halign: 'center'
+          halign: 'center',
+          cellPadding: { top: 5, right: 3, bottom: 5, left: 3 }
         },
         columnStyles: {
-          description: { cellWidth: 70, halign: 'left' },
+          description: { cellWidth: 'auto', halign: 'left' },
           qty: { cellWidth: 15, halign: 'center' },
-          unitPrice: { cellWidth: 30, halign: 'right', cellPadding: { right: 5 } },
-          tax: { cellWidth: 50, halign: 'left', cellPadding: { right: 5 } },
-          total: { cellWidth: 25, halign: 'right', cellPadding: { right: 5 } }
+          unitPrice: { cellWidth: 30, halign: 'right' },
+          tax: { cellWidth: 50, halign: 'left' },
+          total: { cellWidth: 30, halign: 'right' }
         },
-        margin: { left: 20, right: 20 }
+        margin: { left: 20, right: 20 }, // Aligned with address boxes
+        tableWidth: pageWidth - 40, // Fixed width aligned with boxes above
+        didDrawPage: (data) => {
+          // Add border to the page on each new page
+          doc.setDrawColor(100, 100, 100);
+          doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+        }
       });
 
-      // Totals Section with improved alignment
-      const finalY = doc.lastAutoTable.finalY + 10;
-      const totalsStartX = pageWidth - 80;
-
+      // Totals Section with proper alignment and styling
+      const finalY = doc.lastAutoTable.finalY + 5;
+      
       // Create totals table with accurate tax calculations
-      const totalsTable = [
-        ['SUBTOTAL:', `${rupeeSymbol}${grandTotal.toFixed(2)}`]
-      ];
+      const totalsTable = [];
       
-      // Add discount row if applicable
-      const discount = 0; // Replace with actual discount if available
-      if (discount > 0) {
-        totalsTable.push(['DISCOUNT:', `${rupeeSymbol}${discount.toFixed(2)}`]);
-        totalsTable.push(['SUBTOTAL LESS DISCOUNT:', `${rupeeSymbol}${(grandTotal - discount).toFixed(2)}`]);
-      }
+      // Add subtotal (unit price total)
+      const unitPriceTotal = grandTotal - totalCGST - totalSGST - totalIGST;
+      totalsTable.push(['SUBTOTAL:', `${rupeeSymbol}${unitPriceTotal.toFixed(2)}`]);
       
-      // Add tax rows
+      // Add tax rows if applicable
       if (totalCGST > 0) {
         totalsTable.push(['CGST:', `${rupeeSymbol}${totalCGST.toFixed(2)}`]);
       }
@@ -191,37 +268,36 @@
       }
       
       // Add grand total
-      const finalTotal = grandTotal;
-      totalsTable.push(['GRAND TOTAL:', `${rupeeSymbol}${finalTotal.toFixed(2)}`]);
+      totalsTable.push(['GRAND TOTAL:', `${rupeeSymbol}${grandTotal.toFixed(2)}`]);
 
+      // Render totals table - aligned with main table
       doc.autoTable({
         startY: finalY,
         body: totalsTable,
         theme: 'plain',
         styles: {
           fontSize: 10,
-          cellPadding: 4,
+          cellPadding: { top: 2, right: 5, bottom: 2, left: 5 },
           valign: 'middle',
-          font: 'helvetica'
+          fontStyle: 'normal',
+          lineWidth: 0.1
         },
         columnStyles: {
           0: { 
-            cellWidth: 100, 
+            cellWidth: 80, 
             halign: 'right', 
-            fontStyle: 'bold',
-            cellPadding: { right: 10 }
+            fontStyle: 'bold'
           },
           1: { 
-            cellWidth: 50, 
-            halign: 'right',
-            cellPadding: { right: 8 }
+            cellWidth: 40, 
+            halign: 'right'
           }
         },
-        margin: { left: pageWidth - 170 }
+        margin: { left: pageWidth - 140, right: 20 } // Aligned with right margin
       });
 
       // Footer Section with proper spacing
-      const footerY = doc.lastAutoTable.finalY + 20;
+      const footerY = doc.lastAutoTable.finalY + 15;
       doc.setFontSize(9);
       doc.text('Terms & Conditions:', 20, footerY);
       doc.text('1. This is a computer generated invoice', 20, footerY + 5);
@@ -230,10 +306,10 @@
 
       // Signature with right alignment
       doc.setFontSize(10);
-      doc.text('Authorized Signature', pageWidth - 30, footerY + 25, { align: 'right' });
-      doc.line(pageWidth - 70, footerY + 30, pageWidth - 20, footerY + 30);
+      doc.text('Authorized Signature', pageWidth - 25, footerY + 25, { align: 'right' });
+      doc.line(pageWidth - 65, footerY + 30, pageWidth - 25, footerY + 30);
 
-      doc.save(`invoice-kb-${orderData.id}.pdf`);
+      doc.save(`invoice-kb-${orderData.id || 'N/A'}.pdf`);
     } catch (error) {
       console.error('Error generating invoice:', error);
       alert('Error generating invoice. Please try again.');
