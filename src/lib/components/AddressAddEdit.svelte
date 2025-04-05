@@ -23,24 +23,23 @@
     is_default: false
     };
 
-  $: if (shipAddress){
 
-  };
 
  // Fetch valid pin codes from the API
- async function fetchValidPins() {
+ async function checkValidPins() {
         const url = `${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`;
         const response = await myFetch(url);
-        validPins = response.results.map(pin => pin.pin_code);
+        let validPins = response.results.map(pin => pin.pin_code);
+        return validPins.includes(newEditAddress.pin)
     }
   // Check pin code validity
-  $: isPinValid = validPins.includes(newEditAddress.pin);
 
-  // Watch for changes in the pin code
-  $: if (newEditAddress.pin.length === 6) {
-        fetchValidPins();
-    }
+  let isPinValid = true;
+
   async function handleSubmit() {
+
+    isPinValid = await checkValidPins();
+
     if (!isPinValid) {
       addAlert("We do not deliver to this pin code.", "error");
       return;
@@ -96,7 +95,7 @@
     let url2 = `${PUBLIC_API_URL}/user/shipping-addresses/${shipAddress.id}/`;
     let data = await myFetch(url2, "PUT", params, authUser.access_token)
     addToShipAddress(data);
-    console.log(data);
+    // console.log(data);
     addAlert("Address edited successfully", "success")
 
     }

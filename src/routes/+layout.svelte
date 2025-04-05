@@ -61,7 +61,7 @@
     }
 
     // Initial fetch
-    fetchRecentOrders();
+    // fetchRecentOrders();
 
     // Set up periodic fetch (every 30 seconds)
     const interval = setInterval(fetchRecentOrders, 30000);
