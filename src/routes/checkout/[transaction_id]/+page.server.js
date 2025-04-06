@@ -10,6 +10,7 @@ export async function load({ params }) {
 
   try {
     let payment = await myFetch(url);
+    // console.log(payment);
     // console.log(blog);
     return {
       payment: payment,
