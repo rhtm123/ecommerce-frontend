@@ -59,13 +59,13 @@
 
     try {
       paymentLoading = true;
-      console.log(order);
-      console.log('Payment payload:', {
-        order_id: order.id,
-        amount: order.total_amount,
-        estore_id: PUBLIC_ESTORE_ID || '1',
-        payment_method: "pg"
-      });
+      // console.log(order);
+      // console.log('Payment payload:', {
+      //   order_id: order.id,
+      //   amount: order.total_amount,
+      //   estore_id: PUBLIC_ESTORE_ID || '1',
+      //   payment_method: "pg"
+      // });
       // Create payment request similar to checkout
       const paymentUrl = `${PUBLIC_API_URL}/payment/payments/`;
       const payment = await myFetch(paymentUrl, "POST", {
