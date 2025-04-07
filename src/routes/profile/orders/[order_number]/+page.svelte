@@ -10,6 +10,8 @@
   let authUser;
   $: authUser = $user;
 
+
+
   let order = {};
   let loading = true;
   let error = null;
@@ -42,8 +44,10 @@
   async function fetchOrderDetails() {
     try {
       const response = await fetch(apiUrl);
+      // console.log(response);
       if (!response.ok) throw new Error("Failed to fetch order details");
       order = await response.json();
+      console.log(order);
     } catch (err) {
       error = err.message;
     } finally {

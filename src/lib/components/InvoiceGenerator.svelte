@@ -14,8 +14,10 @@
       const [orderData, orderItemsData] = await Promise.all([
         myFetch(`${PUBLIC_API_URL}/order/orders/${orderId}/`),
         myFetch(`${PUBLIC_API_URL}/order/order-items/?order_id=${orderId}`)
+
       ]);
-            
+      console.log(orderData);
+      console.log(orderItemsData);
       // Use unicode rupee symbol
       const rupeeSymbol = 'INR';
 
@@ -131,16 +133,28 @@
         shipCity = `${address_data.address.city || ''}, ${address_data.address.state || ''} - ${address_data.address.pin || ''}`.trim() || 'N/A';
       }
       
-      doc.text(shipName, shippingBoxX + 5, addressBoxY + 12);
-      doc.text(shipAddressLine1, shippingBoxX + 5, addressBoxY + 19);
+      // Format and wrap shipping address text to fit within the box
+      const maxLineWidth = boxWidth - 10; // Allow for margins
       
+      doc.text(shipName, shippingBoxX + 5, addressBoxY + 12);
+      
+      // Wrap address line 1 if needed
+      const wrappedLine1 = doc.splitTextToSize(shipAddressLine1, maxLineWidth);
+      doc.text(wrappedLine1, shippingBoxX + 5, addressBoxY + 19);
+      
+      let currentY = addressBoxY + 19 + (wrappedLine1.length * 5);
+      
+      // Add line 2 if it exists
       if (shipAddressLine2) {
-        doc.text(shipAddressLine2, shippingBoxX + 5, addressBoxY + 26);
-        if (shipCity) {
-          doc.text(shipCity, shippingBoxX + 5, addressBoxY + 33);
-        }
-      } else if (shipCity) {
-        doc.text(shipCity, shippingBoxX + 5, addressBoxY + 26);
+        const wrappedLine2 = doc.splitTextToSize(shipAddressLine2, maxLineWidth);
+        doc.text(wrappedLine2, shippingBoxX + 5, currentY);
+        currentY += wrappedLine2.length * 5;
+      }
+      
+      // Add city/state/pin
+      if (shipCity) {
+        const wrappedCity = doc.splitTextToSize(shipCity, maxLineWidth);
+        doc.text(wrappedCity, shippingBoxX + 5, currentY);
       }
 
       // Items Table with improved styling - aligned with address boxes
