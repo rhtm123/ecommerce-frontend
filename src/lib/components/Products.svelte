@@ -193,17 +193,28 @@
       <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
         <h3 class="text-sm font-medium mb-2">Price Range</h3>
         <div class="flex flex-col gap-4">
-          <input
-            type="range"
-            min={filters.price_range?.min_price || 0}
-            max={filters.price_range?.max_price || 100}
-            bind:value={selectedPriceRange[1]}
-            on:change={applyFilters}
-            class="range range-primary"
-          />
+          <div class="relative group">
+            <div 
+              class="absolute -top-8 transform -translate-x-1/2 transition-all duration-200 pointer-events-none"
+              style="left: calc({((selectedPriceRange[1] - (filters.price_range?.min_price || 0)) / ((filters.price_range?.max_price || 100) - (filters.price_range?.min_price || 0)) * 100)}%)"
+            >
+              <div class="bg-primary text-white px-2 py-1 rounded text-xs shadow-md opacity-0 group-hover:opacity-100 whitespace-nowrap">
+                 {selectedPriceRange[1]}
+              </div>
+              <div class="w-2 h-2 bg-primary rotate-45 transform -translate-x-1/2 left-1/2 absolute -bottom-1"></div>
+            </div>
+            <input
+              type="range"
+              min={filters.price_range?.min_price || 0}
+              max={filters.price_range?.max_price || 100}
+              bind:value={selectedPriceRange[1]}
+              on:change={applyFilters}
+              class="range range-primary w-full cursor-pointer"
+            />
+          </div>
           <div class="flex justify-between text-sm text-gray-600">
-            <span>{selectedPriceRange[0]}</span>
-            <span>{selectedPriceRange[1]}</span>
+            <span>{filters.price_range?.min_price || 0}</span>
+            <span>{filters.price_range?.max_price || 100}</span>
           </div>
         </div>
       </div>
