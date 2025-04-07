@@ -121,13 +121,8 @@
             orderData = order;
 
             let urlp = `${PUBLIC_API_URL}/payment/payments/`;
-            console.log(urlp)
-            let payment = await myFetch(urlp, "POST", {
-              "order_id": order.id,
-              "amount": totalPrice,
-              "estore_id": PUBLIC_ESTORE_ID,
-              payment_method: selectedPaymentMethod,
-            }, authUser.access_token);
+            // console.log(urlp)
+            
 
             
 
@@ -147,11 +142,18 @@
                 }, authUser.access_token)
             }
 
-            addAlert("Order placed successfully ", "success")
+
+            let payment = await myFetch(urlp, "POST", {
+              "order_id": order.id,
+              "amount": totalPrice,
+              "estore_id": PUBLIC_ESTORE_ID,
+              payment_method: selectedPaymentMethod,
+            }, authUser.access_token);
 
             if (payment.payment_method=="pg") {
               window.location = payment.payment_url 
             } else {
+              addAlert("Order placed successfully ", "success")
               goto("/checkout/"+payment.transaction_id);
             }
             orderdCompleted = true
