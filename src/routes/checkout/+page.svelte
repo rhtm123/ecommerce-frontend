@@ -142,7 +142,6 @@
                 }, authUser.access_token)
             }
 
-            addAlert("Order placed successfully ", "success")
 
             let payment = await myFetch(urlp, "POST", {
               "order_id": order.id,
@@ -154,6 +153,7 @@
             if (payment.payment_method=="pg") {
               window.location = payment.payment_url 
             } else {
+              addAlert("Order placed successfully ", "success")
               goto("/checkout/"+payment.transaction_id);
             }
             orderdCompleted = true
