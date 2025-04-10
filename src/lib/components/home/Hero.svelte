@@ -56,7 +56,7 @@
     <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h4v4H0V0zm8 0h4v4H8V0zm8 0h4v4h-4V0zM0 8h4v4H0V8zm8 0h4v4H8V8zm8 0h4v4h-4V8zM0 16h4v4H0v-4zm8 0h4v4H8v-4zm8 0h4v4h-4v-4z\' fill=\'%23000000\' fill-opacity=\'0.03\'%3E%3C/path%3E%3C/svg%3E')] opacity-30"></div>
   </div>
 
-  <div class="mx-auto px-4 md:px-8 lg:px-16 py-8 md:py-12 relative z-10">
+  <div class="mx-auto px-4 md:px-8 lg:px-16 py-8 md:py-12 relative z-10 mb-4">
     {#if slides.length > 0}
       <div class="flex flex-col py-8 md:py-0 md:flex-row items-center justify-between gap-8 md:gap-12">
         <!-- Product Details -->
@@ -173,7 +173,7 @@
             </svg>
           </button>
 
-          <div class="flex gap-2">
+          <div class="flex gap-2 ">
             {#each slides as _, i}
               <button
                 class="relative w-2 h-2 rounded-full transition-all duration-300 {currentSlide === i ? 'w-8 bg-primary' : 'bg-gray-300 hover:bg-gray-400'}"
