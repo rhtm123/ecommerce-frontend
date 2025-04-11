@@ -13,6 +13,11 @@
 
     import { addAlert } from '$lib/stores/alert';
 
+    import CouponSection from '$lib/components/checkout/CouponSection.svelte';
+    import { cartDiscounts } from '$lib/stores/offers';
+
+    import AvailableOffers from '$lib/components/checkout/AvailableOffers.svelte';
+
     let loading = false;
     let selectedAddress;
 
@@ -63,7 +68,9 @@
     $: authUser = $user;
 
   
-    $: totalPrice = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    $: subtotal = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    $: totalDiscount = $cartDiscounts.totalDiscount;
+    $: finalTotal = subtotal - totalDiscount;
   
     let termsAccepted = false;
 
@@ -114,7 +121,7 @@
                 user_id: authUser?.user_id,
                 estore_id: PUBLIC_ESTORE_ID,
                 shipping_address_id: selectedAddress,
-                total_amount: totalPrice,
+                total_amount: finalTotal,
             }, authUser.access_token)
 
             // console.log(order);
@@ -145,7 +152,7 @@
 
             let payment = await myFetch(urlp, "POST", {
               "order_id": order.id,
-              "amount": totalPrice,
+              "amount": finalTotal,
               "estore_id": PUBLIC_ESTORE_ID,
               payment_method: selectedPaymentMethod,
             }, authUser.access_token);
@@ -322,14 +329,36 @@
                   </div>
               {/each}
 
-              <div class=" ">
+              <!-- Add AvailableOffers component before CouponSection -->
+              <AvailableOffers />
+
+              <!-- Existing CouponSection component -->
+              <CouponSection />
+
+              <!-- Update the totals section -->
+              <div class="space-y-2 pt-4 border-t">
                   <div class="flex justify-between mb-2">
                       <span class="text-gray-600">Subtotal</span>
-                      <span>₹ {totalPrice.toFixed(2)}</span>
+                      <span>₹ {subtotal.toFixed(2)}</span>
                   </div>
-                  <div class="flex justify-between font-bold">
+                  
+                  {#if $cartDiscounts.offerDiscounts.length > 0}
+                      <div class="flex justify-between text-green-600">
+                          <span>Offer Discounts</span>
+                          <span>- ₹ {$cartDiscounts.offerDiscounts.reduce((sum, d) => sum + d.amount, 0).toFixed(2)}</span>
+                      </div>
+                  {/if}
+                  
+                  {#if $cartDiscounts.couponDiscount > 0}
+                      <div class="flex justify-between text-green-600">
+                          <span>Coupon Discount</span>
+                          <span>- ₹ {$cartDiscounts.couponDiscount.toFixed(2)}</span>
+                      </div>
+                  {/if}
+                  
+                  <div class="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
+                      <span class="text-primary">₹ {finalTotal.toFixed(2)}</span>
                   </div>
               </div>
 

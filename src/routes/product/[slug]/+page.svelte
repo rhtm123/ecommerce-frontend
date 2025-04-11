@@ -11,7 +11,8 @@
   import Slider from '$lib/components/Slider.svelte';
   import { user } from '$lib/stores/auth.js';
   import { goto } from '$app/navigation';
-    import Product from '$lib/components/product/Product.svelte';
+  import Product from '$lib/components/product/Product.svelte';
+  import ProductOffers from '$lib/components/product/ProductOffers.svelte';
 
   export let data;
   const { product_listing, category } = data;
@@ -1004,6 +1005,9 @@
       </div>
     {/if}
   </div>
+
+  <!-- Add this after the product description section -->
+  <ProductOffers {product_listing} />
 </div>
 
 
