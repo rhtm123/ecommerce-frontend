@@ -14,7 +14,7 @@
     import { addAlert } from '$lib/stores/alert';
 
     import CouponSection from '$lib/components/checkout/CouponSection.svelte';
-    import { cartDiscounts } from '$lib/stores/offers';
+    import { cartDiscounts, appliedCoupon, appliedOffer } from '$lib/stores/offers';
 
     import AvailableOffers from '$lib/components/checkout/AvailableOffers.svelte';
 
@@ -116,63 +116,93 @@
         try {
             orderPlacing = true;
             let url = `${PUBLIC_API_URL}/order/orders/`;
-            // console.log(selectedAddress);
+            
+            // Create order with discount information
             let order = await myFetch(url, "POST", {
                 user_id: authUser?.user_id,
                 estore_id: PUBLIC_ESTORE_ID,
                 shipping_address_id: selectedAddress,
                 total_amount: finalTotal,
-            }, authUser.access_token)
-
-            // console.log(order);
-            orderData = order;
-
-            let urlp = `${PUBLIC_API_URL}/payment/payments/`;
-            // console.log(urlp)
-            
-
-            
-
-            // console.log(payment);
-
-            let url2 = `${PUBLIC_API_URL}/order/order-items/`;
-
-            // console.log(cartItems);
-
-            for (let i = 0; i < cartItems.length; i++) {
-                myFetch(url2, "POST", {
-                    order_id: order.id,
-                    product_listing_id: cartItems[i].id,
-                    quantity:cartItems[i].quantity,
-                    price: cartItems[i].price,
-                    subtotal: cartItems[i].price
-                }, authUser.access_token)
-            }
-
-
-            let payment = await myFetch(urlp, "POST", {
-              "order_id": order.id,
-              "amount": finalTotal,
-              "estore_id": PUBLIC_ESTORE_ID,
-              payment_method: selectedPaymentMethod,
+                subtotal_amount: subtotal,
+                total_discount: $cartDiscounts.totalDiscount
             }, authUser.access_token);
 
-            if (payment.payment_method=="pg") {
-              window.location = payment.payment_url 
-            } else {
-              addAlert("Order placed successfully ", "success")
-              goto("/checkout/"+payment.transaction_id);
+            orderData = order;
+
+            // Create order items with offer information
+            let url2 = `${PUBLIC_API_URL}/order/order-items/`;
+            for (let i = 0; i < cartItems.length; i++) {
+                const item = cartItems[i];
+                const itemData = {
+                    order_id: order.id,
+                    product_listing_id: item.id,
+                    quantity: item.quantity,
+                    price: item.price,
+                    original_price: item.price,
+                    discount_amount: 0,
+                    subtotal: item.price * item.quantity
+                };
+
+                // If there's an applied offer and it affects this item
+                if ($appliedOffer) {
+                    const offerDiscount = $appliedOffer.discount_amount / cartItems.length; // Distribute discount evenly
+                    // Add offer details
+                    itemData.applied_offer = {
+                        offer_id: $appliedOffer.id,
+                        offer_name: $appliedOffer.name,
+                        offer_type: $appliedOffer.offer_type,
+                        discount_amount: offerDiscount,
+                        buy_quantity: $appliedOffer.buy_quantity || 1,
+                        get_quantity: $appliedOffer.get_quantity || 0,
+                        get_discount_percent: $appliedOffer.get_discount_percent || 0
+                    };
+                    itemData.discount_amount = offerDiscount;
+                    itemData.subtotal = (item.price * item.quantity) - offerDiscount;
+                }
+
+                await myFetch(url2, "POST", itemData, authUser.access_token);
             }
-            orderdCompleted = true
+
+            // If there's an applied coupon, create it
+            if ($appliedCoupon) {
+                const couponUrl = `${PUBLIC_API_URL}/order/applied-coupons/`;
+                await myFetch(couponUrl, "POST", {
+                    order_id: order.id,
+                    coupon_code: $appliedCoupon.code,
+                    discount_type: $appliedCoupon.discount_type,
+                    discount_value: $appliedCoupon.discount_value,
+                    discount_amount: $appliedCoupon.discount
+                }, authUser.access_token);
+            }
+
+            // Create payment
+            let urlp = `${PUBLIC_API_URL}/payment/payments/`;
+            let payment = await myFetch(urlp, "POST", {
+                "order_id": order.id,
+                "amount": finalTotal,
+                "estore_id": PUBLIC_ESTORE_ID,
+                payment_method: selectedPaymentMethod,
+            }, authUser.access_token);
+
+            if (payment.payment_method == "pg") {
+                window.location = payment.payment_url;
+            } else {
+                addAlert("Order placed successfully", "success");
+                goto("/checkout/" + payment.transaction_id);
+            }
+            
+            orderdCompleted = true;
+            // Clear cart and applied offers/coupons
+            cart.set([]);
+            appliedOffer.set(null);
+            appliedCoupon.set(null);
 
         } catch (e) {
             addAlert("Error placing order", "error");
+            console.error(e);
         } finally {
             orderPlacing = false;
         }
-
-        cart.set([]);
-        // console.log('Order submitted:', { billingDetails, items: $cart });
     }
 
     let modal;
@@ -342,10 +372,10 @@
                       <span>₹ {subtotal.toFixed(2)}</span>
                   </div>
                   
-                  {#if $cartDiscounts.offerDiscounts.length > 0}
+                  {#if $cartDiscounts.offerDiscount > 0}
                       <div class="flex justify-between text-green-600">
-                          <span>Offer Discounts</span>
-                          <span>- ₹ {$cartDiscounts.offerDiscounts.reduce((sum, d) => sum + d.amount, 0).toFixed(2)}</span>
+                          <span>Offer Discount</span>
+                          <span>- ₹ {$cartDiscounts.offerDiscount.toFixed(2)}</span>
                       </div>
                   {/if}
                   

@@ -170,12 +170,29 @@
                       Price/Item: <span class="font-medium text-gray-900">₹{package_item.price}</span>
                     </span>
                   </div>
+                  {#if package_item.applied_offers && package_item.applied_offers.length > 0}
+                    <div class="mt-2">
+                      {#each package_item.applied_offers as offer}
+                        <div class="text-sm text-green-600 flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
+                          <span>{offer.offer_name} ({offer.offer_type}): -₹{offer.discount_amount}</span>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
                 </div>
                 <div class="md:text-right">
-                  <p class="text-sm text-gray-600">Subtotal</p>
+                  {#if package_item.original_price !== package_item.price || package_item.discount_amount}
+                    <p class="text-sm text-gray-500 line-through">₹{(package_item.original_price * package_item.quantity).toFixed(2)}</p>
+                  {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    ₹{(package_item.price * package_item.quantity).toFixed(2)}
+                    ₹{package_item.subtotal}
                   </p>
+                  {#if package_item.discount_amount}
+                    <p class="text-sm text-green-600">Saved ₹{package_item.discount_amount}</p>
+                  {/if}
                 </div>
               </div>
             </div>
@@ -199,12 +216,29 @@
                       Price/Item: <span class="font-medium text-gray-900">₹{item.price}</span>
                     </span>
                   </div>
+                  {#if item.applied_offers && item.applied_offers.length > 0}
+                    <div class="mt-2">
+                      {#each item.applied_offers as offer}
+                        <div class="text-sm text-green-600 flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg>
+                          <span>{offer.offer_name} ({offer.offer_type}): -₹{offer.discount_amount}</span>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
                 </div>
                 <div class="md:text-right">
-                  <p class="text-sm text-gray-600">Subtotal</p>
+                  {#if item.original_price !== item.price || item.discount_amount}
+                    <p class="text-sm text-gray-500 line-through">₹{(item.original_price * item.quantity).toFixed(2)}</p>
+                  {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    ₹{(item.price * item.quantity).toFixed(2)}
+                    ₹{item.subtotal}
                   </p>
+                  {#if item.discount_amount}
+                    <p class="text-sm text-green-600">Saved ₹{item.discount_amount}</p>
+                  {/if}
                 </div>
               </div>
             </div>
@@ -214,14 +248,18 @@
 
       <!-- Order Total -->
     <div class="p-4 bg-gray-50 border-t">
-      <div class="flex justify-between items-center">
-        <div>
-          <span class="font-medium text-gray-900">Order Total</span>
-          <!-- {#if order.payment_status === 'pending'}
-            <p class="text-sm text-warning">Payment Pending</p>
-          {/if} -->
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-center font-bold text-lg">
+          <span >Subtotal</span>
+          <span class="text-gray-900">₹{order.total_amount}</span>
         </div>
-        <span class="text-xl font-bold text-gray-900">₹{order.total_amount}</span>
+        {#if order.total_discount > 0}
+          <div class="flex justify-between items-center text-green-600">
+            <span>Total Discount</span>
+            <span>-₹{order.total_discount}</span>
+          </div>
+        {/if}
+       
       </div>
     </div>
   </div>

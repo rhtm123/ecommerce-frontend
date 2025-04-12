@@ -3,13 +3,19 @@
     import { fade, slide } from 'svelte/transition';
     import { offerApi } from '$lib/services/offerApi';
     import { cart } from '$lib/stores/cart';
-    import { appliedOffers, cartDiscounts } from '$lib/stores/offers';
+    import { appliedOffer, appliedCoupon } from '$lib/stores/offers';
     import { addAlert } from '$lib/stores/alert';
 
     let showAllOffers = false;
     let loading = false;
 
     async function applyOffer(offer) {
+        // Check if a coupon is already applied
+        if ($appliedCoupon) {
+            addAlert('Please remove the applied coupon before applying an offer', 'error');
+            return;
+        }
+
         loading = true;
         try {
             const cartItems = $cart;
@@ -23,17 +29,10 @@
             );
 
             if (validation.is_valid) {
-                appliedOffers.update(offers => [...offers, offer]);
-                cartDiscounts.update(discounts => ({
-                    ...discounts,
-                    offerDiscounts: [
-                        ...discounts.offerDiscounts,
-                        {
-                            offerId: offer.id,
-                            amount: validation.discount_amount
-                        }
-                    ]
-                }));
+                appliedOffer.set({
+                    ...offer,
+                    discount_amount: parseFloat(validation.discount_amount) || 0
+                });
                 addAlert('Offer applied successfully', 'success');
             } else {
                 addAlert(validation.message, 'error');
@@ -68,28 +67,30 @@
             >
                 <div class="flex justify-between items-start">
                     <div>
-                        <span class="badge badge-primary mb-2">{offer.type}</span>
+                        <span class="badge badge-primary mb-2">{offer.offer_type}</span>
                         <h4 class="font-semibold">{offer.name}</h4>
                         <p class="text-sm text-gray-600 mt-1">{offer.description}</p>
                         
-                        {#if offer.type === 'buy_x_get_y'}
+                        {#if offer.offer_type === 'buy_x_get_y'}
                             <p class="text-sm mt-2">
-                                Buy {offer.buy_quantity} items, get {offer.get_quantity} items at {offer.discount_percent}% off
+                                Buy {offer.buy_quantity} items, get {offer.get_quantity} items at {offer.get_discount_percent}% off
                             </p>
-                        {:else if offer.type === 'bundle'}
+                        {:else if offer.offer_type === 'bundle'}
                             <p class="text-sm mt-2">
-                                Save {offer.discount_percent}% when bought together
+                                Save when bought together
                             </p>
                         {/if}
                     </div>
                     
                     <button 
                         class="btn btn-primary btn-sm"
-                        disabled={loading}
+                        disabled={loading || $appliedCoupon !== null}
                         on:click={() => applyOffer(offer)}
                     >
                         {#if loading}
                             <span class="loading loading-spinner loading-xs"></span>
+                        {:else if $appliedCoupon}
+                            Remove Coupon First
                         {:else}
                             Apply
                         {/if}
@@ -99,9 +100,7 @@
         {/each}
     </div>
 </div>
-
 {/if}
-
 
 {#if product?.applicable_coupons?.length > 0}
 <div class="bg-white rounded-lg shadow-sm p-4" in:fade>
@@ -126,12 +125,21 @@
                     </div>
                     <button 
                         class="btn btn-outline btn-primary btn-sm"
+                        disabled={$appliedOffer !== null}
                         on:click={() => {
+                            if ($appliedOffer) {
+                                addAlert('Please remove the applied offer before copying a coupon code', 'error');
+                                return;
+                            }
                             navigator.clipboard.writeText(coupon.code);
                             addAlert('Coupon code copied!', 'success');
                         }}
                     >
-                        Copy Code
+                        {#if $appliedOffer}
+                            Remove Offer First
+                        {:else}
+                            Copy Code
+                        {/if}
                     </button>
                 </div>
             </div>

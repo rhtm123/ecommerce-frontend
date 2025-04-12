@@ -2,7 +2,7 @@
     import { fade, slide } from 'svelte/transition';
     import { offerApi } from '$lib/services/offerApi';
     import { cart } from '$lib/stores/cart';
-    import { appliedCoupon, cartDiscounts } from '$lib/stores/offers';
+    import { appliedCoupon, appliedOffer, cartDiscounts } from '$lib/stores/offers';
     import { addAlert } from '$lib/stores/alert';
 
     let couponCode = '';
@@ -17,6 +17,12 @@
             return;
         }
 
+        // Check if an offer is already applied
+        if ($appliedOffer) {
+            addAlert('Please remove the applied offer before applying a coupon', 'error');
+            return;
+        }
+
         loading = true;
         try {
             const validation = await offerApi.validateCoupon(
@@ -27,12 +33,10 @@
             if (validation?.is_valid) {
                 appliedCoupon.set({
                     code: couponCode,
+                    discount_type: validation.discount_type,
+                    discount_value: validation.discount_value,
                     discount: parseFloat(validation.discount_amount) || 0
                 });
-                cartDiscounts.update(discounts => ({
-                    ...discounts,
-                    couponDiscount: parseFloat(validation.discount_amount) || 0
-                }));
                 addAlert('Coupon applied successfully', 'success');
                 showCouponInput = false;
             } else {
@@ -50,10 +54,6 @@
 
     function removeCoupon() {
         appliedCoupon.set(null);
-        cartDiscounts.update(discounts => ({
-            ...discounts,
-            couponDiscount: 0
-        }));
         couponCode = '';
         addAlert('Coupon removed', 'info');
     }
@@ -68,7 +68,13 @@
                     <span class="text-sm text-gray-600">Applied Coupon:</span>
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-primary">{$appliedCoupon.code}</span>
-                        <span class="text-green-600">(-₹{$appliedCoupon.discount.toFixed(2)})</span>
+                        <span class="text-green-600">
+                            {#if $appliedCoupon.discount_type === 'percentage'}
+                                ({$appliedCoupon.discount_value}% off)
+                            {:else}
+                                (-₹{$appliedCoupon.discount.toFixed(2)})
+                            {/if}
+                        </span>
                     </div>
                 </div>
                 <button 
@@ -79,7 +85,7 @@
                 </button>
             </div>
         </div>
-    {:else}
+    {:else if !$appliedOffer}
         <!-- Coupon Input -->
         <div class="bg-white rounded-lg p-4 border">
             {#if showCouponInput}

@@ -246,7 +246,7 @@
     try {
       // First get user's orders
       const ordersResponse = await myFetch(
-        `${PUBLIC_API_URL}/order/orders/?user_id=${userId}`,
+        `${PUBLIC_API_URL}/order/orders?user_id=${userId}`,
         'GET',
         {},
         currentUser?.access_token

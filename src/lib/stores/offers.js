@@ -1,17 +1,23 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
+// Store for applied coupon
 export const appliedCoupon = writable(null);
-export const appliedOffers = writable([]);
 
-// Store for cart discounts
-export const cartDiscounts = writable({
-    couponDiscount: 0,
-    offerDiscounts: [],
-    totalDiscount: 0
-});
+// Store for applied offer
+export const appliedOffer = writable(null);
 
-// Function to update total discount
-cartDiscounts.subscribe(discounts => {
-    const offerTotal = discounts.offerDiscounts.reduce((sum, d) => sum + d.amount, 0);
-    discounts.totalDiscount = discounts.couponDiscount + offerTotal;
-}); 
+// Combined discounts store
+export const cartDiscounts = derived(
+    [appliedCoupon, appliedOffer],
+    ([$appliedCoupon, $appliedOffer]) => {
+        const couponDiscount = $appliedCoupon ? $appliedCoupon.discount : 0;
+        const offerDiscount = $appliedOffer ? $appliedOffer.discount_amount : 0;
+
+        return {
+            couponDiscount,
+            offerDiscount,
+            totalDiscount: couponDiscount + offerDiscount,
+            type: $appliedCoupon ? 'coupon' : ($appliedOffer ? 'offer' : null)
+        };
+    }
+); 
