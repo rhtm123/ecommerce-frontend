@@ -169,32 +169,65 @@
       const tableRows = (orderItemsData.results || []).map(item => {
         const product = item.product_listing || {};
         const quantity = item.quantity || 0;
-        const subtotal = item.subtotal || 0;
+        const originalSubtotal = item.subtotal || 0;
+        
+        console.log('Original Subtotal:', originalSubtotal);
+        console.log('Quantity:', quantity);
+        
+        // Calculate discount per item if offer exists
+        const discountPercent = orderData.offer ? parseFloat(orderData.offer.get_discount_percent) : 0;
+        const itemDiscount = orderData.offer ? 
+          (originalSubtotal * discountPercent / 100) : 0;
+        
+        console.log('Discount Percent:', discountPercent);
+        console.log('Item Discount:', itemDiscount);
+        
+        // Calculate discounted amount
+        const discountedAmount = originalSubtotal - itemDiscount;
+        console.log('Discounted Amount:', discountedAmount);
         
         const cgstRate = product.cgst_rate || 0;
         const sgstRate = product.sgst_rate || 0;
         const igstRate = product.igst_rate || 0;
         
-        // Calculate unit price (price before tax)
-        const totalTaxRate = cgstRate + sgstRate + igstRate;
-        const unitPriceBeforeTax = totalTaxRate > 0 
-          ? (subtotal / (1 + totalTaxRate / 100)) / quantity 
-          : subtotal / quantity;
+        // Calculate total tax rate
+        const totalTaxRate = (cgstRate + sgstRate + igstRate) / 100;
+        console.log('Total Tax Rate:', totalTaxRate);
         
-        // Calculate tax amounts
-        const cgstAmount = (unitPriceBeforeTax * quantity * cgstRate / 100);
-        const sgstAmount = (unitPriceBeforeTax * quantity * sgstRate / 100);
-        const igstAmount = (unitPriceBeforeTax * quantity * igstRate / 100);
+        // Calculate base price before tax
+        // For a discounted amount of 1600 with 20% tax:
+        // baseAmount = 1600/1.2 = 1333.33
+        const baseAmount = (discountedAmount) / (1 + totalTaxRate);
+        console.log('Base Amount:', baseAmount);
+        
+        // Calculate unit price before tax
+        const unitPriceBeforeTax = baseAmount / quantity;
+        console.log('Unit Price Before Tax:', unitPriceBeforeTax);
+        
+        // Calculate individual tax amounts
+        const cgstAmount = (baseAmount * cgstRate / 100);
+        const sgstAmount = (baseAmount * sgstRate / 100);
+        const igstAmount = (baseAmount * igstRate / 100);
+        
+        console.log('CGST Amount:', cgstAmount);
+        console.log('SGST Amount:', sgstAmount);
+        console.log('IGST Amount:', igstAmount);
+        
+        // Verify final calculation
+        const totalWithTax = baseAmount + cgstAmount + sgstAmount + igstAmount;
+        console.log('Total with Tax (should match discounted amount):', totalWithTax);
         
         // Add to totals
         totalCGST += cgstAmount;
         totalSGST += sgstAmount;
         totalIGST += igstAmount;
-        grandTotal += subtotal;
+        grandTotal += originalSubtotal;
         
-        // Format tax display with proper rupee symbol
+        // Format tax display
         let taxDisplay = '';
-        if (cgstRate > 0) taxDisplay += `CGST@${cgstRate}%: ${rupeeSymbol}${cgstAmount.toFixed(2)}`;
+        if (cgstRate > 0) {
+          taxDisplay += `CGST@${cgstRate}%: ${rupeeSymbol}${cgstAmount.toFixed(2)}`;
+        }
         if (sgstRate > 0) {
           taxDisplay += taxDisplay ? '\n' : '';
           taxDisplay += `SGST@${sgstRate}%: ${rupeeSymbol}${sgstAmount.toFixed(2)}`;
@@ -203,15 +236,68 @@
           taxDisplay += taxDisplay ? '\n' : '';
           taxDisplay += `IGST@${igstRate}%: ${rupeeSymbol}${igstAmount.toFixed(2)}`;
         }
-        
+
+        // Return values for table display
         return {
           description: product.name || 'N/A',
           qty: quantity,
-          unitPrice: `${rupeeSymbol}${unitPriceBeforeTax.toFixed(2)}`,
+          unitPrice: `${rupeeSymbol}${(baseAmount/quantity).toFixed(2)}`,  // Using baseAmount directly
           tax: taxDisplay || 'N/A',
-          total: `${rupeeSymbol}${subtotal.toFixed(2)}`
+          total: `${rupeeSymbol}${originalSubtotal.toFixed(2)}`
         };
       });
+
+      // Update grand total calculation
+      const discountedGrandTotal = grandTotal - (orderData.total_discount || 0);
+      
+      // Calculate total tax amount on discounted total
+      const totalTaxAmount = totalCGST + totalSGST + totalIGST;
+      const finalAmountWithTax = discountedGrandTotal;  // This is already the final amount with tax
+
+      // Create totals table with accurate tax calculations
+      const totalsTable = [];
+      
+      // Add original subtotal
+      totalsTable.push(['SUBTOTAL:', `${rupeeSymbol}${grandTotal.toFixed(2)}`]);
+      
+      // Add offer discount if present
+      if (orderData.offer) {
+        totalsTable.push([
+          'OFFER APPLIED:',
+          `-${rupeeSymbol}${orderData.discount_amount_offer.toFixed(2)}`
+        ]);
+        totalsTable.push([
+          `${orderData.offer.name} (${orderData.offer.get_discount_percent}% OFF)`,
+          ''
+        ]);
+      }
+
+      // Add total discount and discounted subtotal
+      if (orderData.total_discount > 0) {
+        totalsTable.push([
+          'TOTAL SAVINGS:',
+          `-${rupeeSymbol}${orderData.total_discount.toFixed(2)}`
+        ]);
+        totalsTable.push([
+          'SUBTOTAL AFTER DISCOUNT:',
+          `${rupeeSymbol}${discountedGrandTotal.toFixed(2)}`
+        ]);
+      }
+      
+      // Add tax rows calculated on base amount
+      if (totalCGST > 0) {
+        totalsTable.push(['CGST:', `${rupeeSymbol}${totalCGST.toFixed(2)}`]);
+      }
+      if (totalSGST > 0) {
+        totalsTable.push(['SGST:', `${rupeeSymbol}${totalSGST.toFixed(2)}`]);
+      }
+      if (totalIGST > 0) {
+        totalsTable.push(['IGST:', `${rupeeSymbol}${totalIGST.toFixed(2)}`]);
+      }
+      
+      // Add final amount (which is same as discounted amount since taxes are included)
+      totalsTable.push(['FINAL AMOUNT:', `${rupeeSymbol}${finalAmountWithTax.toFixed(2)}`]);
+      totalsTable.push(['PAYMENT STATUS:', orderData.payment_status.toUpperCase()]);
 
       // Define table columns
       const tableColumns = [
@@ -233,7 +319,8 @@
           cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
           textColor: [40, 40, 40],
           valign: 'middle',
-          lineColor: [0, 0, 0]
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1
         },
         headStyles: {
           fillColor: [71, 52, 3],
@@ -249,8 +336,8 @@
           tax: { cellWidth: 50, halign: 'left' },
           total: { cellWidth: 30, halign: 'right' }
         },
-        margin: { left: 20, right: 20 }, // Aligned with address boxes
-        tableWidth: pageWidth - 40, // Fixed width aligned with boxes above
+        margin: { left: 20, right: 20 },
+        tableWidth: pageWidth - 40,
         didDrawPage: (data) => {
           // Add border to the page on each new page
           doc.setDrawColor(100, 100, 100);
@@ -261,54 +348,58 @@
       // Totals Section with proper alignment and styling
       const finalY = doc.lastAutoTable.finalY + 5;
       
-      // Create totals table with accurate tax calculations
-      const totalsTable = [];
-      
-      // Add subtotal (unit price total)
-      const unitPriceTotal = grandTotal - totalCGST - totalSGST - totalIGST;
-      totalsTable.push(['SUBTOTAL:', `${rupeeSymbol}${unitPriceTotal.toFixed(2)}`]);
-      
-      // Add tax rows if applicable
-      if (totalCGST > 0) {
-        totalsTable.push(['CGST:', `${rupeeSymbol}${totalCGST.toFixed(2)}`]);
-      }
-      
-      if (totalSGST > 0) {
-        totalsTable.push(['SGST:', `${rupeeSymbol}${totalSGST.toFixed(2)}`]);
-      }
-      
-      if (totalIGST > 0) {
-        totalsTable.push(['IGST:', `${rupeeSymbol}${totalIGST.toFixed(2)}`]);
-      }
-      
-      // Add grand total
-      totalsTable.push(['GRAND TOTAL:', `${rupeeSymbol}${grandTotal.toFixed(2)}`]);
-
-      // Render totals table - aligned with main table
+      // Render totals table with fixed widths
       doc.autoTable({
         startY: finalY,
         body: totalsTable,
         theme: 'plain',
         styles: {
           fontSize: 10,
-          cellPadding: { top: 2, right: 5, bottom: 2, left: 5 },
+          cellPadding: { top: 2, right: 8, bottom: 2, left: 8 },
           valign: 'middle',
           fontStyle: 'normal',
-          lineWidth: 0.1
+          lineWidth: 0.1,
+          minCellWidth: 80
         },
         columnStyles: {
           0: { 
-            cellWidth: 80, 
+            cellWidth: 160,
             halign: 'right', 
             fontStyle: 'bold'
           },
           1: { 
-            cellWidth: 40, 
-            halign: 'right'
+            cellWidth: 100,
+            halign: 'right',
+            cellPadding: { right: 20 }
           }
         },
-        margin: { left: pageWidth - 140, right: 20 } // Aligned with right margin
+        margin: { left: pageWidth - 280, right: 20 },
+        didParseCell: function(data) {
+          if (data.column.index === 1) {
+            if (data.cell.text[0] && data.cell.text[0].startsWith('-')) {
+              data.cell.styles.textColor = [220, 53, 69];
+            }
+          }
+        },
+        willDrawCell: function(data) {
+          if (data.row.index % 2 === 0) {
+            data.cell.styles.fillColor = [250, 250, 250];
+          }
+        }
       });
+
+      // Add a border around the totals section
+      const finalTableY = doc.lastAutoTable.finalY;
+      const tableWidth = 260;
+      const tableHeight = finalTableY - finalY;
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(
+        pageWidth - tableWidth - 20, 
+        finalY - 2, 
+        tableWidth, 
+        tableHeight + 4
+      );
 
       // Footer Section with proper spacing
       const footerY = doc.lastAutoTable.finalY + 15;

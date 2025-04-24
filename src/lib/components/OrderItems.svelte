@@ -56,7 +56,7 @@
     <!-- Order Items -->
     <div class="divide-y divide-gray-200">
         {#each orderItems as item}
-            <div class="p-4 hover:bg-gray-100  transition-colors">
+            <div class="p-4 hover:bg-gray-100 transition-colors">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4">
                         <!-- Product Image -->

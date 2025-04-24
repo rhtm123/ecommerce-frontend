@@ -1,155 +1,131 @@
 <script>
-    export let product;
-    import { fade, slide } from 'svelte/transition';
-    import { offerApi } from '$lib/services/offerApi';
-    import { cart } from '$lib/stores/cart';
-    import { appliedOffer, appliedCoupon } from '$lib/stores/offers';
-    import { addAlert } from '$lib/stores/alert';
+    import { onMount } from 'svelte';
+    import Icon from '@iconify/svelte';
+    import { PUBLIC_API_URL } from '$env/static/public';
+    import { myFetch } from '$lib/utils/myFetch.js';
+    import { addAlert } from '$lib/stores/alert.js';
 
-    let showAllOffers = false;
-    let loading = false;
+    export let product_listing;
+    
+    let offers = [];
+    let loading = true;
+    let error = null;
 
-    async function applyOffer(offer) {
-        // Check if a coupon is already applied
-        if ($appliedCoupon) {
-            addAlert('Please remove the applied coupon before applying an offer', 'error');
-            return;
-        }
-
-        loading = true;
+    async function fetchProductOffers() {
         try {
-            const cartItems = $cart;
-            const productIds = cartItems.map(item => item.id);
-            const quantities = cartItems.map(item => item.quantity);
+            loading = true;
+            error = null;
+            console.log('Fetching offers for product:', product_listing.id);
+            const response = await myFetch(`${PUBLIC_API_URL}/offer/product-offers/${product_listing.id}/`);
+            console.log('Offers response:', response);
             
-            const validation = await offerApi.validateOffer(
-                offer.id,
-                productIds,
-                quantities
-            );
-
-            if (validation.is_valid) {
-                appliedOffer.set({
-                    ...offer,
-                    discount_amount: parseFloat(validation.discount_amount) || 0
-                });
-                addAlert('Offer applied successfully', 'success');
+            if (Array.isArray(response)) {
+                // Filter only product-specific offers and active offers
+                offers = response.filter(offer => 
+                    offer.offer_scope === 'product' && 
+                    offer.is_active && 
+                    new Date(offer.valid_until) > new Date()
+                );
+                console.log('Filtered offers:', offers);
             } else {
-                addAlert(validation.message, 'error');
+                console.error('Unexpected response format:', response);
+                error = 'Unexpected response format';
+                addAlert('Failed to load product offers: Invalid response format', 'error');
             }
-        } catch (error) {
-            addAlert('Failed to apply offer', 'error');
+        } catch (err) {
+            console.error('Error fetching offers:', err);
+            error = 'Failed to load offers';
+            addAlert('Failed to load product offers', 'error');
+            offers = [];
         } finally {
             loading = false;
         }
     }
+
+    onMount(() => {
+        if (product_listing?.id) {
+            fetchProductOffers();
+        }
+    });
+
+    function formatDiscount(offer) {
+        if (!offer) return '';
+        
+        if (offer.offer_type === 'discount') {
+            return `${offer.get_discount_percent}% OFF`;
+        } else if (offer.offer_type === 'buy_x_get_y') {
+            return `Buy ${offer.buy_quantity} Get ${offer.get_quantity} with ${offer.get_discount_percent}% OFF`;
+        } else if (offer.offer_type === 'bundle') {
+            return `Bundle Offer - ${offer.get_discount_percent}% OFF`;
+        }
+        return '';
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
 </script>
 
-{#if product?.active_offers?.length > 0}
-<div class="bg-white rounded-lg shadow-sm p-4 mb-4" in:fade>
-    <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Available Offers</h3>
-        {#if product.active_offers.length > 2}
-            <button 
-                class="text-sm text-primary hover:underline"
-                on:click={() => showAllOffers = !showAllOffers}
-            >
-                {showAllOffers ? 'Show Less' : 'View All'}
-            </button>
-        {/if}
+{#if loading}
+    <div class="flex justify-center py-4">
+        <span class="loading loading-spinner loading-sm text-primary"></span>
     </div>
-
-    <div class="space-y-4">
-        {#each product.active_offers.slice(0, showAllOffers ? undefined : 2) as offer}
-            <div 
-                class="border rounded-lg p-4 hover:border-primary transition-colors"
-                in:slide
-            >
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="badge badge-primary mb-2">{offer.offer_type}</span>
-                        <h4 class="font-semibold">{offer.name}</h4>
-                        <p class="text-sm text-gray-600 mt-1">{offer.description}</p>
-                        
-                        {#if offer.offer_type === 'buy_x_get_y'}
-                            <p class="text-sm mt-2">
-                                Buy {offer.buy_quantity} items, get {offer.get_quantity} items at {offer.get_discount_percent}% off
-                            </p>
-                        {:else if offer.offer_type === 'bundle'}
-                            <p class="text-sm mt-2">
-                                Save when bought together
-                            </p>
-                        {/if}
-                    </div>
-                    
-                    <button 
-                        class="btn btn-primary btn-sm"
-                        disabled={loading || $appliedCoupon !== null}
-                        on:click={() => applyOffer(offer)}
-                    >
-                        {#if loading}
-                            <span class="loading loading-spinner loading-xs"></span>
-                        {:else if $appliedCoupon}
-                            Remove Coupon First
-                        {:else}
-                            Apply
-                        {/if}
-                    </button>
-                </div>
-            </div>
-        {/each}
+{:else if error}
+    <div class="text-error text-sm mt-2">
+        {error}
     </div>
-</div>
-{/if}
-
-{#if product?.applicable_coupons?.length > 0}
-<div class="bg-white rounded-lg shadow-sm p-4" in:fade>
-    <h3 class="text-lg font-semibold mb-4">Available Coupons</h3>
-    
-    <div class="space-y-4">
-        {#each product.applicable_coupons as coupon}
-            <div class="border rounded-lg p-4 hover:border-primary transition-colors">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-lg font-bold text-primary">{coupon.code}</span>
-                            <span class="badge badge-ghost">
-                                {coupon.discount_type === 'percentage' ? `${coupon.discount_value}% OFF` : `₹${coupon.discount_value} OFF`}
-                            </span>
+{:else if offers.length > 0}
+    <div class="mt-4 mb-6">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Icon icon="mdi:tag-multiple" class="w-5 h-5 text-primary" />
+            Available Offers
+        </h3>
+        <div class="space-y-3">
+            {#each offers as offer}
+                {#if offer}
+                    <div class="bg-base-100 border border-primary/20 rounded-lg p-4 hover:border-primary/40 transition-all duration-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <Icon 
+                                    icon={offer.offer_type === 'discount' ? 'mdi:sale' : 
+                                          offer.offer_type === 'buy_x_get_y' ? 'mdi:gift' : 'mdi:package-variant'}
+                                    class="w-6 h-6 text-primary"
+                                />
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-primary">
+                                    {formatDiscount(offer)}
+                                </h4>
+                                <p class="text-sm text-gray-600 mt-1">{offer.description}</p>
+                                {#if offer.valid_until}
+                                    <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                        <Icon icon="mdi:calendar-clock" class="w-4 h-4" />
+                                        Valid till {formatDate(offer.valid_until)}
+                                    </p>
+                                {/if}
+                            </div>
                         </div>
-                        {#if coupon.max_discount_amount}
-                            <p class="text-sm text-gray-600">
-                                Maximum discount: ₹{coupon.max_discount_amount}
-                            </p>
-                        {/if}
                     </div>
-                    <button 
-                        class="btn btn-outline btn-primary btn-sm"
-                        disabled={$appliedOffer !== null}
-                        on:click={() => {
-                            if ($appliedOffer) {
-                                addAlert('Please remove the applied offer before copying a coupon code', 'error');
-                                return;
-                            }
-                            navigator.clipboard.writeText(coupon.code);
-                            addAlert('Coupon code copied!', 'success');
-                        }}
-                    >
-                        {#if $appliedOffer}
-                            Remove Offer First
-                        {:else}
-                            Copy Code
-                        {/if}
-                    </button>
-                </div>
-            </div>
-        {/each}
+                {/if}
+            {/each}
+        </div>
     </div>
-</div>
 {/if}
 
 <style>
-    .badge {
-        text-transform: capitalize;
+    /* Hover effect for offer cards */
+    .border-primary\/20 {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .border-primary\/20:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 </style> 

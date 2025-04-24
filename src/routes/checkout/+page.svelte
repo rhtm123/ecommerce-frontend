@@ -88,6 +88,24 @@
         return todayOrdersCount;
     }
 
+    async function checkStockAvailability() {
+        for (const item of cartItems) {
+            try {
+                // Fetch current product listing to check stock
+                const response = await myFetch(`${PUBLIC_API_URL}/product/product-listings/${item.id}/`);
+                if (response.stock < item.quantity) {
+                    addAlert(`Sorry, only ${response.stock} units available for ${item.name}`, "error");
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error checking stock:', error);
+                addAlert(`Error checking stock for ${item.name}`, "error");
+                return false;
+            }
+        }
+        return true;
+    }
+
     async function handleSubmit() {
         // First check if mobile is verified
         if (!authUser.mobile_verified) {
@@ -113,6 +131,12 @@
             return;
         }
 
+        // Check stock availability before proceeding
+        const stockAvailable = await checkStockAvailability();
+        if (!stockAvailable) {
+            return;
+        }
+
         try {
             orderPlacing = true;
             let url = `${PUBLIC_API_URL}/order/orders/`;
@@ -122,9 +146,9 @@
                 user_id: authUser?.user_id,
                 estore_id: PUBLIC_ESTORE_ID,
                 shipping_address_id: selectedAddress,
+                offer_id: $appliedOffer?.id || null,
+                coupon_id: $appliedCoupon?.id || null,
                 total_amount: finalTotal,
-                subtotal_amount: subtotal,
-                total_discount: $cartDiscounts.totalDiscount
             }, authUser.access_token);
 
             orderData = order;
@@ -138,41 +162,20 @@
                     product_listing_id: item.id,
                     quantity: item.quantity,
                     price: item.price,
-                    original_price: item.price,
-                    discount_amount: 0,
+                    discount_amount: $cartDiscounts?.totalDiscount || 0,
                     subtotal: item.price * item.quantity
                 };
 
-                // If there's an applied offer and it affects this item
-                if ($appliedOffer) {
-                    const offerDiscount = $appliedOffer.discount_amount / cartItems.length; // Distribute discount evenly
-                    // Add offer details
-                    itemData.applied_offer = {
-                        offer_id: $appliedOffer.id,
-                        offer_name: $appliedOffer.name,
-                        offer_type: $appliedOffer.offer_type,
-                        discount_amount: offerDiscount,
-                        buy_quantity: $appliedOffer.buy_quantity || 1,
-                        get_quantity: $appliedOffer.get_quantity || 0,
-                        get_discount_percent: $appliedOffer.get_discount_percent || 0
-                    };
-                    itemData.discount_amount = offerDiscount;
-                    itemData.subtotal = (item.price * item.quantity) - offerDiscount;
+                try {
+                    await myFetch(url2, "POST", itemData, authUser.access_token);
+                } catch (error) {
+                    console.error('Error creating order item:', error);
+                    // If an order item fails, delete the order and show error
+                    await myFetch(`${PUBLIC_API_URL}/order/orders/${order.id}/`, "DELETE", null, authUser.access_token);
+                    addAlert("Error creating order: Some items are out of stock", "error");
+                    orderPlacing = false;
+                    return;
                 }
-
-                await myFetch(url2, "POST", itemData, authUser.access_token);
-            }
-
-            // If there's an applied coupon, create it
-            if ($appliedCoupon) {
-                const couponUrl = `${PUBLIC_API_URL}/order/applied-coupons/`;
-                await myFetch(couponUrl, "POST", {
-                    order_id: order.id,
-                    coupon_code: $appliedCoupon.code,
-                    discount_type: $appliedCoupon.discount_type,
-                    discount_value: $appliedCoupon.discount_value,
-                    discount_amount: $appliedCoupon.discount
-                }, authUser.access_token);
             }
 
             // Create payment
@@ -194,12 +197,10 @@
             orderdCompleted = true;
             // Clear cart and applied offers/coupons
             cart.set([]);
-            appliedOffer.set(null);
-            appliedCoupon.set(null);
 
         } catch (e) {
-            addAlert("Error placing order", "error");
-            console.error(e);
+            console.error('Error placing order:', e);
+            addAlert("Error placing order: " + (e.message || "Please try again"), "error");
         } finally {
             orderPlacing = false;
         }

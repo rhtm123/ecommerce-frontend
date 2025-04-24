@@ -14,7 +14,13 @@
         try {
             const offers = await offerApi.getActiveOffers();
             const offersArray = Array.isArray(offers) ? offers : (offers?.results || []);
-            availableOffers = offersArray.filter(offer => offer.id !== $appliedOffer?.id);
+            // Filter for cart-wide offers only and exclude already applied offer
+            availableOffers = offersArray.filter(offer => 
+                offer.id !== $appliedOffer?.id && 
+                offer.offer_scope === 'cart' &&
+                offer.is_active &&
+                new Date(offer.valid_until) > new Date()
+            );
         } catch (error) {
             console.error('Error loading offers:', error);
             addAlert('Failed to load offers', 'error');
@@ -73,6 +79,17 @@
         addAlert('Offer removed', 'info');
     }
 
+    function formatDiscount(offer) {
+        if (offer.offer_type === 'discount') {
+            return `${offer.get_discount_percent}% off on cart total`;
+        }
+        return '';
+    }
+
+    function formatMinCartValue(value) {
+        return `₹${parseFloat(value).toFixed(2)}`;
+    }
+
     $: if ($cart.length > 0) {
         loadAvailableOffers();
     }
@@ -82,11 +99,11 @@
     <!-- Applied Offer -->
     {#if $appliedOffer}
         <div class="bg-white rounded-lg shadow-sm p-4" in:fade>
-            <h3 class="text-lg font-semibold mb-4">Applied Offer</h3>
+            <h3 class="text-lg font-semibold mb-4">Applied Cart Offer</h3>
             <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg" in:slide>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="badge badge-success">{$appliedOffer.offer_type}</span>
+                        <span class="badge badge-success">Cart Offer</span>
                         <span class="font-medium">{$appliedOffer.name}</span>
                     </div>
                     <p class="text-sm text-gray-600 mt-1">{$appliedOffer.description}</p>
@@ -101,7 +118,7 @@
             </div>
         </div>
     {:else if !$appliedCoupon}
-        <!-- Available Offers -->
+        <!-- Available Cart Offers -->
         {#if availableOffers.length > 0}
             <div class="bg-white rounded-lg shadow-sm" in:fade>
                 <button 
@@ -109,7 +126,7 @@
                     on:click={() => isExpanded = !isExpanded}
                 >
                     <div class="flex items-center gap-2">
-                        <span class="text-lg font-semibold">Available Offers</span>
+                        <span class="text-lg font-semibold">Available Cart Offers</span>
                         <span class="badge badge-primary">{availableOffers.length}</span>
                     </div>
                     <svg 
@@ -129,17 +146,18 @@
                                 <div class="border rounded-lg p-4 hover:border-primary transition-colors">
                                     <div class="flex justify-between items-start">
                                         <div>
-                                            <span class="badge badge-primary mb-2">{offer.offer_type}</span>
+                                            <span class="badge badge-primary mb-2">Cart Offer</span>
                                             <h4 class="font-semibold">{offer.name}</h4>
                                             <p class="text-sm text-gray-600 mt-1">{offer.description}</p>
-                                            
-                                            {#if offer.offer_type === 'buy_x_get_y'}
-                                                <p class="text-sm mt-2">
-                                                    Buy {offer.buy_quantity} items, get {offer.get_quantity} items at {offer.get_discount_percent}% off
+                                            <p class="text-sm text-primary mt-2">{formatDiscount(offer)}</p>
+                                            {#if offer.min_cart_value > 0}
+                                                <p class="text-xs text-gray-500 mt-1">
+                                                    Minimum cart value: {formatMinCartValue(offer.min_cart_value)}
                                                 </p>
-                                            {:else if offer.offer_type === 'bundle'}
-                                                <p class="text-sm mt-2">
-                                                    Save when bought together
+                                            {/if}
+                                            {#if offer.valid_until}
+                                                <p class="text-xs text-gray-500 mt-1">
+                                                    Valid till: {new Date(offer.valid_until).toLocaleDateString()}
                                                 </p>
                                             {/if}
                                         </div>
@@ -164,7 +182,7 @@
             </div>
         {:else if !loading}
             <div class="text-center py-4 text-gray-500">
-                No offers available
+                No cart offers available
             </div>
         {/if}
     {/if}
