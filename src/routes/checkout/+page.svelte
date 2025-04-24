@@ -107,6 +107,8 @@
     }
 
     async function handleSubmit() {
+        orderPlacing = true;
+
         // First check if mobile is verified
         if (!authUser.mobile_verified) {
             // Save current path for redirect after verification
@@ -138,7 +140,6 @@
         }
 
         try {
-            orderPlacing = true;
             let url = `${PUBLIC_API_URL}/order/orders/`;
             
             // Create order with discount information
