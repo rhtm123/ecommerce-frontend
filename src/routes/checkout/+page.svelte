@@ -70,7 +70,15 @@
   
     $: subtotal = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     $: totalDiscount = $cartDiscounts.totalDiscount;
-    $: finalTotal = subtotal - totalDiscount;
+    $: exactTotal = subtotal - totalDiscount;
+    $: finalTotal = Math.round(exactTotal);
+    $: roundingAdjustment = finalTotal - exactTotal;
+  
+    // Add exact discount calculations
+    $: exactOfferDiscount = $cartDiscounts.exactOfferDiscount || $cartDiscounts.offerDiscount;
+    $: exactCouponDiscount = $cartDiscounts.exactCouponDiscount || $cartDiscounts.couponDiscount;
+    $: offerRoundingAdjustment = $cartDiscounts.offerDiscount - exactOfferDiscount;
+    $: couponRoundingAdjustment = $cartDiscounts.couponDiscount - exactCouponDiscount;
   
     let termsAccepted = false;
 
@@ -377,20 +385,41 @@
                   {#if $cartDiscounts.offerDiscount > 0}
                       <div class="flex justify-between text-green-600">
                           <span>Offer Discount</span>
-                          <span>- ₹ {$cartDiscounts.offerDiscount.toFixed(2)}</span>
+                          <div class="text-right">
+                              <span>- ₹ {$cartDiscounts.offerDiscount}</span>
+                              {#if Math.abs(offerRoundingAdjustment) >= 0.01}
+                                  <div class="text-xs text-gray-500">
+                                      {offerRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactOfferDiscount.toFixed(2)}
+                                  </div>
+                              {/if}
+                          </div>
                       </div>
                   {/if}
                   
                   {#if $cartDiscounts.couponDiscount > 0}
                       <div class="flex justify-between text-green-600">
                           <span>Coupon Discount</span>
-                          <span>- ₹ {$cartDiscounts.couponDiscount.toFixed(2)}</span>
+                          <div class="text-right">
+                              <span>- ₹ {$cartDiscounts.couponDiscount}</span>
+                              {#if Math.abs(couponRoundingAdjustment) >= 0.01}
+                                  <div class="text-xs text-gray-500">
+                                      {couponRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactCouponDiscount.toFixed(2)}
+                                  </div>
+                              {/if}
+                          </div>
                       </div>
                   {/if}
                   
                   <div class="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span class="text-primary">₹ {finalTotal.toFixed(2)}</span>
+                      <div class="text-right">
+                          <span class="text-primary">₹ {finalTotal}</span>
+                          {#if Math.abs(roundingAdjustment) >= 0.01}
+                              <div class="text-xs text-gray-500 mt-1">
+                                  {roundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactTotal.toFixed(2)}
+                              </div>
+                          {/if}
+                      </div>
                   </div>
               </div>
 

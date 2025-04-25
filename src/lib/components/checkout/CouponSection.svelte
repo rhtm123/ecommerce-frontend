@@ -35,7 +35,7 @@
                     code: couponCode,
                     discount_type: validation.discount_type,
                     discount_value: validation.discount_value,
-                    discount: parseFloat(validation.discount_amount) || 0
+                    discount: Math.round(parseFloat(validation.discount_amount)) || 0
                 });
                 addAlert('Coupon applied successfully', 'success');
                 showCouponInput = false;

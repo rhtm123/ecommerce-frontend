@@ -56,7 +56,7 @@
             if (validation?.is_valid) {
                 const offerData = {
                     ...offer,
-                    discount_amount: parseFloat(validation.discount_amount) || 0
+                    discount_amount: Math.round(parseFloat(validation.discount_amount)) || 0
                 };
                 appliedOffer.set(offerData);
                 addAlert('Offer applied successfully', 'success');
@@ -107,7 +107,7 @@
                         <span class="font-medium">{$appliedOffer.name}</span>
                     </div>
                     <p class="text-sm text-gray-600 mt-1">{$appliedOffer.description}</p>
-                    <p class="text-sm text-green-600 mt-1">Discount: ₹{$appliedOffer.discount_amount.toFixed(2)}</p>
+                    <p class="text-sm text-green-600 mt-1">Discount: ₹{$appliedOffer.discount_amount}</p>
                 </div>
                 <button 
                     class="btn btn-sm btn-ghost text-red-500"
