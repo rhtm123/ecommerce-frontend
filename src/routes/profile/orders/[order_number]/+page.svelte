@@ -111,7 +111,7 @@
   </div>
 </div>
 {:else}
-<div class="mx-auto max-w-4xl ">
+<div class="mx-auto max-w-4xl px-4 py-8">
   <div class="mb-8">
     <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
     <div class="flex items-center gap-2">
@@ -160,8 +160,18 @@
           {#each package_.package_items as package_item}
             <div class="p-4 hover:bg-gray-50 transition-colors">
               <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Product Image -->
+                <div class="w-24 h-24 flex-shrink-0">
+                  <img 
+                    src={package_item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`} 
+                    alt={package_item.product_listing_name}
+                    class="w-full h-full object-cover rounded-lg shadow-sm"
+                    loading="lazy"
+                    on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`}
+                  />
+                </div>
                 <div class="flex-1">
-                  <h3 class="font-medium text-gray-900">{package_item.product_listing}</h3>
+                  <h3 class="font-medium text-gray-900">{package_item.product_listing_name}</h3>
                   <div class="mt-1 flex items-center gap-4">
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{package_item.quantity}</span>
@@ -206,8 +216,18 @@
           {#each order.items_without_package as item}
             <div class="p-4 hover:bg-gray-50 transition-colors">
               <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Product Image -->
+                <div class="w-24 h-24 flex-shrink-0">
+                  <img 
+                    src={item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`} 
+                    alt={item.product_listing_name}
+                    class="w-full h-full object-cover rounded-lg shadow-sm"
+                    loading="lazy"
+                    on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`}
+                  />
+                </div>
                 <div class="flex-1">
-                  <h3 class="font-medium text-gray-900">{item.product_listing}</h3>
+                  <h3 class="font-medium text-gray-900">{item.product_listing_name}</h3>
                   <div class="mt-1 flex items-center gap-4">
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{item.quantity}</span>
@@ -234,7 +254,7 @@
                     <!-- <p class="text-sm text-gray-500 line-through">₹{(item.original_price * item.quantity).toFixed(2)}</p> -->
                   {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    <!-- ₹{item.subtotal} -->
+                    ₹{item.subtotal}
                   </p>
                   {#if item.discount_amount}
                     <p class="text-sm text-green-600">Saved ₹{item.discount_amount}</p>
@@ -313,7 +333,7 @@
           
           <div class="mb-6 prose">
             {#each package_.package_items as package_item, i}
-              <p class="text-sm">{i+1}. {package_item.product_listing} | Quantity: {package_item.quantity}</p>
+              <p class="text-sm">{i+1}. {package_item.product_listing_name} | Quantity: {package_item.quantity}</p>
             {/each}
           </div>
 
@@ -367,7 +387,7 @@
       {#each order.items_without_package as order_item}
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
-            <h2 class="card-title">Item: {order_item.product_listing}</h2>
+            <h2 class="card-title">Item: {order_item.product_listing_name}</h2>
             
             <progress 
               class="progress progress-primary w-full" 
