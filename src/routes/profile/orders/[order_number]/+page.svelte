@@ -162,16 +162,20 @@
               <div class="flex flex-col md:flex-row md:items-center gap-4">
                 <!-- Product Image -->
                 <div class="w-24 h-24 flex-shrink-0">
-                  <img 
-                    src={package_item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`} 
-                    alt={package_item.product_listing_name}
-                    class="w-full h-full object-cover rounded-lg shadow-sm"
+                  <a href={`/product/${package_item.product_slug}`}>
+                    <img 
+                      src={package_item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`} 
+                      alt={package_item.product_listing_name}
+                      class="w-full h-full object-cover rounded-lg shadow-sm"
                     loading="lazy"
-                    on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`}
-                  />
+                      on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(package_item.product_listing_name)}`}
+                    />
+                  </a>
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-medium text-gray-900">{package_item.product_listing_name}</h3>
+                  <a href={`/product/${package_item.product_slug}`}>
+                    <h3 class="font-medium text-gray-900">{package_item.product_listing_name}</h3>
+                  </a>
                   <div class="mt-1 flex items-center gap-4">
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{package_item.quantity}</span>
@@ -218,16 +222,20 @@
               <div class="flex flex-col md:flex-row md:items-center gap-4">
                 <!-- Product Image -->
                 <div class="w-24 h-24 flex-shrink-0">
-                  <img 
-                    src={item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`} 
-                    alt={item.product_listing_name}
+                  <a href={`/product/${item.product_slug}`}>
+                    <img 
+                      src={item.product_main_image || `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`} 
+                      alt={item.product_listing_name}
                     class="w-full h-full object-cover rounded-lg shadow-sm"
                     loading="lazy"
-                    on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`}
-                  />
+                      on:error={(e) => e.target.src = `https://placehold.co/200x200?text=${encodeURIComponent(item.product_listing_name)}`}
+                    />
+                  </a>
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-medium text-gray-900">{item.product_listing_name}</h3>
+                  <a href={`/product/${item.product_slug}`}>  
+                    <h3 class="font-medium text-gray-900">{item.product_listing_name}</h3>
+                  </a>
                   <div class="mt-1 flex items-center gap-4">
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{item.quantity}</span>
