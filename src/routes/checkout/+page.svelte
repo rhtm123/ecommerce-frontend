@@ -67,7 +67,7 @@
 
     $: authUser = $user;
 
-  
+    // Update subtotal calculation to use discounted prices
     $: subtotal = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     $: totalDiscount = $cartDiscounts.totalDiscount;
     $: exactTotal = subtotal - totalDiscount;
@@ -137,7 +137,7 @@
         }
 
         if (!selectedAddress) {
-            addAlert("Address is required to place the order", "error");
+            addAlert("Please select a delivery address", "error");
             return;
         }
 
@@ -170,9 +170,9 @@
                     order_id: order.id,
                     product_listing_id: item.id,
                     quantity: item.quantity,
-                    price: item.price,
-                    discount_amount: $cartDiscounts?.totalDiscount || 0,
-                    subtotal: item.price * item.quantity
+                    price: item.originalPrice || item.price,
+                    offer_id: item.productOffer?.id || null,
+                    subtotal: item.discountedPrice * item.quantity
                 };
 
                 try {
@@ -206,6 +206,8 @@
             orderdCompleted = true;
             // Clear cart and applied offers/coupons
             cart.set([]);
+            appliedOffer.set(null);
+            appliedCoupon.set(null);
 
         } catch (e) {
             console.error('Error placing order:', e);
@@ -356,122 +358,153 @@
         <div class="bg-white rounded-lg shadow-sm p-4 md:mt-10">
           <h2 class="text-lg font-bold mb-4">Your Order</h2>
           <div class="space-y-4">
-              {#each $cart as item}
-                  <div class="flex justify-between items-center py-2 border-b">
-                      <div class="flex items-center gap-3">
-                          <img src={item.main_image || "/placeholder.svg"} alt={item.name} class="w-12 h-12 object-cover rounded-md" />
-                          <div>
-                              <p class="font-medium">{item.name}</p>
-                              <p class="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          </div>
-                      </div>
-                      <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-              {/each}
-
-              <!-- Add AvailableOffers component before CouponSection -->
-              <AvailableOffers />
-
-              <!-- Existing CouponSection component -->
-              <CouponSection />
-
-              <!-- Update the totals section -->
-              <div class="space-y-2 pt-4 border-t">
-                  <div class="flex justify-between mb-2">
-                      <span class="text-gray-600">Subtotal</span>
-                      <span>₹ {subtotal.toFixed(2)}</span>
-                  </div>
-                  
-                  {#if $cartDiscounts.offerDiscount > 0}
-                      <div class="flex justify-between text-green-600">
-                          <span>Offer Discount</span>
-                          <div class="text-right">
-                              <span>- ₹ {$cartDiscounts.offerDiscount}</span>
-                              {#if Math.abs(offerRoundingAdjustment) >= 0.01}
-                                  <div class="text-xs text-gray-500">
-                                      {offerRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactOfferDiscount.toFixed(2)}
-                                  </div>
-                              {/if}
-                          </div>
-                      </div>
-                  {/if}
-                  
-                  {#if $cartDiscounts.couponDiscount > 0}
-                      <div class="flex justify-between text-green-600">
-                          <span>Coupon Discount</span>
-                          <div class="text-right">
-                              <span>- ₹ {$cartDiscounts.couponDiscount}</span>
-                              {#if Math.abs(couponRoundingAdjustment) >= 0.01}
-                                  <div class="text-xs text-gray-500">
-                                      {couponRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactCouponDiscount.toFixed(2)}
-                                  </div>
-                              {/if}
-                          </div>
-                      </div>
-                  {/if}
-                  
-                  <div class="flex justify-between font-bold text-lg">
-                      <span>Total</span>
-                      <div class="text-right">
-                          <span class="text-primary">₹ {finalTotal}</span>
-                          {#if Math.abs(roundingAdjustment) >= 0.01}
-                              <div class="text-xs text-gray-500 mt-1">
-                                  {roundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactTotal.toFixed(2)}
-                              </div>
+            {#each $cart as item}
+              <div class="flex justify-between items-center py-2 border-b">
+                <div class="flex items-center gap-3">
+                  <img src={item.main_image || "/placeholder.svg"} alt={item.name} class="w-12 h-12 object-cover rounded-md" />
+                  <div>
+                    <p class="font-medium">{item.name}</p>
+                    <p class="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    {#if item.productOffer}
+                      <div class="text-sm text-green-600 flex items-center gap-1 mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <span>
+                          {#if item.productOffer.offer_type === 'discount'}
+                            {item.productOffer.get_discount_percent}% OFF
+                          {:else if item.productOffer.offer_type === 'buy_x_get_y'}
+                            Buy {item.productOffer.buy_quantity} Get {item.productOffer.get_quantity} ({item.productOffer.get_discount_percent}% OFF)
                           {/if}
+                        </span>
                       </div>
+                    {/if}
                   </div>
+                </div>
+                <div class="text-right">
+                  {#if !item.productOffer}
+                    <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
+                  {:else}
+                    <span class="font-medium">₹ {(item.discountedPrice * item.quantity).toFixed(2)}</span>
+                    <div class="text-sm text-gray-500 line-through">₹ {(item.originalPrice * item.quantity).toFixed(2)}</div>
+                  {/if}
+                </div>
               </div>
+            {/each}
+
+            <!-- Add AvailableOffers component before CouponSection -->
+            <AvailableOffers />
+
+            <!-- Existing CouponSection component -->
+            <CouponSection />
+
+            <!-- Update the totals section -->
+            <div class="space-y-2 pt-4 border-t">
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600">Subtotal</span>
+                <span>₹ {subtotal.toFixed(2)}</span>
+              </div>
+              
+              <!-- Product-specific offers total -->
+              {#if $cart.some(item => item.productOffer)}
+                <div class="flex justify-between text-green-600">
+                  <span>Product Offers</span>
+                  <span>- ₹ {$cart.reduce((sum, item) => {
+                    if (!item.productOffer) return sum;
+                    return sum + ((item.originalPrice - item.discountedPrice) * item.quantity);
+                  }, 0).toFixed(2)}</span>
+                </div>
+              {/if}
+              
+              {#if $cartDiscounts.offerDiscount > 0}
+                <div class="flex justify-between text-green-600">
+                  <span>Cart Offer</span>
+                  <div class="text-right">
+                    <span>- ₹ {$cartDiscounts.offerDiscount}</span>
+                    {#if Math.abs(offerRoundingAdjustment) >= 0.01}
+                      <div class="text-xs text-gray-500">
+                        {offerRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactOfferDiscount.toFixed(2)}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+              
+              {#if $cartDiscounts.couponDiscount > 0}
+                <div class="flex justify-between text-green-600">
+                  <span>Coupon Discount</span>
+                  <div class="text-right">
+                    <span>- ₹ {$cartDiscounts.couponDiscount}</span>
+                    {#if Math.abs(couponRoundingAdjustment) >= 0.01}
+                      <div class="text-xs text-gray-500">
+                        {couponRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactCouponDiscount.toFixed(2)}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+
+              <div class="flex justify-between font-bold text-lg pt-2 border-t">
+                <span>Total</span>
+                <span>₹ {finalTotal.toFixed(2)}</span>
+              </div>
+              
+              {#if Math.abs(roundingAdjustment) >= 0.01}
+                <div class="text-xs text-gray-500 text-right">
+                  {roundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactTotal.toFixed(2)}
+                </div>
+              {/if}
 
               <label class="flex items-start gap-2">
-                  <input 
-                      type="checkbox" 
-                      class="mt-1" 
-                      bind:checked={termsAccepted}
-                      required 
-                  />
-                  <span class="text-sm text-gray-600">
-                      I have read and agree to the website's 
-                      <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
-                  </span>
-              </label>
-              
-              <div class="flex items-center gap-4">
-                  <label>
-                      <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="cod" 
-                          bind:group={selectedPaymentMethod} 
-                          checked 
-                      />
-                      Cash on Delivery
-                  </label>
-                  <label>
-                      <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="pg" 
-                          bind:group={selectedPaymentMethod} 
-                      />
-                      Pay Online
-                  </label>
-              </div>
+                <input 
+                    type="checkbox" 
+                    class="mt-1" 
+                    bind:checked={termsAccepted}
+                    required 
+                />
+                <span class="text-sm text-gray-600">
+                    I have read and agree to the website's 
+                    <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
+                </span>
+            </label>
+            
+            <div class="flex items-center gap-4">
+                <label>
+                    <input 
+                        type="radio" 
+                        name="paymentMethod" 
+                        value="cod" 
+                        bind:group={selectedPaymentMethod} 
+                        checked 
+                    />
+                    Cash on Delivery
+                </label>
+                <label>
+                    <input 
+                        type="radio" 
+                        name="paymentMethod" 
+                        value="pg" 
+                        bind:group={selectedPaymentMethod} 
+                    />
+                    Pay Online
+                </label>
+            </div>
 
-              <button 
-                  on:click={handleSubmit}
-                  class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
-                  disabled={orderPlacing}
-              >
-                  {#if orderPlacing}
-                      <span class="loading loading-spinner loading-sm mr-2"></span>
-                      PLACING ORDER
-                  {:else}
-                      PLACE ORDER
-                  {/if}
-              </button>
+            <button 
+                on:click={handleSubmit}
+                class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+                disabled={orderPlacing}
+            >
+                {#if orderPlacing}
+                    <span class="loading loading-spinner loading-sm mr-2"></span>
+                    PLACING ORDER
+                {:else}
+                    PLACE ORDER
+                {/if}
+            </button>
+            </div>
           </div>
-      </div>
+        </div>
       </div>
 
       {/if}

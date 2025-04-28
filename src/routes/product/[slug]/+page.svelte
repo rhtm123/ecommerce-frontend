@@ -981,8 +981,8 @@
     {/if}
   </div>
 
-  <!-- Add this after the product description section -->
-  <ProductOffers {product_listing} />
+  <!-- Add this after the product description section
+  <ProductOffers {product_listing} /> -->
 </div>
 
 

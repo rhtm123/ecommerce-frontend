@@ -75,8 +75,23 @@
                             </div>
                             <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
                                 <p>Quantity: <span class="font-medium">{item.quantity}</span></p>
-                                <p class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</p>
+                                <div class="flex items-center gap-2">
+                                    {#if item.discount_amount > 0}
+                                        <p class="line-through text-gray-400">₹{item.price.toFixed(2)}</p>
+                                        <p class="font-semibold text-gray-900">₹{((item.price * item.quantity - item.discount_amount) / item.quantity).toFixed(2)}</p>
+                                        <span class="text-green-600 text-xs">
+                                            ({Math.round((item.discount_amount / (item.price * item.quantity)) * 100)}% off)
+                                        </span>
+                                    {:else}
+                                        <p class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</p>
+                                    {/if}
+                                </div>
                             </div>
+                            {#if item.discount_amount > 0}
+                                <div class="mt-1 text-sm text-green-600">
+                                    Saved: ₹{item.discount_amount.toFixed(2)}
+                                </div>
+                            {/if}
                         </div>
                     </div>
                     <OrderItemReview order_item_id={item.id} />

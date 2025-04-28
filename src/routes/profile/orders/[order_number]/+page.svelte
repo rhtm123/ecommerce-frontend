@@ -232,31 +232,40 @@
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{item.quantity}</span>
                     </span>
-                    <span class="text-sm text-gray-600">
-                      Price/Item: <span class="font-medium text-gray-900">₹{item.price}</span>
-                    </span>
+                    <div class="flex items-center gap-2">
+                      {#if item.discount_amount > 0}
+                        <span class="text-sm text-gray-600">
+                          Price/Item: 
+                          <span class="line-through text-gray-400">₹{item.price}</span>
+                          <span class="font-medium text-gray-900">₹{((item.price * item.quantity - item.discount_amount) / item.quantity).toFixed(2)}</span>
+                        </span>
+                        <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                          {Math.round((item.discount_amount / (item.price * item.quantity)) * 100)}% off
+                        </span>
+                      {:else}
+                        <span class="text-sm text-gray-600">
+                          Price/Item: <span class="font-medium text-gray-900">₹{item.price}</span>
+                        </span>
+                      {/if}
+                    </div>
                   </div>
-                  {#if item.applied_offers && item.applied_offers.length > 0}
-                    <div class="mt-2">
-                      {#each item.applied_offers as offer}
-                        <div class="text-sm text-green-600 flex items-center gap-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                          </svg>
-                          <span>{offer.offer_name} ({offer.offer_type}): -₹{offer.discount_amount}</span>
-                        </div>
-                      {/each}
+                  {#if item.discount_amount > 0}
+                    <div class="mt-2 flex items-center gap-2 text-sm text-green-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      <span>Product Offer: -₹{item.discount_amount}</span>
                     </div>
                   {/if}
                 </div>
                 <div class="md:text-right">
-                  {#if item.original_price !== item.price || item.discount_amount}
-                    <!-- <p class="text-sm text-gray-500 line-through">₹{(item.original_price * item.quantity).toFixed(2)}</p> -->
+                  {#if item.discount_amount > 0}
+                    <p class="text-sm text-gray-500 line-through">₹{(item.price * item.quantity).toFixed(2)}</p>
                   {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    ₹{item.subtotal}
+                    ₹{(((item.price * item.quantity) - item.discount_amount) ).toFixed(2)}
                   </p>
-                  {#if item.discount_amount}
+                  {#if item.discount_amount > 0}
                     <p class="text-sm text-green-600">Saved ₹{item.discount_amount}</p>
                   {/if}
                 </div>
