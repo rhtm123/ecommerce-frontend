@@ -73,6 +73,7 @@
     $: exactTotal = subtotal - totalDiscount;
     $: finalTotal = Math.round(exactTotal);
     $: roundingAdjustment = finalTotal - exactTotal;
+    console.log("finalTotal",finalTotal);
   
     // Add exact discount calculations
     $: exactOfferDiscount = $cartDiscounts.exactOfferDiscount || $cartDiscounts.offerDiscount;
@@ -170,9 +171,9 @@
                     order_id: order.id,
                     product_listing_id: item.id,
                     quantity: item.quantity,
-                    price: item.originalPrice || item.price,
+                    price: Number((item.originalPrice || item.price).toFixed(2)),
                     offer_id: item.productOffer?.id || null,
-                    subtotal: item.discountedPrice * item.quantity
+                    subtotal: Number((Number(item.discountedPrice || item.price) * Number(item.quantity)).toFixed(2))
                 };
 
                 try {
