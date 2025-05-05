@@ -7,90 +7,74 @@
   }
 </script>
 
-<section class="py-6 md:py-12 bg-gradient-to-b from-base-100 to-base-200">
-  <div class="mx-auto px-4 md:px-8 lg:px-16">
-    <div class="text-center mb-6 md:mb-8">
-      <span class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 bg-primary/10 px-3 py-1 rounded-full">
-        OUR CATEGORIES
-      </span>
-      <h2 class="text-xl md:text-3xl font-bold text-gray-900">Categories You'll Love</h2>
-      <div class="w-12 h-1 bg-primary mx-auto mt-2 rounded-full"></div>
+<section class="py-6 md:py-12 mx-auto px-4 md:px-8 lg:px-16 bg-gradient-to-b from-base-100 to-base-200">
+  <div class="relative mb-8">
+    <div class="flex items-center justify-between">
+      <div class="relative">
+      <h2 class="text-lg md:text-xl text-gray-700 font-medium mb-2">
+        Shop From 
+        <span class="relative inline-block align-middle">
+          <span class="text-primary z-10 relative">Top Categories</span>
+        </span>
+        <span class="absolute left-0 right-0 bottom-px h-0.5 bg-primary rounded-full "></span>
+      </h2>
+      </div>
+      <a href="/shop" class="text-primary text-sm hover:underline flex items-center gap-1">
+        View All
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </a>
     </div>
+    <div class="absolute bottom-0 left-0 w-full h-px bg-gray-200 z-0"></div>
+  </div>
+  
 
-    <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-6">
       {#each categories as category}
         <button
           on:click={() => handleCategoryClick(category.slug)}
-          class="group relative bg-white rounded-lg p-2 md:p-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
+          class="group flex flex-col items-center space-y-3"
         >
-          <div class="flex flex-col items-center">
-            <div class="w-full aspect-square mb-2 rounded-lg bg-base-100/50 p-2 flex items-center justify-center">
+          <div class="w-full aspect-square relative">
+            <div class="absolute inset-0 rounded-full bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300"></div>
+            <div class="relative w-full h-full p-4 flex items-center justify-center">
               <img 
                 src={category.image || "/placeholder.svg"} 
                 alt={category.name}
-                class="w-full h-full object-contain"
+                class="w-[85%] h-[85%] object-contain"
                 loading="lazy"
               />
             </div>
-            
-            <div class="text-center w-full">
-              <h3 class="font-medium text-[11px] md:text-sm text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                {category.name}
-              </h3>
-              <span class="hidden md:inline-block mt-1 text-[10px] text-gray-500">
-                Explore →
-              </span>
-            </div>
           </div>
-
-          {#if category.featured}
-            <span class="absolute top-1 right-1 bg-primary text-white text-[8px] px-1.5 py-0.5 rounded-full">
-              Featured
-            </span>
-          {/if}
+          
+          <span class="text-sm md:text-base text-center text-gray-700 group-hover:text-primary transition-colors duration-300 font-medium">
+            {category.name}
+          </span>
         </button>
       {/each}
     </div>
-  </div>
 </section>
 
 <style>
-  /* Base styles */
-  :global(html) {
-    scroll-behavior: smooth;
+  /* Keep only necessary styles */
+  /* Ensure slider navigation is visible */
+  :global(.slider-nav) {
+    @apply absolute top-1/2 -translate-y-1/2;
   }
-
-  /* Mobile-first responsive styles */
+  
+  :global(.slider-nav.prev) {
+    @apply -left-4;
+  }
+  
+  :global(.slider-nav.next) {
+    @apply -right-4;
+  }
   button {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
 
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .hover\:shadow-xl:hover {
-      box-shadow: none;
-    }
-    
-    .hover\:-translate-y-1:hover {
-      transform: none;
-    }
-    
-    button:active {
-      transform: scale(0.98);
-      background-color: rgba(0, 0, 0, 0.02);
-    }
-
-    /* Prevent text overflow */
-    .line-clamp-1 {
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-
-  /* Reduce motion if user prefers */
   @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
       animation-duration: 0.01ms !important;
@@ -100,58 +84,11 @@
     }
   }
 
-  /* Performance optimizations */
-  button {
-    will-change: transform;
-  }
-
-  /* Base styles */
-  :global(html) {
-    scroll-behavior: smooth;
-  }
-
-  /* Container max-width */
-  .container {
-    max-width: 1280px;
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .hover\:shadow-lg:hover {
-      box-shadow: none;
-    }
-    
-    .hover\:-translate-y-0\.5:hover {
-      transform: none;
-    }
-    
-    button:active {
-      transform: scale(0.98);
-      background-color: rgba(0, 0, 0, 0.02);
-    }
-  }
-
-  /* Reduce motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
-  /* Performance optimizations */
-  button {
-    will-change: transform;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  /* Image optimizations */
   img {
     backface-visibility: hidden;
     transform: translateZ(0);
     -webkit-font-smoothing: subpixel-antialiased;
   }
+
+  
 </style>

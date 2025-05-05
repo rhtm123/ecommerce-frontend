@@ -14,6 +14,7 @@
     onMount(async () => {
       try {
         const response = await myFetch(`${PUBLIC_API_URL}/ads/advertisements?page=1&page_size=5`);
+        console.log(response)
         const today = new Date();
         ads = response.results.filter(ad => {
           const startDate = new Date(ad.start_date);

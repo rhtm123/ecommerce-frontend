@@ -45,7 +45,7 @@
   }
 </script>
 <div 
-  class="relative min-h-[500px] bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden"
+  class="relative min-h-[350px] bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden"
   on:mouseenter={() => {isHovering = true; stopAutoplay();}}
   on:mouseleave={() => {isHovering = false; startAutoplay();}}
 >
@@ -56,11 +56,11 @@
     <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h4v4H0V0zm8 0h4v4H8V0zm8 0h4v4h-4V0zM0 8h4v4H0V8zm8 0h4v4H8V8zm8 0h4v4h-4V8zM0 16h4v4H0v-4zm8 0h4v4H8v-4zm8 0h4v4h-4v-4z\' fill=\'%23000000\' fill-opacity=\'0.03\'%3E%3C/path%3E%3C/svg%3E')] opacity-30"></div>
   </div>
 
-  <div class="mx-auto px-4 md:px-8 lg:px-16 py-8 md:py-12 relative z-10 mb-4">
+  <div class="mx-auto px-4 md:px-8 lg:px-16 py-4 md:py-6 relative z-10 mb-2">
     {#if slides.length > 0}
-      <div class="flex flex-col py-8 md:py-0 md:flex-row items-center justify-between gap-8 md:gap-12">
+      <div class="flex flex-col py-4 md:py-0 md:flex-row items-center justify-between gap-4 md:gap-8">
         <!-- Product Details -->
-        <div class="w-full md:w-1/2 space-y-4 md:space-y-6 text-center md:text-left px-4 md:px-0" 
+        <div class="w-full md:w-1/2 space-y-2 md:space-y-3 text-center md:text-left px-4 md:px-0" 
           in:fly={{ y: 20, duration: 800, delay: 200 }}
           out:fade={{ duration: 200 }}
         >
@@ -81,19 +81,19 @@
           </div>
 
           <!-- Title with responsive typography -->
-          <h1 class="text-2xl md:text-4xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+          <h1 class="text-xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
             {slides[currentSlide].name}
           </h1>
 
           <!-- Description with adjusted font size -->
-          <p class="text-base md:text-lg lg:text-xl leading-relaxed text-gray-600 max-w-xl mx-auto md:mx-0">
+          <p class="text-sm md:text-base lg:text-lg leading-relaxed text-gray-600 max-w-xl mx-auto md:mx-0 line-clamp-2">
             {slides[currentSlide].description}
           </p>
 
           <!-- Price & Rating with mobile optimization -->
           <div class="space-y-3 md:space-y-4">
             <div class="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
-              <span class="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary">
+              <span class="text-2xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary">
                 {formatPrice(slides[currentSlide].price)}
               </span>
               {#if slides[currentSlide].mrp > slides[currentSlide].price}
@@ -139,17 +139,17 @@
         </div>
 
         <!-- Enhanced Product Image Display -->
-        <div class="w-full md:w-1/2 relative aspect-square z-10">
+        <div class="w-full md:w-1/2 relative h-[300px] md:h-[400px] overflow-hidden rounded-lg">
           {#each slides as slide, i}
             <div 
-              class="absolute rounded-lg inset-0 transition-all duration-700"
+              class="absolute inset-0 transition-all duration-700 flex items-center justify-center"
               style="opacity: {currentSlide === i ? '1' : '0'};"
             >
               <img 
                 src={slide?.main_image || "/placeholder.svg"} 
                 alt={slide?.name}
                 loading="lazy"
-                class="w-full h-full rounded-lg  transition-transform hover:scale-105"
+                class="w-full h-full object-contain transition-transform hover:scale-105"
               />
             </div>
           {/each}
@@ -162,7 +162,7 @@
       </div>
 
       <!-- Enhanced Navigation -->
-      <div class="absolute mt-30 bottom-2  left-1/2 transform -translate-x-1/2 z-20">
+      <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20">
         <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg">
           <button 
             class="p-2 rounded-full hover:bg-gray-100 transition-all transform hover:scale-110"

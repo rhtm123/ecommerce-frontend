@@ -33,24 +33,50 @@
 
 </script>
 
-<section class="bg-base-100 mx-auto px-4 md:px-8 lg:px-16 py-12">
-  <div class="text-center mb-10">
-    <h3 class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 md:mb-3 bg-primary/10 px-3 py-1 rounded-full">Our Products</h3>
-    <h2 class="text-4xl font-bold text-primary">BEST SELLING</h2>
+<section class="bg-base-100 mx-auto px-4 md:px-8 lg:px-16 py-8 md:py-12">
+  <div class="relative mb-8">
+    <div class="flex items-center justify-between">
+      <div class="relative">
+      <h2 class="text-lg md:text-xl text-gray-700 font-medium mb-2">
+        Discover our 
+        <span class="relative inline-block align-middle">
+          <span class="text-primary z-10 relative">Best Selling</span>
+        </span>
+        <span class="absolute bottom-px rounded-full left-0 w-full h-0.5 bg-primary"></span>
+      </h2>
+      </div>
+      <a href="/shop" class="text-primary text-sm hover:underline flex items-center gap-1">
+        View All
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </a>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full h-px bg-gray-200 z-0"></div>
   </div>
 
-  <Slider items={products} let:items>
-    {#each products as product (product.id)}
-      <div class="item w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex-shrink-0">
-        <Product product={product} />
-      </div>
-    {/each}
-  </Slider>
+  <div class="relative">
+    <Slider items={products} let:items>
+      {#each products as product (product.id)}
+        <div class="item w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 flex-shrink-0 px-2">
+          <Product product={product} />
+        </div>
+      {/each}
+    </Slider>
+  </div>
 </section>
 
 <style>
-  .card:hover {
-    transform: translateY(-5px);
-    transition: transform 0.3s ease-in-out;
+  /* Ensure slider navigation is visible */
+  :global(.slider-nav) {
+    @apply absolute top-1/2 -translate-y-1/2;
+  }
+  
+  :global(.slider-nav.prev) {
+    @apply -left-4;
+  }
+  
+  :global(.slider-nav.next) {
+    @apply -right-4;
   }
 </style>

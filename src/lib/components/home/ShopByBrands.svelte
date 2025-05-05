@@ -1,128 +1,77 @@
 <script>
     import { goto } from '$app/navigation';
   
-    // import { PUBLIC_API_URL } from '$env/static/public';
-    // import { onMount } from 'svelte';
-  
-
-  
     export let brands;
-  
-    // console.log("HELLO FROM PRODUCT")
-  
-    // let loading = true;
-  
-    // import { myFetch } from '$lib/utils/myFetch';
-  
-  
-    // onMount(async ()=>{
-        
-    // try {
-    //   let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand`);
-    //   brands = data.results;
-    // } catch (e) {
-
-    // } finally {
-    //     loading = false;
-    // }
-    // })
-    
   
     function handleBrandClick(id) {
       goto(`/shop/?brand_ids=`+id);
     }
   </script>
   
-  <section class="py-8 md:py-12 bg-base-200">
-    <div class="mx-auto px-4 md:px-8 lg:px-16">
-      <div class="text-center mb-6 md:mb-8">
-        <p class="inline-block text-primary font-medium text-xs md:text-sm tracking-wider mb-2 bg-primary/10 px-3 py-1 rounded-full">
-          Shop By Brand
-        </p>
-        <h2 class="text-xl md:text-3xl font-bold">Your Favorite Brands</h2>
+  <section class="py-6 md:py-12 mx-auto px-4 md:px-8 lg:px-16 bg-gradient-to-b from-base-100 to-base-200">
+    <div class="relative mb-8">
+      <div class="flex items-center justify-between">
+        <div class="relative">
+        <h2 class="text-lg md:text-xl text-gray-700 font-medium mb-2">
+          Shop From 
+          <span class="text-primary">Top Brands</span>
+        </h2>
+        <span class="absolute bottom-px rounded-full left-0 w-full h-0.5 bg-primary"></span>
+        </div>
+        <a href="/shop" class="text-primary text-sm hover:underline flex items-center gap-1">
+          View All
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </a>
       </div>
-  
-      <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+      <div class="absolute bottom-0 left-0 w-full h-px bg-gray-200 z-0"></div>
+    </div>
+
+      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-6">
         {#each brands as brand}
           <button
             on:click={() => handleBrandClick(brand.id)}
-            class="group relative bg-white rounded-lg p-2 md:p-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            class="group flex flex-col items-center space-y-3"
           >
-            <div class="flex flex-col items-center">
-              <div class="w-full aspect-square mb-2 rounded-lg bg-base-100/50 p-2 flex items-center justify-center overflow-hidden">
+            <div class="w-full aspect-square relative">
+              <div class="absolute inset-0 rounded-full bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300"></div>
+              <div class="relative w-full h-full p-4 flex items-center justify-center">
                 <img 
-                  src={brand?.logo || `https://placehold.co/400x400?text=${encodeURIComponent(brand.name)}`} 
+                  src={brand?.logo || `/placeholder.svg`} 
                   alt={brand.name}
-                  class="w-full h-full object-contain rounded-lg"
+                  class="w-[85%] h-[85%] object-contain"
                   loading="lazy"
                 />
               </div>
-              
-              <div class="text-center w-full">
-                <h3 class="font-medium text-[11px] md:text-sm text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-2">
-                  {brand.name}
-                </h3>
-                <span class="hidden md:inline-block mt-1 text-[10px] text-gray-500">
-                  View Products →
-                </span>
-              </div>
             </div>
+            
+            <span class="text-sm md:text-base text-center text-gray-700 group-hover:text-primary transition-colors duration-300 font-medium">
+              {brand.name}
+            </span>
           </button>
         {/each}
       </div>
-    </div>
   </section>
   
-  
-    
-    <style>
-      :global(.btn) {
-        text-transform: uppercase;
-        font-size: 0.875rem;
+  <style>
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
-
-      /* Base styles */
-  :global(html) {
-    scroll-behavior: smooth;
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .hover\:shadow-lg:hover {
-      box-shadow: none;
     }
-    
-    .hover\:-translate-y-0\.5:hover {
-      transform: none;
-    }
-    
-    button:active {
-      transform: scale(0.98);
-      background-color: rgba(0, 0, 0, 0.02);
-    }
-  }
 
-  /* Reduce motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
+    img {
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-font-smoothing: subpixel-antialiased;
     }
-  }
-
-  /* Performance optimizations */
-  button {
-    will-change: transform;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  /* Image optimizations */
-  img {
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-font-smoothing: subpixel-antialiased;
-  }
-    </style>
+  </style>

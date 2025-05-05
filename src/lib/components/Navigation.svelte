@@ -59,7 +59,7 @@
 <nav 
   use:clickOutside
   on:outclick={()=> isMenuOpen=false}
-  class="bg-white shadow-md fixed top-0 w-full z-20">
+  class="bg-white border-b border-gray-200 fixed top-0 w-full z-20">
 
 
 

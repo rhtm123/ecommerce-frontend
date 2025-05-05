@@ -97,23 +97,23 @@
         return todayOrdersCount;
     }
 
-    async function checkStockAvailability() {
-        for (const item of cartItems) {
-            try {
-                // Fetch current product listing to check stock
-                const response = await myFetch(`${PUBLIC_API_URL}/product/product-listings/${item.id}/`);
-                if (response.stock < item.quantity) {
-                    addAlert(`Sorry, only ${response.stock} units available for ${item.name}`, "error");
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error checking stock:', error);
-                addAlert(`Error checking stock for ${item.name}`, "error");
-                return false;
-            }
-        }
-        return true;
-    }
+    // async function checkStockAvailability() {
+    //     for (const item of cartItems) {
+    //         try {
+    //             // Fetch current product listing to check stock
+    //             const response = await myFetch(`${PUBLIC_API_URL}/product/product-listings/${item.id}/`);
+    //             if (response.stock < item.quantity) {
+    //                 addAlert(`Sorry, only ${response.stock} units available for ${item.name}`, "error");
+    //                 return false;
+    //             }
+    //         } catch (error) {
+    //             console.error('Error checking stock:', error);
+    //             addAlert(`Error checking stock for ${item.name}`, "error");
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     async function handleSubmit() {
         orderPlacing = true;
@@ -143,10 +143,10 @@
         }
 
         // Check stock availability before proceeding
-        const stockAvailable = await checkStockAvailability();
-        if (!stockAvailable) {
-            return;
-        }
+        // const stockAvailable = await checkStockAvailability();
+        // if (!stockAvailable) {
+        //     return;
+        // }
 
         try {
             let url = `${PUBLIC_API_URL}/order/orders/`;
