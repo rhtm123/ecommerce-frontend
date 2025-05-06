@@ -116,7 +116,6 @@
     // }
 
     async function handleSubmit() {
-        orderPlacing = true;
 
         // First check if mobile is verified
         if (!authUser.mobile_verified) {
@@ -147,7 +146,7 @@
         // if (!stockAvailable) {
         //     return;
         // }
-
+        orderPlacing = true;
         try {
             let url = `${PUBLIC_API_URL}/order/orders/`;
             
