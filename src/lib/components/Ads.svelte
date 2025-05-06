@@ -9,7 +9,7 @@
     let currentPage = 0;
     let interval;
     let isHovering = false;
-    const adsPerPage = 2;
+    const adsPerPage = 3;
     
     onMount(async () => {
       try {
@@ -64,61 +64,37 @@
 
 {#if ads.length > 0}
   <div 
-    class="py-4  px-4 md:px-8 lg:px-16 bg-gradient-to-br from-base-200 via-base-100 to-base-200"
+    class="py-4 px-4 md:px-8 lg:px-16 bg-gradient-to-br from-base-200 via-base-100 to-base-200"
     on:mouseenter={() => {isHovering = true; stopAutoplay();}}
     on:mouseleave={() => {isHovering = false; startAutoplay();}}
   >
     <div class="max-w-6xl mx-auto mt-4">
-      <div class="overflow-hidden">
-        <div class="slider-container">
-          <div 
-            class="slider-track"
-            style="transform: translateX(-{currentPage * 100}%)"
-          >
-            {#each Array(totalPages) as _, pageIndex}
-              <div class="slider-page">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {#each ads.slice(pageIndex * adsPerPage, (pageIndex + 1) * adsPerPage) as ad}
-                    <div 
-                      class="ad-card"
-                      in:fade={{ duration: 300 }}
-                    >
-                      <a href={ad.link} class="group block">
-                        <div class="relative h-32 md:h-40 overflow-hidden rounded-lg">
-                          <img 
-                            src={ad.image} 
-                            alt={ad.title} 
-                            class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" 
-                          />
-                          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          <div class="absolute bottom-0 left-0 right-0 p-3">
-                            <div class="flex items-center gap-2 mb-1">
-                              <span class="badge badge-sm badge-primary">Ad</span>
-                            </div>
-                            <h3 class="text-sm md:text-base font-semibold text-white line-clamp-2 group-hover:text-primary-100 transition-colors duration-300">
-                              {ad.title}
-                            </h3>
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                  {/each}
+      <div class="overflow-x-auto">
+        <div class="flex gap-5 md:gap-6 snap-x snap-mandatory overflow-x-auto pb-2 justify-center">
+          {#each visibleAds as ad (ad.id)}
+            <a href={ad.link} class="ad-card-ui block snap-center" target="_blank" rel="noopener noreferrer">
+              <div class="relative w-[220px] md:w-[300px] aspect-[16/9] rounded-xl overflow-hidden shadow-md bg-gray-100 border border-gray-200 transition-shadow duration-200 cursor-pointer">
+                <img 
+                  src={ad.image} 
+                  alt={ad.title} 
+                  class="w-full h-full object-cover" 
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-3 flex flex-col gap-1">
+                  <span class="badge badge-sm badge-primary">Ad</span>
+                  <h3 class="text-base md:text-lg font-bold text-white drop-shadow line-clamp-2">
+                    {ad.title}
+                  </h3>
                 </div>
               </div>
-            {/each}
-          </div>
+            </a>
+          {/each}
         </div>
       </div>
 
       {#if totalPages > 1}
         <div class="flex justify-center items-center mt-4 gap-4">
-          <button 
-            class="btn btn-circle btn-sm btn-ghost"
-            on:click={prevPage}
-          >
-            ❮
-          </button>
-          
           <div class="flex items-center gap-2">
             {#each Array(totalPages) as _, i}
               <button 
@@ -127,13 +103,6 @@
               />
             {/each}
           </div>
-
-          <button 
-            class="btn btn-circle btn-sm btn-ghost"
-            on:click={nextPage}
-          >
-            ❯
-          </button>
         </div>
       {/if}
     </div>
@@ -141,49 +110,40 @@
 {/if}
 
 <style>
-  .slider-container {
-    width: 100%;
-    overflow: hidden;
+  .ad-card-ui {
+    min-width: 180px;
+    max-width: 300px;
+    aspect-ratio: 16/9;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+    background: #f3f4f6;
     position: relative;
+    border: none;
+    transition: box-shadow 0.2s;
   }
-
-  .slider-track {
-    display: flex;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 100%;
+  .ad-card-ui img {
+    border-radius: 0.75rem;
   }
-
-  .slider-page {
-    flex: 0 0 100%;
-    width: 100%;
+  .ad-card-ui h3 {
+    text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    font-size: 1.1rem;
   }
-
-  .ad-card {
-    height: 100%;
-    transition: all 0.3s ease;
+  .ad-card-ui .bg-primary {
+    background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%);
   }
-
-  .ad-card:hover {
-    transform: translateY(-2px);
+  .ad-card-ui .bg-primary-100 {
+    color: #6366f1;
   }
-
-  /* Improve button interactions */
-  button {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+  .ad-card-ui:active, .ad-card-ui:focus {
+    box-shadow: 0 4px 16px 0 rgba(99,102,241,0.10);
   }
-
-  /* Optimize images */
-  img {
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-font-smoothing: subpixel-antialiased;
-  }
-
-  /* Reduce motion if user prefers */
-  @media (prefers-reduced-motion: reduce) {
-    .slider-track {
-      transition: none;
+  @media (max-width: 768px) {
+    .ad-card-ui {
+      min-width: 140px;
+      max-width: 220px;
+    }
+    .ad-card-ui h3 {
+      font-size: 1rem;
     }
   }
 </style>
