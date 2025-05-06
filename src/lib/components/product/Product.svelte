@@ -1,10 +1,29 @@
 <script>
-  import { addToCart } from '../../stores/cart';
+  import { addToCart, cart } from '../../stores/cart';
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
+  import { get } from 'svelte/store';
+  import { onMount } from 'svelte';
   
   export let product;
   $: isWishlisted = $wishlistIds.has(product.id);
+
+  // Cart quantity logic
+  let quantity = 1;
+  let inCart = false;
+  let cartQuantity = 0;
+  let showQtyControls = false;
+
+  $: {
+    const cartItems = get(cart);
+    const found = cartItems.find(item => item.id === product.id);
+    inCart = !!found;
+    cartQuantity = found ? found.quantity : 0;
+    if (inCart) {
+      quantity = cartQuantity;
+      showQtyControls = true;
+    }
+  }
 
   function handleWishlistClick(event) {
     event.stopPropagation();
@@ -18,6 +37,37 @@
 
   $: discount = calculateDiscount(product.mrp, product.price);
   $: savingsAmount = product.mrp - product.price;
+
+  function handleAddToCart() {
+    addToCart(product);
+    quantity = 1;
+    showQtyControls = true;
+    addAlert('Product added to cart!', 'success');
+  }
+
+  function handleIncrement() {
+    if (quantity < 10) quantity += 1;
+  }
+  function handleDecrement() {
+    if (quantity > 1) quantity -= 1;
+  }
+  function handleCartIncrement() {
+    if (cartQuantity < 10) {
+      cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
+      addAlert('Cart updated!', 'success');
+    }
+  }
+  function handleCartDecrement() {
+    if (cartQuantity > 1) {
+      cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item));
+      addAlert('Cart updated!', 'success');
+    }
+  }
+  function handleUpdateCart() {
+    // Set cart quantity to selected value
+    cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity } : item));
+    addAlert('Cart updated!', 'success');
+  }
 </script>
 
 <div class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -87,6 +137,28 @@
         </div>
       {/if}
     </a>
+
+    <!-- Add to Cart Controls -->
+    <div class="mt-4 flex flex-col items-center">
+      {#if showQtyControls}
+        <div class="flex flex-col w-full items-center gap-1">
+          <div class="flex items-center justify-center w-full gap-1">
+            <button class="qty-btn-sm" on:click={handleCartDecrement} disabled={cartQuantity <= 1} aria-label="Decrease quantity">-</button>
+            <span class="qty-value-sm">{cartQuantity > 0 ? cartQuantity : 1}</span>
+            <button class="qty-btn-sm" on:click={handleCartIncrement} disabled={cartQuantity >= 10} aria-label="Increase quantity">+</button>
+          </div>
+          <button class="added-btn-sm" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            Added
+          </button>
+        </div>
+      {:else}
+        <button class="add-to-cart-btn-sm w-full" on:click={handleAddToCart}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-1.3L17 13M7 13V6h10v7" /></svg>
+          Add to Cart
+        </button>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -95,5 +167,129 @@
   img {
     backface-visibility: hidden;
     transform: translateZ(0);
+  }
+  .add-to-cart-btn {
+    background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(99,102,241,0.08);
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .add-to-cart-btn:hover {
+    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+    box-shadow: 0 4px 16px 0 rgba(99,102,241,0.12);
+  }
+  .qty-btn {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .qty-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .qty-value {
+    min-width: 2.5rem;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0;
+    border: 1px solid #e5e7eb;
+  }
+  .added-btn {
+    background: #22c55e;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .added-btn:disabled {
+    opacity: 0.85;
+  }
+  .add-to-cart-btn-sm {
+    background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px 0 rgba(99,102,241,0.08);
+    margin-top: 0.25rem;
+    margin-bottom: 0.15rem;
+  }
+  .add-to-cart-btn-sm:hover {
+    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+    box-shadow: 0 2px 8px 0 rgba(99,102,241,0.12);
+  }
+  .qty-btn-sm {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.35rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    padding: 0;
+  }
+  .qty-btn-sm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .qty-value-sm {
+    min-width: 1.9rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #f9fafb;
+    border-radius: 0.35rem;
+    padding: 0.25rem 0;
+    border: 1px solid #e5e7eb;
+    margin: 0 0.1rem;
+  }
+  .added-btn-sm {
+    background: #22c55e;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.35rem 0;
+    font-size: 0.95rem;
+    width: 100%;
+    margin-top: 0.25rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .added-btn-sm:disabled {
+    opacity: 0.85;
   }
 </style>
