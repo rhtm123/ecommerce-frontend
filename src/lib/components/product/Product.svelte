@@ -3,6 +3,7 @@
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
   import { onMount } from 'svelte';
+  import Icon from '@iconify/svelte';
   
   export let product;
   $: isWishlisted = $wishlistIds.has(product.id);
@@ -47,6 +48,9 @@
     if (cartQuantity > 1) {
       cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item));
     }
+  }
+  function handleRemove() {
+    cart.update(items => items.filter(item => item.id !== product.id));
   }
 </script>
 
@@ -123,7 +127,13 @@
       {#if showQtyControls}
         <div class="flex flex-col w-full items-center gap-1">
           <div class="flex items-center justify-center w-full gap-1">
-            <button class="qty-btn-sm" on:click={handleDecrement} disabled={cartQuantity <= 1} aria-label="Decrease quantity">-</button>
+            {#if cartQuantity > 1}
+              <button class="qty-btn-sm" on:click={handleDecrement} aria-label="Decrease quantity">-</button>
+            {:else}
+              <button class="qty-btn-sm bin-btn flex items-center justify-center" on:click={handleRemove} aria-label="Remove from cart">
+                <Icon icon="mdi:delete-outline" class="text-red-600 hover:text-white" width="18" height="18" />
+              </button>
+            {/if}
             <span class="qty-value-sm">{cartQuantity > 0 ? cartQuantity : 1}</span>
             <button class="qty-btn-sm" on:click={handleIncrement} disabled={cartQuantity >= 10} aria-label="Increase quantity">+</button>
           </div>
@@ -232,11 +242,14 @@
     font-weight: 700;
     border: none;
     border-radius: 0.35rem;
-    width: 1.9rem;
-    height: 1.9rem;
+    width: 2.2rem;
+    height: 2.2rem;
     transition: background 0.2s;
     cursor: pointer;
     padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .qty-btn-sm:disabled {
     opacity: 0.5;
@@ -271,5 +284,19 @@
   }
   .added-btn-sm:disabled {
     opacity: 0.85;
+  }
+  .bin-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bin-btn:hover {
+    background: #dc2626;
+    color: #fff;
   }
 </style>
