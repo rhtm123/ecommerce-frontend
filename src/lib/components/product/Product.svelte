@@ -2,7 +2,6 @@
   import { addToCart, cart } from '../../stores/cart';
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
-  import { get } from 'svelte/store';
   import { onMount } from 'svelte';
   
   export let product;
@@ -10,20 +9,14 @@
 
   // Cart quantity logic
   let quantity = 1;
-  let inCart = false;
-  let cartQuantity = 0;
   let showQtyControls = false;
 
-  $: {
-    const cartItems = get(cart);
-    const found = cartItems.find(item => item.id === product.id);
-    inCart = !!found;
-    cartQuantity = found ? found.quantity : 0;
-    if (inCart) {
-      quantity = cartQuantity;
-      showQtyControls = true;
-    }
-  }
+  // Use $cart for reactivity
+  $: cartItem = $cart.find(item => item.id === product.id);
+  $: inCart = !!cartItem;
+  $: cartQuantity = cartItem ? cartItem.quantity : 0;
+  $: showQtyControls = inCart;
+  $: if (inCart && cartQuantity !== quantity) quantity = cartQuantity;
 
   function handleWishlistClick(event) {
     event.stopPropagation();
@@ -42,31 +35,18 @@
     addToCart(product);
     quantity = 1;
     showQtyControls = true;
-    addAlert('Product added to cart!', 'success');
+    // addAlert('Product added to cart!', 'success');
   }
 
   function handleIncrement() {
-    if (quantity < 10) quantity += 1;
-  }
-  function handleDecrement() {
-    if (quantity > 1) quantity -= 1;
-  }
-  function handleCartIncrement() {
     if (cartQuantity < 10) {
       cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
-      addAlert('Cart updated!', 'success');
     }
   }
-  function handleCartDecrement() {
+  function handleDecrement() {
     if (cartQuantity > 1) {
       cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item));
-      addAlert('Cart updated!', 'success');
     }
-  }
-  function handleUpdateCart() {
-    // Set cart quantity to selected value
-    cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity } : item));
-    addAlert('Cart updated!', 'success');
   }
 </script>
 
@@ -143,9 +123,9 @@
       {#if showQtyControls}
         <div class="flex flex-col w-full items-center gap-1">
           <div class="flex items-center justify-center w-full gap-1">
-            <button class="qty-btn-sm" on:click={handleCartDecrement} disabled={cartQuantity <= 1} aria-label="Decrease quantity">-</button>
+            <button class="qty-btn-sm" on:click={handleDecrement} disabled={cartQuantity <= 1} aria-label="Decrease quantity">-</button>
             <span class="qty-value-sm">{cartQuantity > 0 ? cartQuantity : 1}</span>
-            <button class="qty-btn-sm" on:click={handleCartIncrement} disabled={cartQuantity >= 10} aria-label="Increase quantity">+</button>
+            <button class="qty-btn-sm" on:click={handleIncrement} disabled={cartQuantity >= 10} aria-label="Increase quantity">+</button>
           </div>
           <button class="added-btn-sm" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
