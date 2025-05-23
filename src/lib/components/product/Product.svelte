@@ -90,7 +90,7 @@
   <!-- Product Info -->
   <div class="p-4">
     <a href="/product/{product.slug}" class="block space-y-2">
-      <h3 class="font-medium text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+      <h3 class="font-medium text-gray-900 text-lg leading-snug line-clamp-2 group-hover:text-primary transition-colors">
         {product.name}
       </h3>
       

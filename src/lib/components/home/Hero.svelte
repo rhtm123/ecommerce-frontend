@@ -45,7 +45,7 @@
   }
 </script>
 <div 
-  class="relative min-h-[350px] bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden"
+  class="relative min-h-[350px] bg-gradient-to-br md:py-8 py-4 from-blue-50 via-white to-purple-50 overflow-hidden"
   on:mouseenter={() => {isHovering = true; stopAutoplay();}}
   on:mouseleave={() => {isHovering = false; startAutoplay();}}
 >
@@ -169,7 +169,7 @@
                 src={slide?.main_image || "/placeholder.svg"} 
                 alt={slide?.name}
                 loading="lazy"
-                class="max-w-full max-h-full object-contain transition-transform hover:scale-105 bg-transparent shadow-none"
+                class="max-w-full max-h-full object-contain rounded-lg transition-transform hover:scale-105 bg-transparent shadow-none"
                 style="background: none; box-shadow: none;"
               />
             </div>

@@ -65,7 +65,7 @@
   <div class="relative">
     <Slider items={products} let:items>
       {#each products as product (product.id)}
-        <div class="item w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 flex-shrink-0 px-2">
+        <div class="item w-3/4 sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 flex-shrink-0 px-2">
           <Product product={product} />
         </div>
       {/each}
