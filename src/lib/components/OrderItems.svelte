@@ -56,18 +56,22 @@
     <!-- Order Items -->
     <div class="divide-y divide-gray-200">
         {#each orderItems as item}
-            <div class="p-4 hover:bg-gray-100  transition-colors">
+            <div class="p-4 hover:bg-gray-100 transition-colors">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4">
-                        <!-- Product Image -->
-                        <img 
-                            src={item.product_main_image || `https://placehold.co/200x200?text=Naigaon Market`} 
+                        <a href={`/product/${item.product_slug}`}>
+                            <!-- Product Image -->
+                            <img 
+                                src={item.product_main_image || `https://placehold.co/200x200?text=Naigaon Market`} 
                             alt={item.product_listing_name} 
-                            class="w-20 h-20 object-cover rounded-md border border-gray-200 shadow-sm"
-                        />
+                                class="w-20 h-20 object-cover rounded-md border border-gray-200 shadow-sm"
+                            />
+                        </a>
                         <div class="flex-1">
                             <div class="flex items-center gap-2">
-                                <h3 class="text-lg font-semibold text-gray-800">{item.product_listing_name}</h3>
+                                <a href={`/product/${item.product_slug}`}>
+                                    <h3 class="text-lg font-semibold text-gray-800">{item.product_listing_name}</h3>
+                                </a>
                                 <div class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm">
                                     <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
                                     <span class="hidden md:inline">{statusConfig[item.status].label}</span>
@@ -75,8 +79,23 @@
                             </div>
                             <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
                                 <p>Quantity: <span class="font-medium">{item.quantity}</span></p>
-                                <p class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</p>
+                                <div class="flex items-center gap-2">
+                                    {#if item.discount_amount > 0}
+                                        <p class="line-through text-gray-400">₹{item.price.toFixed(2)}</p>
+                                        <p class="font-semibold text-gray-900">₹{((item.price * item.quantity - item.discount_amount) / item.quantity).toFixed(2)}</p>
+                                        <span class="text-green-600 text-xs">
+                                            ({Math.round((item.discount_amount / (item.price * item.quantity)) * 100)}% off)
+                                        </span>
+                                    {:else}
+                                        <p class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</p>
+                                    {/if}
+                                </div>
                             </div>
+                            {#if item.discount_amount > 0}
+                                <div class="mt-1 text-sm text-green-600">
+                                    Saved: ₹{item.discount_amount.toFixed(2)}
+                                </div>
+                            {/if}
                         </div>
                     </div>
                     <OrderItemReview order_item_id={item.id} />

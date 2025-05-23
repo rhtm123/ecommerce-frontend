@@ -1,133 +1,302 @@
 <script>
-  export let product;
-
-  import { goto } from '$app/navigation';
-  import { addToCart } from '../../stores/cart';
+  import { addToCart, cart } from '../../stores/cart';
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
-  import Slider from '../Slider.svelte';
-
+  import { onMount } from 'svelte';
+  import Icon from '@iconify/svelte';
+  
+  export let product;
   $: isWishlisted = $wishlistIds.has(product.id);
 
-  function handleProductClick() {
-    goto(`/product/${product.slug}`);
-  }
+  // Cart quantity logic
+  let quantity = 1;
+  let showQtyControls = false;
 
-  function AddToCardAlert(product) {
-    addToCart(product);
-  }
+  // Use $cart for reactivity
+  $: cartItem = $cart.find(item => item.id === product.id);
+  $: inCart = !!cartItem;
+  $: cartQuantity = cartItem ? cartItem.quantity : 0;
+  $: showQtyControls = inCart;
+  $: if (inCart && cartQuantity !== quantity) quantity = cartQuantity;
 
   function handleWishlistClick(event) {
     event.stopPropagation();
     toggleWishlistItem(product);
-    const message = !isWishlisted 
-      ? 'Added to wishlist' 
-      : 'Removed from wishlist';
-    addAlert(message, 'success');
   }
-
-
-  function formatPrice(price) {
-  return new Intl.NumberFormat('en-IN', { 
-    style: 'currency', 
-    currency: 'INR',
-    maximumFractionDigits: 0 
-  }).format(price);
-}
-
 
   function calculateDiscount(mrp, price) {
     if (!mrp || !price || mrp <= price) return null;
     return Math.round(((mrp - price) / mrp) * 100);
   }
+
+  $: discount = calculateDiscount(product.mrp, product.price);
+  $: savingsAmount = product.mrp - product.price;
+
+  function handleAddToCart() {
+    addToCart(product);
+    quantity = 1;
+    showQtyControls = true;
+    // addAlert('Product added to cart!', 'success');
+  }
+
+  function handleIncrement() {
+    if (cartQuantity < 10) {
+      cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
+    }
+  }
+  function handleDecrement() {
+    if (cartQuantity > 1) {
+      cart.update(items => items.map(item => item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item));
+    }
+  }
+  function handleRemove() {
+    cart.update(items => items.filter(item => item.id !== product.id));
+  }
 </script>
 
-<div 
-  class="bg-white p-4 hover:shadow-xl border rounded-lg relative flex flex-col h-full"
->
-  <!-- Discount Badge -->
-  <!-- {#if calculateDiscount(product.mrp, product.price)}
-    <span class="absolute top-2 left-0 bg-green-600 text-white text-xs font-bold px-2 py-2 shadow-md z-10">
-      {calculateDiscount(product.mrp, product.price)}% 
-      OFF!
-    </span>
-  {/if} -->
+<div class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+  <!-- Product Image Container with Overlay Elements -->
+  <div class="relative aspect-square">
+    <!-- Offer Badge - Top Right -->
+    {#if discount}
+      <div class="absolute top-3 right-3 z-20 bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">
+        {discount}% OFF
+      </div>
+    {/if}
 
-  <!-- Wishlist button -->
-  <button
-    class="absolute top-2 right-2 z-10 p-1 rounded-full bg-base-200 hover:bg-white transition-colors"
-    on:click={handleWishlistClick}
-    aria-label="Toggle wishlist"
-  >
-    {#if isWishlisted}
-      <svg class="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-      </svg>
-    {:else}
-      <svg class="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wishlist Button - Top Left -->
+    <button
+      class="absolute top-3 left-3 z-20 p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-all duration-300 {isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}"
+      on:click={handleWishlistClick}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
-    {/if}
-  </button>
+    </button>
 
-  <!-- Status Labels -->
-  <!-- {#if product.status}
-    <span class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-      {product.status}
-    </span>
-  {/if} -->
-
-  <div class="relative mb-2">
-    <a href={`/product/${product.slug}`}>
-    <img 
-      src={product.main_image || `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`} 
-      alt={product.name}
-      class="w-full rounded-lg transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-105"
-      loading="lazy"
-      on:error={(e) => e.target.src = `https://placehold.co/400x400?text=${encodeURIComponent(product.name)}`}
-    />
-
-  </a>
+    <!-- Product Image -->
+    <a href="/product/{product.slug}" class="block w-full h-full">
+      <div class="w-full h-full bg-gray-50">
+        <img 
+          src={product.main_image || "/placeholder.svg"} 
+          alt={product.name}
+          class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </div>
+    </a>
   </div>
 
-  <div class="flex flex-col flex-grow text-center">
+  <!-- Product Info -->
+  <div class="p-4">
+    <a href="/product/{product.slug}" class="block space-y-2">
+      <h3 class="font-medium text-gray-900 text-lg leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+        {product.name}
+      </h3>
+      
+      <!-- Reviews Section -->
+      <div class="flex items-center gap-2">
+        {#if product.rating}
+          <div class="flex items-center bg-green-500 text-white text-xs px-1.5 py-0.5 rounded">
+            <span class="font-medium">{product.rating}</span>
+            <span class="ml-0.5">★</span>
+          </div>
+        {/if}
+        {#if product.review_count}
+          <span class="text-xs text-gray-500">
+            [{product.review_count} {product.review_count === 1 ? 'Review' : 'Reviews'}]
+          </span>
+        {/if}
+      </div>
 
-    <a href={`/product/${product.slug}`}>
+      <!-- Price Section -->
+      <div class="flex items-baseline gap-2">
+        <span class="text-xl font-bold text-gray-900">₹{product.price.toLocaleString('en-IN')}</span>
+        <span class="text-gray-500 text-sm line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
+      </div>
 
-    <h3 class="font-bold text-md mb-2">{product.name}</h3>
-
+      {#if savingsAmount > 0}
+        <div class="inline-flex items-center text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded">
+          Save ₹{savingsAmount.toLocaleString('en-IN')}
+        </div>
+      {/if}
     </a>
 
-    <div class="flex items-center justify-center mb-0">
-      <span class="bg-green-600 text-white px-2 py-0 text-sm font-semibold rounded">
-        {product.rating} ★
-      </span>
-      <span class="text-gray-500 text-sm ml-2">[{product.review_count} Reviews]</span>
+    <!-- Add to Cart Controls -->
+    <div class="mt-4 flex flex-col items-center">
+      {#if showQtyControls}
+        <div class="flex flex-col w-full items-center gap-1">
+          <div class="flex items-center justify-center w-full gap-1">
+            {#if cartQuantity > 1}
+              <button class="qty-btn-sm" on:click={handleDecrement} aria-label="Decrease quantity">-</button>
+            {:else}
+              <button class="qty-btn-sm bin-btn flex items-center justify-center" on:click={handleRemove} aria-label="Remove from cart">
+                <Icon icon="mdi:delete-outline" class="text-red-600 hover:text-white" width="18" height="18" />
+              </button>
+            {/if}
+            <span class="qty-value-sm">{cartQuantity > 0 ? cartQuantity : 1}</span>
+            <button class="qty-btn-sm" on:click={handleIncrement} disabled={cartQuantity >= 10} aria-label="Increase quantity">+</button>
+          </div>
+          <button class="added-btn-sm" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            Added
+          </button>
+        </div>
+      {:else}
+        <button class="add-to-cart-btn-sm w-full" on:click={handleAddToCart}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-1.3L17 13M7 13V6h10v7" /></svg>
+          Add to Cart
+        </button>
+      {/if}
     </div>
-
-    <p class="text-primary my-1">
-
-      <span class="mr-1 font-bold ">
-        {formatPrice(product.price)}
-        </span>
-      <span class="text-gray-500 line-through text-sm mr-1">{formatPrice(product.mrp)}</span>
-      
-
-      <span class="text-green-600 text-sm font-bold">
-        {calculateDiscount(product.mrp, product.price)}% 
-        OFF!
-      </span>
-    </p>
-
-
-    <!-- Push button to bottom -->
-    <button 
-      class="btn btn-primary btn-sm w-full mt-auto"
-      on:click|stopPropagation={() => AddToCardAlert(product)}
-      disabled={!product.stock || product.stock <= 0}
-      aria-label="Add to cart"
-    >
-      {!product.stock || product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
-    </button>
   </div>
 </div>
+
+<style>
+  /* Optimize image loading */
+  img {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+  .add-to-cart-btn {
+    background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(99,102,241,0.08);
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .add-to-cart-btn:hover {
+    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+    box-shadow: 0 4px 16px 0 rgba(99,102,241,0.12);
+  }
+  .qty-btn {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .qty-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .qty-value {
+    min-width: 2.5rem;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0;
+    border: 1px solid #e5e7eb;
+  }
+  .added-btn {
+    background: #22c55e;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .added-btn:disabled {
+    opacity: 0.85;
+  }
+  .add-to-cart-btn-sm {
+    background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px 0 rgba(99,102,241,0.08);
+    margin-top: 0.25rem;
+    margin-bottom: 0.15rem;
+  }
+  .add-to-cart-btn-sm:hover {
+    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+    box-shadow: 0 2px 8px 0 rgba(99,102,241,0.12);
+  }
+  .qty-btn-sm {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.35rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qty-btn-sm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .qty-value-sm {
+    min-width: 1.9rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #f9fafb;
+    border-radius: 0.35rem;
+    padding: 0.25rem 0;
+    border: 1px solid #e5e7eb;
+    margin: 0 0.1rem;
+  }
+  .added-btn-sm {
+    background: #22c55e;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.35rem 0;
+    font-size: 0.95rem;
+    width: 100%;
+    margin-top: 0.25rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .added-btn-sm:disabled {
+    opacity: 0.85;
+  }
+  .bin-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bin-btn:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+</style>

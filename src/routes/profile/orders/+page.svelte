@@ -101,8 +101,20 @@
           <!-- Order Footer -->
           <div class="p-3 flex justify-between items-center border-t bg-gray-50">
             <InvoiceGenerator orderId={order.id} />
-            <div class="text-base font-medium">
-              Total: ₹{order.total_amount.toFixed(2)}
+            <div class="flex flex-col items-end gap-1">
+              <div class="text-base font-semibold">Total: ₹{order.total_amount.toFixed(2)}</div>
+              {#if order.total_discount > 0}
+                <div class="text-sm text-green-600">
+                  {#if order.discount_amount_offer > 0}
+                    <div>Offer Discount: -₹{order.discount_amount_offer.toFixed(2)}</div>
+                  {/if}
+                  {#if order.discount_amount_coupon > 0}
+                    <div>Coupon Discount: -₹{order.discount_amount_coupon.toFixed(2)}</div>
+                  {/if}
+                  <div>Total Discount: -₹{order.total_discount.toFixed(2)}</div>
+                </div>
+                <div class="text-base font-medium">Subtotal: ₹{(order.total_amount - order.total_discount).toFixed(2)}</div>
+              {/if}
             </div>
           </div>
         </div>

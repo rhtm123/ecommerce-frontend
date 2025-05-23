@@ -11,7 +11,8 @@
   import Slider from '$lib/components/Slider.svelte';
   import { user } from '$lib/stores/auth.js';
   import { goto } from '$app/navigation';
-    import Product from '$lib/components/product/Product.svelte';
+  import Product from '$lib/components/product/Product.svelte';
+  import ProductOffers from '$lib/components/product/ProductOffers.svelte';
 
   export let data;
   const { product_listing, category } = data;
@@ -245,7 +246,7 @@
     try {
       // First get user's orders
       const ordersResponse = await myFetch(
-        `${PUBLIC_API_URL}/order/orders/?user_id=${userId}`,
+        `${PUBLIC_API_URL}/order/orders?user_id=${userId}`,
         'GET',
         {},
         currentUser?.access_token
@@ -468,21 +469,21 @@
       <!-- Price Section -->
       <div class="flex flex-col items-center md:items-start gap-2">
         <!-- Update Price section for mobile -->
-  <div class="mobile-price-stack md:flex md:items-center gap-2">
-    <p class="text-2xl md:text-3xl font-bold text-primary">
-      {formatPrice(product_listing.price)}
-    </p>
-    <div class="flex items-center gap-2">
-      <span class="text-gray-500 line-through text-lg md:text-xl">
-        {formatPrice(product_listing.mrp)}
-      </span>
-      {#if calculateDiscount(product_listing.mrp, product_listing.price)}
-        <span class="text-green-600 text-lg md:text-xl font-semibold">
-          Save {calculateDiscount(product_listing.mrp, product_listing.price)}%!
-        </span>
-      {/if}
-    </div>
-  </div>
+        <div class="mobile-price-stack md:flex md:items-center gap-2">
+          <p class="text-2xl md:text-3xl font-bold text-primary">
+            {formatPrice(product_listing.price)}
+          </p>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500 line-through text-lg md:text-xl">
+              {formatPrice(product_listing.mrp)}
+            </span>
+            {#if calculateDiscount(product_listing.mrp, product_listing.price)}
+              <span class="text-green-600 text-lg md:text-xl font-semibold">
+                Save {calculateDiscount(product_listing.mrp, product_listing.price)}%!
+              </span>
+            {/if}
+          </div>
+        </div>
         
         <!-- Rating Section -->
         <div class="flex items-center gap-2">
@@ -501,35 +502,10 @@
         </div>
       </div>
 
+      <!-- Product Offers Section - Moved here -->
+      <ProductOffers {product_listing} />
+
       <!-- Product Guarantees -->
-      <!-- <div class="flex items-center justify-between border-t border-b py-4 my-4">
-        <div class="flex flex-col items-center gap-2">
-          <Icon icon="mdi:refresh-circle" class="w-8 h-8 text-primary" />
-          <span class="text-xs text-center">10 days Return<br/>& Exchange</span>
-        </div>
-        
-        <div class="flex flex-col items-center gap-2">
-          <Icon icon="mdi:cash-multiple" class="w-8 h-8 text-primary" />
-          <span class="text-xs text-center">Pay on<br/>Delivery</span>
-        </div>
-        
-        <div class="flex flex-col items-center gap-2">
-          <Icon icon="mdi:truck-delivery" class="w-8 h-8 text-primary" />
-          <span class="text-xs text-center">Free<br/>Delivery</span>
-        </div>
-        
-        <div class="flex flex-col items-center gap-2">
-          <Icon icon="mdi:shield-check" class="w-8 h-8 text-primary" />
-          <span class="text-xs text-center">Top<br/>Brand</span>
-        </div>
-        
-        <div class="flex flex-col items-center gap-2">
-          <Icon icon="mdi:package-variant" class="w-8 h-8 text-primary" />
-          <span class="text-xs text-center">Naigaon Market<br/>Delivered</span>
-        </div>
-      </div> -->
-
-
       <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
         <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
           <div class="flex flex-col items-center gap-2 flex-shrink-0">
@@ -1004,6 +980,9 @@
       </div>
     {/if}
   </div>
+
+  <!-- Add this after the product description section
+  <ProductOffers {product_listing} /> -->
 </div>
 
 

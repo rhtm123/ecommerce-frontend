@@ -13,6 +13,11 @@
 
     import { addAlert } from '$lib/stores/alert';
 
+    import CouponSection from '$lib/components/checkout/CouponSection.svelte';
+    import { cartDiscounts, appliedCoupon, appliedOffer } from '$lib/stores/offers';
+
+    import AvailableOffers from '$lib/components/checkout/AvailableOffers.svelte';
+
     let loading = false;
     let selectedAddress;
 
@@ -62,8 +67,19 @@
 
     $: authUser = $user;
 
+    // Update subtotal calculation to use discounted prices
+    $: subtotal = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    $: totalDiscount = $cartDiscounts.totalDiscount;
+    $: exactTotal = subtotal - totalDiscount;
+    $: finalTotal = Math.round(exactTotal);
+    $: roundingAdjustment = finalTotal - exactTotal;
+    console.log("finalTotal",finalTotal);
   
-    $: totalPrice = $cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Add exact discount calculations
+    $: exactOfferDiscount = $cartDiscounts.exactOfferDiscount || $cartDiscounts.offerDiscount;
+    $: exactCouponDiscount = $cartDiscounts.exactCouponDiscount || $cartDiscounts.couponDiscount;
+    $: offerRoundingAdjustment = $cartDiscounts.offerDiscount - exactOfferDiscount;
+    $: couponRoundingAdjustment = $cartDiscounts.couponDiscount - exactCouponDiscount;
   
     let termsAccepted = false;
 
@@ -81,7 +97,26 @@
         return todayOrdersCount;
     }
 
+    // async function checkStockAvailability() {
+    //     for (const item of cartItems) {
+    //         try {
+    //             // Fetch current product listing to check stock
+    //             const response = await myFetch(`${PUBLIC_API_URL}/product/product-listings/${item.id}/`);
+    //             if (response.stock < item.quantity) {
+    //                 addAlert(`Sorry, only ${response.stock} units available for ${item.name}`, "error");
+    //                 return false;
+    //             }
+    //         } catch (error) {
+    //             console.error('Error checking stock:', error);
+    //             addAlert(`Error checking stock for ${item.name}`, "error");
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
+
     async function handleSubmit() {
+
         // First check if mobile is verified
         if (!authUser.mobile_verified) {
             // Save current path for redirect after verification
@@ -102,70 +137,84 @@
         }
 
         if (!selectedAddress) {
-            addAlert("Address is required to place the order", "error");
+            addAlert("Please select a delivery address", "error");
             return;
         }
 
+        // Check stock availability before proceeding
+        // const stockAvailable = await checkStockAvailability();
+        // if (!stockAvailable) {
+        //     return;
+        // }
+        orderPlacing = true;
         try {
-            orderPlacing = true;
             let url = `${PUBLIC_API_URL}/order/orders/`;
-            // console.log(selectedAddress);
+            
+            // Create order with discount information
             let order = await myFetch(url, "POST", {
                 user_id: authUser?.user_id,
                 estore_id: PUBLIC_ESTORE_ID,
                 shipping_address_id: selectedAddress,
-                total_amount: totalPrice,
-            }, authUser.access_token)
-
-            // console.log(order);
-            orderData = order;
-
-            let urlp = `${PUBLIC_API_URL}/payment/payments/`;
-            // console.log(urlp)
-            
-
-            
-
-            // console.log(payment);
-
-            let url2 = `${PUBLIC_API_URL}/order/order-items/`;
-
-            // console.log(cartItems);
-
-            for (let i = 0; i < cartItems.length; i++) {
-                myFetch(url2, "POST", {
-                    order_id: order.id,
-                    product_listing_id: cartItems[i].id,
-                    quantity:cartItems[i].quantity,
-                    price: cartItems[i].price,
-                    subtotal: cartItems[i].price
-                }, authUser.access_token)
-            }
-
-
-            let payment = await myFetch(urlp, "POST", {
-              "order_id": order.id,
-              "amount": totalPrice,
-              "estore_id": PUBLIC_ESTORE_ID,
-              payment_method: selectedPaymentMethod,
+                offer_id: $appliedOffer?.id || null,
+                coupon_id: $appliedCoupon?.id || null,
+                total_amount: finalTotal,
             }, authUser.access_token);
 
-            if (payment.payment_method=="pg") {
-              window.location = payment.payment_url 
-            } else {
-              addAlert("Order placed successfully ", "success")
-              goto("/checkout/"+payment.transaction_id);
+            orderData = order;
+
+            // Create order items with offer information
+            let url2 = `${PUBLIC_API_URL}/order/order-items/`;
+            for (let i = 0; i < cartItems.length; i++) {
+                const item = cartItems[i];
+                const itemData = {
+                    order_id: order.id,
+                    product_listing_id: item.id,
+                    quantity: item.quantity,
+                    price: Number((item.originalPrice || item.price).toFixed(2)),
+                    offer_id: item.productOffer?.id || null,
+                    subtotal: Number((Number(item.discountedPrice || item.price) * Number(item.quantity)).toFixed(2))
+                };
+
+                try {
+                    await myFetch(url2, "POST", itemData, authUser.access_token);
+                } catch (error) {
+                    console.error('Error creating order item:', error);
+                    // If an order item fails, delete the order and show error
+                    await myFetch(`${PUBLIC_API_URL}/order/orders/${order.id}/`, "DELETE", null, authUser.access_token);
+                    addAlert("Error creating order: Some items are out of stock", "error");
+                    orderPlacing = false;
+                    return;
+                }
             }
-            orderdCompleted = true
+
+            // Create payment
+            let urlp = `${PUBLIC_API_URL}/payment/payments/`;
+            let payment = await myFetch(urlp, "POST", {
+                "order_id": order.id,
+                "amount": finalTotal,
+                "estore_id": PUBLIC_ESTORE_ID,
+                payment_method: selectedPaymentMethod,
+            }, authUser.access_token);
+
+            if (payment.payment_method == "pg") {
+                window.location = payment.payment_url;
+            } else {
+                addAlert("Order placed successfully", "success");
+                goto("/checkout/" + payment.transaction_id);
+            }
+            
+            orderdCompleted = true;
+            // Clear cart and applied offers/coupons
+            cart.set([]);
+            appliedOffer.set(null);
+            appliedCoupon.set(null);
 
         } catch (e) {
-            addAlert("Error placing order", "error");
+            console.error('Error placing order:', e);
+            addAlert("Error placing order: " + (e.message || "Please try again"), "error");
         } finally {
             orderPlacing = false;
         }
-
-        cart.set([]);
-        // console.log('Order submitted:', { billingDetails, items: $cart });
     }
 
     let modal;
@@ -309,79 +358,153 @@
         <div class="bg-white rounded-lg shadow-sm p-4 md:mt-10">
           <h2 class="text-lg font-bold mb-4">Your Order</h2>
           <div class="space-y-4">
-              {#each $cart as item}
-                  <div class="flex justify-between items-center py-2 border-b">
-                      <div class="flex items-center gap-3">
-                          <img src={item.main_image || "/placeholder.svg"} alt={item.name} class="w-12 h-12 object-cover rounded-md" />
-                          <div>
-                              <p class="font-medium">{item.name}</p>
-                              <p class="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          </div>
+            {#each $cart as item}
+              <div class="flex justify-between items-center py-2 border-b">
+                <div class="flex items-center gap-3">
+                  <img src={item.main_image || "/placeholder.svg"} alt={item.name} class="w-12 h-12 object-cover rounded-md" />
+                  <div>
+                    <p class="font-medium">{item.name}</p>
+                    <p class="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    {#if item.productOffer}
+                      <div class="text-sm text-green-600 flex items-center gap-1 mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <span>
+                          {#if item.productOffer.offer_type === 'discount'}
+                            {item.productOffer.get_discount_percent}% OFF
+                          {:else if item.productOffer.offer_type === 'buy_x_get_y'}
+                            Buy {item.productOffer.buy_quantity} Get {item.productOffer.get_quantity} ({item.productOffer.get_discount_percent}% OFF)
+                          {/if}
+                        </span>
                       </div>
-                      <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
+                    {/if}
                   </div>
-              {/each}
-
-              <div class=" ">
-                  <div class="flex justify-between mb-2">
-                      <span class="text-gray-600">Subtotal</span>
-                      <span>₹ {totalPrice.toFixed(2)}</span>
-                  </div>
-                  <div class="flex justify-between font-bold">
-                      <span>Total</span>
-                      <span class="text-red-500">₹ {totalPrice.toFixed(2)}</span>
-                  </div>
+                </div>
+                <div class="text-right">
+                  {#if !item.productOffer}
+                    <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
+                  {:else}
+                    <span class="font-medium">₹ {(item.discountedPrice * item.quantity).toFixed(2)}</span>
+                    <div class="text-sm text-gray-500 line-through">₹ {(item.originalPrice * item.quantity).toFixed(2)}</div>
+                  {/if}
+                </div>
               </div>
+            {/each}
+
+            <!-- Add AvailableOffers component before CouponSection -->
+            <AvailableOffers />
+
+            <!-- Existing CouponSection component -->
+            <CouponSection />
+
+            <!-- Update the totals section -->
+            <div class="space-y-2 pt-4 border-t">
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600">Subtotal</span>
+                <span>₹ {subtotal.toFixed(2)}</span>
+              </div>
+              
+              <!-- Product-specific offers total -->
+              {#if $cart.some(item => item.productOffer)}
+                <div class="flex justify-between text-green-600">
+                  <span>Product Offers</span>
+                  <span>- ₹ {$cart.reduce((sum, item) => {
+                    if (!item.productOffer) return sum;
+                    return sum + ((item.originalPrice - item.discountedPrice) * item.quantity);
+                  }, 0).toFixed(2)}</span>
+                </div>
+              {/if}
+              
+              {#if $cartDiscounts.offerDiscount > 0}
+                <div class="flex justify-between text-green-600">
+                  <span>Cart Offer</span>
+                  <div class="text-right">
+                    <span>- ₹ {$cartDiscounts.offerDiscount}</span>
+                    {#if Math.abs(offerRoundingAdjustment) >= 0.01}
+                      <div class="text-xs text-gray-500">
+                        {offerRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactOfferDiscount.toFixed(2)}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+              
+              {#if $cartDiscounts.couponDiscount > 0}
+                <div class="flex justify-between text-green-600">
+                  <span>Coupon Discount</span>
+                  <div class="text-right">
+                    <span>- ₹ {$cartDiscounts.couponDiscount}</span>
+                    {#if Math.abs(couponRoundingAdjustment) >= 0.01}
+                      <div class="text-xs text-gray-500">
+                        {couponRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactCouponDiscount.toFixed(2)}
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
+
+              <div class="flex justify-between font-bold text-lg pt-2 border-t">
+                <span>Total</span>
+                <span>₹ {finalTotal.toFixed(2)}</span>
+              </div>
+              
+              {#if Math.abs(roundingAdjustment) >= 0.01}
+                <div class="text-xs text-gray-500 text-right">
+                  {roundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactTotal.toFixed(2)}
+                </div>
+              {/if}
 
               <label class="flex items-start gap-2">
-                  <input 
-                      type="checkbox" 
-                      class="mt-1" 
-                      bind:checked={termsAccepted}
-                      required 
-                  />
-                  <span class="text-sm text-gray-600">
-                      I have read and agree to the website's 
-                      <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
-                  </span>
-              </label>
-              
-              <div class="flex items-center gap-4">
-                  <label>
-                      <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="cod" 
-                          bind:group={selectedPaymentMethod} 
-                          checked 
-                      />
-                      Cash on Delivery
-                  </label>
-                  <label>
-                      <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="pg" 
-                          bind:group={selectedPaymentMethod} 
-                      />
-                      Pay Online
-                  </label>
-              </div>
+                <input 
+                    type="checkbox" 
+                    class="mt-1" 
+                    bind:checked={termsAccepted}
+                    required 
+                />
+                <span class="text-sm text-gray-600">
+                    I have read and agree to the website's 
+                    <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
+                </span>
+            </label>
+            
+            <div class="flex items-center gap-4">
+                <label>
+                    <input 
+                        type="radio" 
+                        name="paymentMethod" 
+                        value="cod" 
+                        bind:group={selectedPaymentMethod} 
+                        checked 
+                    />
+                    Cash on Delivery
+                </label>
+                <label>
+                    <input 
+                        type="radio" 
+                        name="paymentMethod" 
+                        value="pg" 
+                        bind:group={selectedPaymentMethod} 
+                    />
+                    Pay Online
+                </label>
+            </div>
 
-              <button 
-                  on:click={handleSubmit}
-                  class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
-                  disabled={orderPlacing}
-              >
-                  {#if orderPlacing}
-                      <span class="loading loading-spinner loading-sm mr-2"></span>
-                      PLACING ORDER
-                  {:else}
-                      PLACE ORDER
-                  {/if}
-              </button>
+            <button 
+                on:click={handleSubmit}
+                class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+                disabled={orderPlacing}
+            >
+                {#if orderPlacing}
+                    <span class="loading loading-spinner loading-sm mr-2"></span>
+                    PLACING ORDER
+                {:else}
+                    PLACE ORDER
+                {/if}
+            </button>
+            </div>
           </div>
-      </div>
+        </div>
       </div>
 
       {/if}

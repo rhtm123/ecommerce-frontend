@@ -5,9 +5,9 @@
   import NProgress from 'nprogress';
   import 'nprogress/nprogress.css';
   import { navigating, page } from "$app/stores";
-  import OrderNotification from '$lib/components/OrderNotification.svelte';
+  // import OrderNotification from '$lib/components/OrderNotification.svelte';
   import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
-  import { notifications } from '$lib/stores/notifications';
+  // import { notifications } from '$lib/stores/notifications';
   import { onMount } from 'svelte';
   import { user } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
@@ -40,34 +40,34 @@
       }
   }
 
-  onMount(async () => {
-    // Fetch recent orders periodically
-    async function fetchRecentOrders() {
-      try {
-        const data = await myFetch(`${PUBLIC_API_URL}/order/order-items/?page=1&page_size=10&need_order_user=true`);
+  // onMount(async () => {
+  //   // Fetch recent orders periodically
+  //   async function fetchRecentOrders() {
+  //     try {
+  //       const data = await myFetch(`${PUBLIC_API_URL}/order/order-items/?page=1&page_size=10&need_order_user=true`);
         
-        // Add new notifications
-        data.results.forEach(order => {
-          notifications.update(n => {
-            if (!n.find(existing => existing.id === order.id)) {
-              return [order, ...n].slice(0, 5);
-            }
-            return n;
-          });
-        });
-      } catch (error) {
-        console.error('Error fetching recent orders:', error);
-      }
-    }
+  //       // Add new notifications
+  //       data.results.forEach(order => {
+  //         notifications.update(n => {
+  //           if (!n.find(existing => existing.id === order.id)) {
+  //             return [order, ...n].slice(0, 5);
+  //           }
+  //           return n;
+  //         });
+  //       });
+  //     } catch (error) {
+  //       console.error('Error fetching recent orders:', error);
+  //     }
+  //   }
 
-    // Initial fetch
-    // fetchRecentOrders();
+  //   // Initial fetch
+  //   // fetchRecentOrders();
 
-    // Set up periodic fetch (every 30 seconds)
-    const interval = setInterval(fetchRecentOrders, 30000);
+  //   // Set up periodic fetch (every 30 seconds)
+  //   const interval = setInterval(fetchRecentOrders, 30000);
 
-    return () => clearInterval(interval);
-  });
+  //   return () => clearInterval(interval);
+  // });
 </script>
 
 <div class="bg-base-100">
