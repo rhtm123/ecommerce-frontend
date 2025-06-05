@@ -139,10 +139,10 @@
   async function loadMore() {
     loadingMore = true;
     if (typeof next === 'string') {
-      const response = await fetch(next);
-      let dataNew = await response.json();
-      products = [...products, ...dataNew.results];
-      next = dataNew.next;
+    const response = await fetch(next);
+    let dataNew = await response.json();
+    products = [...products, ...dataNew.results];
+    next = dataNew.next;
     }
     loadingMore = false;
   }
@@ -224,10 +224,10 @@
         const childIndex = allCategories.findIndex(c => c.id === child.id);
         if (childIndex !== -1) {
           allCategories[childIndex].children = child.children;
-        }
+      }
       });
     });
-    
+
     return rootCategories.map(cat => categoryMap.get(cat.id));
   }
 
@@ -287,7 +287,7 @@
       goto(`/shop/${parentCategory.slug}`);
     } else {
       clearCategory();
-    }
+  }
   }
 
   let params = $derived({
@@ -316,177 +316,177 @@
 
 <!-- Mobile Shop View (only on mobile) -->
 <div class="md:hidden">
-  <MobileShopView 
-    {currentCategory}
-    {products}
-    {filters}
+<MobileShopView 
+  {currentCategory}
+  {products}
+  {filters}
     {params}
-    {loadProducts}
-  />
+  {loadProducts}
+/>
 </div>
 
 <!-- Desktop Product Grid (only on desktop) -->
 <div class="hidden md:block">
-  <!-- Desktop Blinkit-style Layout -->
+<!-- Desktop Blinkit-style Layout -->
   <div class="h-screen bg-white">
-    <div class="flex h-full">
+  <div class="flex h-full">
       <!-- Left Sidebar - Categories -->
       <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <!-- Header - Shows current category or "All Categories" -->
-        <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-          <h2 class="font-bold text-gray-800 flex items-center gap-2">
+      <!-- Header - Shows current category or "All Categories" -->
+      <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+        <h2 class="font-bold text-gray-800 flex items-center gap-2">
             {#if currentCategory}
-              <button 
-                class="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            <button 
+              class="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 onclick={parentCategory ? goToParentCategory : clearCategory}
                 aria-label="Back to parent category"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-              </button>
-              <span>{currentCategory.name}</span>
-            {:else}
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
               </svg>
-              <span>All Categories</span>
-            {/if}
-          </h2>
-        </div>
+            </button>
+              <span>{currentCategory.name}</span>
+          {:else}
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <span>All Categories</span>
+          {/if}
+        </h2>
+      </div>
 
-        <!-- Category List -->
+      <!-- Category List -->
         <div class="flex-1 overflow-y-auto">
-          <div class="p-2">
+        <div class="p-2">
             {#each displayCategories as category (category.id)}
               <div class="relative">
                 <a 
                   href="/shop/{category.slug}"
                   class="w-full p-3 flex items-center gap-3 hover:bg-gray-50 rounded-lg transition-colors text-left {currentCategory?.id === category.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}"
-                >
-                  <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
-                    <img 
-                      src={category.image || "/placeholder.svg?height=32&width=32"} 
-                      alt={category.name}
-                      class="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span class="text-sm truncate">{category.name}</span>
-                  
-                  {#if category.children && category.children.length > 0}
-                    <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                  {/if}
+              >
+                <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                  <img 
+                    src={category.image || "/placeholder.svg?height=32&width=32"} 
+                    alt={category.name}
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <span class="text-sm truncate">{category.name}</span>
+                
+                {#if category.children && category.children.length > 0}
+                  <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                {/if}
                 </a>
-              </div>
-            {/each}
-          </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header Section -->
+      <div class="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
+        <div>
+          <h1 class="text-lg font-semibold text-gray-900">
+            {currentCategory ? currentCategory.name : 'All Products'}
+          </h1>
+          <p class="text-xs text-gray-500">
+            {totalProducts} products
+          </p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <!-- Sort Dropdown -->
+          <select 
+            class="select select-sm select-bordered bg-white text-sm min-w-0 w-auto"
+            bind:value={sortOption}
+            onchange={applyFilters}
+          >
+            <option value="default">Default Sorting</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="popularity">Sort by Popularity</option>
+            <option value="rating">Sort by Rating</option>
+            <option value="newest">Sort by Newest</option>
+          </select>
+          
+          <!-- Filter Button -->
+          <button 
+            class="btn btn-sm btn-outline gap-1"
+            onclick={() => showFilters = !showFilters}
+            aria-label="Toggle filters"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+            </svg>
+            Filter
+          </button>
         </div>
       </div>
 
-      <!-- Main Content Area -->
-      <div class="flex-1 flex flex-col">
-        <!-- Header Section -->
-        <div class="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
-          <div>
-            <h1 class="text-lg font-semibold text-gray-900">
-              {currentCategory ? currentCategory.name : 'All Products'}
-            </h1>
-            <p class="text-xs text-gray-500">
-              {totalProducts} products
-            </p>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <!-- Sort Dropdown -->
-            <select 
-              class="select select-sm select-bordered bg-white text-sm min-w-0 w-auto"
-              bind:value={sortOption}
-              onchange={applyFilters}
-            >
-              <option value="default">Default Sorting</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="popularity">Sort by Popularity</option>
-              <option value="rating">Sort by Rating</option>
-              <option value="newest">Sort by Newest</option>
-            </select>
-            
-            <!-- Filter Button -->
-            <button 
-              class="btn btn-sm btn-outline gap-1"
-              onclick={() => showFilters = !showFilters}
-              aria-label="Toggle filters"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-              </svg>
-              Filter
-            </button>
-          </div>
-        </div>
-
-        <!-- Products Grid with Filter Sidebar -->
-        <div class="flex-1 overflow-hidden bg-gray-50 relative">
-          <div class="flex h-full">
-            <!-- Main Products Area -->
-            <div class="flex-1 overflow-y-auto p-4">
-              {#if loading}
-                <div class="flex justify-center items-center py-8">
+      <!-- Products Grid with Filter Sidebar -->
+      <div class="flex-1 overflow-hidden bg-gray-50 relative">
+        <div class="flex h-full">
+          <!-- Main Products Area -->
+          <div class="flex-1 overflow-y-auto p-4">
+            {#if loading}
+              <div class="flex justify-center items-center py-8">
                   <div class="loading loading-spinner loading-md text-blue-500"></div>
+              </div>
+            {:else if error}
+              <div class="text-center py-8">
+                <p class="text-red-500 text-sm">{error}</p>
+              </div>
+            {:else if products.length === 0}
+              <div class="text-center py-8">
+                <div class="text-gray-400 mb-2">
+                  <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5"></path>
+                  </svg>
                 </div>
-              {:else if error}
-                <div class="text-center py-8">
-                  <p class="text-red-500 text-sm">{error}</p>
-                </div>
-              {:else if products.length === 0}
-                <div class="text-center py-8">
-                  <div class="text-gray-400 mb-2">
-                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5"></path>
+                <h3 class="text-base font-medium text-gray-900 mb-1">No products found</h3>
+                <p class="text-gray-500 text-sm">Try adjusting your search or filters</p>
+              </div>
+            {:else}
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {#each products as product (product.id)}
+                  <Product {product} />
+                {/each}
+              </div>
+
+              <!-- Load More Button -->
+              <div class="flex justify-center items-center py-4">
+                {#if loadingMore}
+                  <div class="loading loading-spinner loading-sm"></div>
+                {/if}
+                {#if next && !loadingMore && !loading}
+                  <button class="btn btn-outline btn-sm" onclick={loadMore}>Load More</button>
+                {/if}
+              </div>
+            {/if}
+          </div>
+
+          <!-- Filter Sidebar -->
+          {#if showFilters}
+            <div class="w-72 bg-white border-l border-gray-200 overflow-y-auto" transition:fly="{{ x: 300, duration: 300 }}">
+              <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-semibold text-gray-900">Filters</h3>
+                  <button 
+                    class="btn btn-ghost btn-xs"
+                    onclick={() => showFilters = false}
+                    aria-label="Close filters"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
-                  </div>
-                  <h3 class="text-base font-medium text-gray-900 mb-1">No products found</h3>
-                  <p class="text-gray-500 text-sm">Try adjusting your search or filters</p>
-                </div>
-              {:else}
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                  {#each products as product (product.id)}
-                    <Product {product} />
-                  {/each}
+                  </button>
                 </div>
 
-                <!-- Load More Button -->
-                <div class="flex justify-center items-center py-4">
-                  {#if loadingMore}
-                    <div class="loading loading-spinner loading-sm"></div>
-                  {/if}
-                  {#if next && !loadingMore && !loading}
-                    <button class="btn btn-outline btn-sm" onclick={loadMore}>Load More</button>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-
-            <!-- Filter Sidebar -->
-            {#if showFilters}
-              <div class="w-72 bg-white border-l border-gray-200 overflow-y-auto" transition:fly="{{ x: 300, duration: 300 }}">
-                <div class="p-4">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-gray-900">Filters</h3>
-                    <button 
-                      class="btn btn-ghost btn-xs"
-                      onclick={() => showFilters = false}
-                      aria-label="Close filters"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                    </button>
-                  </div>
-
-                  <!-- Price Range Filter -->
+                <!-- Price Range Filter -->
                   <div class=" mb-6">
                     <h3 class="text-sm font-medium mb-2">Price Range</h3>
                     <div class="flex flex-col gap-4">
@@ -500,57 +500,57 @@
                           </div>
                           <div class="w-2 h-2 bg-primary rotate-45 transform -translate-x-1/2 left-1/2 absolute -bottom-1"></div>
                         </div>
-                        <input
-                          type="range"
-                          min={filters.price_range?.min_price || 0}
-                          max={filters.price_range?.max_price || 100}
-                          bind:value={selectedPriceRange[1]}
-                          onchange={applyFilters}
+                    <input
+                      type="range"
+                      min={filters.price_range?.min_price || 0}
+                      max={filters.price_range?.max_price || 100}
+                      bind:value={selectedPriceRange[1]}
+                      onchange={applyFilters}
                           class="range range-primary w-full cursor-pointer"
-                        />
+                    />
                       </div>
                       <div class="flex justify-between text-sm text-gray-600">
                         <span>{filters.price_range?.min_price || 0}</span>
                         <span>{filters.price_range?.max_price || 100}</span>
-                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Brand Filter -->
-                  <div class="mb-6">
-                    <h4 class="font-medium text-gray-900 mb-3 text-sm">Brands</h4>
-                    <div class="space-y-2">
-                      {#each allBrands as brand}
-                        <label class="flex items-center gap-2 text-sm">
-                          <input 
-                            type="checkbox" 
-                            class="checkbox checkbox-primary checkbox-sm"
-                            checked={$selectedBrands.includes(brand.brand__id.toString())}
-                            onchange={() => {
+                <!-- Brand Filter -->
+                <div class="mb-6">
+                  <h4 class="font-medium text-gray-900 mb-3 text-sm">Brands</h4>
+                  <div class="space-y-2">
+                    {#each allBrands as brand}
+                      <label class="flex items-center gap-2 text-sm">
+                        <input 
+                          type="checkbox" 
+                          class="checkbox checkbox-primary checkbox-sm"
+                          checked={$selectedBrands.includes(brand.brand__id.toString())}
+                          onchange={() => {
                               selectedBrands.update(sb => 
                                 sb.includes(brand.brand__id.toString())
                                   ? sb.filter(id => id !== brand.brand__id.toString())
                                   : [...sb, brand.brand__id.toString()]
                               );
-                              applyFilters();
-                            }}
-                          />
-                          {brand.brand__name} ({brand.count})
-                        </label>
-                      {/each}
-                    </div>
+                            applyFilters();
+                          }}
+                        />
+                        {brand.brand__name} ({brand.count})
+                      </label>
+                    {/each}
                   </div>
-
-                  <!-- Apply Filters Button -->
-                  <button class="btn btn-primary btn-sm w-full" onclick={applyFilters}>
-                    Apply Filters
-                  </button>
                 </div>
+
+                <!-- Apply Filters Button -->
+                <button class="btn btn-primary btn-sm w-full" onclick={applyFilters}>
+                  Apply Filters
+                </button>
               </div>
-            {/if}
-          </div>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>
