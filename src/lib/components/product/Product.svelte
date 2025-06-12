@@ -148,7 +148,7 @@
         <!-- Add to Cart Controls -->
         <div class="ml-2">
 
-          {#if product.stock <150}
+          {#if product.stock ==0}
             <span class="text-red-500 text-xs font-semibold border border-red-200 bg-red-50 px-2 py-1 rounded">Out of Stock</span>
           {:else if showQtyControls}
 
