@@ -147,7 +147,11 @@
 
         <!-- Add to Cart Controls -->
         <div class="ml-2">
-          {#if showQtyControls}
+
+          {#if product.stock <150}
+            <span class="text-red-500 text-xs font-semibold border border-red-200 bg-red-50 px-2 py-1 rounded">Out of Stock</span>
+          {:else if showQtyControls}
+
             <div class="flex items-center border-2 border-green-500 rounded-lg px-2 py-1 gap-2 bg-green-50/50">
               <button 
                 class="w-5 h-5 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
