@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { fade, slide } from 'svelte/transition';
   import { productApi } from '$lib/services/productApi';
-  
+  import Product from '$lib/components/product/Product.svelte';
+
   export let currentCategory;
   export let products = [];
   export let filters = {};
@@ -338,6 +339,17 @@
     </div>
   {/if}
 </div>
+
+<!-- After your hero/info section -->
+{#if products && products.length > 0}
+  <div class="grid grid-cols-1 gap-4 mt-4">
+    {#each products as product (product.id)}
+      <Product {product} />
+    {/each}
+  </div>
+{:else}
+  <div class="text-center text-gray-500 mt-8">No products found.</div>
+{/if}
 
 <style>
   /* Prevent body scroll when modals are open */
