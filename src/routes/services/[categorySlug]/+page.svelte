@@ -1,13 +1,10 @@
 <script>
   import { page } from '$app/stores';
-  import { getCategoryBySlug } from '$lib/data/services-data.js';
   import Services from '$lib/components/Services.svelte';
   
-  // Get the category slug from the URL
-  let categorySlug = $derived($page.params.categorySlug);
+  let { data } = $props();
+  let category = $derived(data.category);
   
-  // Get the category data
-  let category = $derived(getCategoryBySlug(categorySlug));
 </script>
 
 <svelte:head>
@@ -16,11 +13,11 @@
   <meta name="description" content={category ? `Book ${category.name.toLowerCase()} services online. Professional service providers with instant booking, secure payments, and quality guarantee.` : 'Category not found'} />
   
   <meta name="keywords" content={category ? `${category.name.toLowerCase()}, professional ${category.name.toLowerCase()}, book ${category.name.toLowerCase()}, ${category.name.toLowerCase()} services online` : ''} />
-
+  
   <!-- Additional SEO Meta Tags -->
   <meta name="robots" content="index, follow" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="canonical" href={`https://yoursite.com/services/${categorySlug}`} />
+  <link rel="canonical" href={`https://yoursite.com/services/${category?.slug}`} />
 </svelte:head>
 
 {#if !category}
