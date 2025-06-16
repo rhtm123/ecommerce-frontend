@@ -71,11 +71,14 @@
     return Math.round(((mrp - price) / mrp) * 100);
   }
   
+  let isInCart = $state(false);
+  
   function handleBookService() {
     for (let i = 0; i < quantity; i++) {
       addToCart(service);
     }
     addAlert("Service added to cart successfully!", "success");
+    isInCart = true;
   }
 
   let relatedServices = $state([]);
@@ -93,7 +96,22 @@
     }
   }
 
-  let allImages = [service.main_image, service.thumbnail].filter(Boolean);
+  let allImages = $state([service.main_image, service.thumbnail].filter(Boolean));
+  let placeholderImages = $state([]);
+
+  async function getServiceListingImages() {
+    let url = `${PUBLIC_API_URL}/product/product-listing-images/?product_listing_id=${service.id}`;
+    let data = await myFetch(url);
+    placeholderImages = data.results.map(i => i.image);
+    // Combine main image + listing images, remove duplicates
+    allImages = [service.main_image, ...placeholderImages].filter(
+      (img, idx, arr) => img && arr.indexOf(img) === idx
+    );
+    // Set selectedImage to first image if not already set
+    if (!selectedImage && allImages.length > 0) {
+      selectedImage = allImages[0];
+    }
+  }
 
   function handleImageClick(image) {
     selectedImage = image;
@@ -198,11 +216,24 @@
       }
     });
 
-    await getRelatedServices();
-
-    return () => {
-      unsubscribe();
-    };
+    // Check if service is in cart (replace with your actual cart store logic if needed)
+    if (typeof addToCart.subscribe === 'function') {
+      const unsubscribeCart = addToCart.subscribe(cart => {
+        isInCart = cart.some(item => item.id === service.id);
+      });
+      await getRelatedServices();
+      await getServiceListingImages();
+      return () => {
+        unsubscribe();
+        unsubscribeCart();
+      };
+    } else {
+      await getRelatedServices();
+      await getServiceListingImages();
+      return () => {
+        unsubscribe();
+      };
+    }
   });
 </script>
 
@@ -214,7 +245,7 @@
 <div class="bg-gray-50 min-h-screen">
   <!-- Breadcrumb -->
   <div class="bg-white border-b">
-    <div class=" mx-auto px-4 py-2">
+    <div class=" mx-auto px-16 py-2">
       <nav class="flex items-center space-x-1 text-sm text-gray-600">
         <a href="/" class="hover:text-blue-600">
           <Icon icon="mdi:home" class="w-4 h-4" />
@@ -265,13 +296,13 @@
 
         <!-- Thumbnails -->
         {#if allImages.length > 1}
-          <div class="flex gap-2">
+          <div class="flex gap-2 mt-2">
             {#each allImages as image, index}
               <button
                 class="w-16 h-16 rounded border-2 overflow-hidden {selectedImage === image ? 'border-blue-500' : 'border-gray-200'}"
-                onclick={() => handleImageClick(image)}
+                onclick={() => selectedImage = image}
               >
-                <img src={image || "/placeholder.svg"} alt="View {index + 1}" class="w-full h-full object-cover" />
+                <img src={image || "/placeholder.svg"} alt={`View ${index + 1}`} class="w-full h-full object-cover" />
               </button>
             {/each}
           </div>
@@ -340,90 +371,57 @@
           </div>
         </div>
 
-        <!-- Service Provider -->
-        {#if service.brand}
-          <div class="bg-white rounded-lg shadow-sm p-4">
-            <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Icon icon="mdi:account-star" class="w-4 h-4 text-blue-600" />
-              Service Provider
-            </h3>
+        <!-- Service Provider + Booking Card (Modern, Compact, Combined) -->
+        <div class="service-booking-card bg-white rounded-xl shadow-md border border-gray-100 p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-4 items-stretch mb-6">
+          <!-- Provider Info (fixed width, compact) -->
+          <div class="w-full md:max-w-xs flex flex-col justify-center items-center md:items-start gap-2 md:gap-3">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span class="text-white font-bold text-sm">
-                  {service.brand.name.charAt(0).toUpperCase()}
-                </span>
+              <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow">
+                {service.brand?.name?.charAt(0).toUpperCase()}
               </div>
-              <div class="flex-1">
-                <h4 class="font-medium text-gray-900">{service.brand.name}</h4>
-                <p class="text-xs text-gray-600">Professional Service Provider</p>
+              <div>
+                <div class="font-semibold text-gray-900 text-base md:text-lg">{service.brand?.name}</div>
+                <div class="text-xs text-gray-500">Professional Service Provider</div>
                 <div class="flex items-center gap-1 mt-1">
-                  <Icon icon="mdi:check-decagram" class="w-3 h-3 text-green-500" />
+                  <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                   <span class="text-xs text-green-600">Verified Provider</span>
                 </div>
               </div>
             </div>
+            <!-- Service ID and Availability below provider info -->
+            <div class="flex flex-col gap-2 mt-4 w-full">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2"/></svg>
+                <span class="font-medium">Service ID:</span> <span class="font-bold text-gray-900">SRV_{service.id}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3m10 0h3a1 1 0 001-1V7m-1-4H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+                <span class="font-medium">Availability:</span> <span class="font-bold text-green-600">In Stock</span>
+              </div>
+            </div>
           </div>
-        {/if}
-
-        <!-- Booking Section -->
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Book This Service</h3>
-          
-          {#if service.stock > 0}
-            <div class="space-y-3">
-              <!-- Quantity -->
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-700">Quantity:</span>
-                <div class="flex items-center border rounded">
-                  <button 
-                    class="px-2 py-1 hover:bg-gray-50"
-                    onclick={() => updateQuantity(-1)}
-                    disabled={quantity <= 1}
-                  >
-                    <Icon icon="mdi:minus" class="w-3 h-3" />
-                  </button>
-                  <span class="px-3 py-1 text-sm font-medium">{quantity}</span>
-                  <button 
-                    class="px-2 py-1 hover:bg-gray-50"
-                    onclick={() => updateQuantity(1)}
-                    disabled={quantity >= (service.buy_limit || 5)}
-                  >
-                    <Icon icon="mdi:plus" class="w-3 h-3" />
-                  </button>
-                </div>
-                <span class="text-xs text-gray-500">Max: {service.buy_limit || 5}</span>
+          <!-- Booking Controls (right side, only button and quantity) -->
+          <div class="flex-1 w-full flex flex-col justify-center gap-4 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-8 items-center">
+            <div class="flex items-center justify-between w-full max-w-xs mb-1">
+              <span class="text-sm text-gray-700 font-medium">Quantity:</span>
+              <div class="flex items-center border rounded-md overflow-hidden bg-gray-50">
+                <button class="px-2 py-1 hover:bg-gray-100 text-gray-600 disabled:opacity-50" onclick={() => updateQuantity(-1)} disabled={quantity <= 1 || isInCart}>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                </button>
+                <span class="px-3 py-1 text-base font-semibold text-gray-900">{quantity}</span>
+                <button class="px-2 py-1 hover:bg-gray-100 text-gray-600 disabled:opacity-50" onclick={() => updateQuantity(1)} disabled={quantity >= (service.buy_limit || 5) || isInCart}>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </button>
               </div>
-
-              <!-- Book Button -->
-              <button 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded transition-colors flex items-center justify-center gap-2"
-                onclick={handleBookService}
-              >
-                <Icon icon="mdi:calendar-check" class="w-4 h-4" />
-                BOOK SERVICE NOW
+              <span class="text-xs text-gray-400 ml-2">Max: {service.buy_limit || 5}</span>
+            </div>
+            <div class="flex justify-center w-full mt-2">
+              <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-base flex items-center justify-center gap-2 shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed" style="min-width:180px;" onclick={handleBookService} disabled={isInCart}>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                {isInCart ? 'ADDED TO CART' : 'BOOK SERVICE NOW'}
               </button>
-
-              <!-- Service Info -->
-              <div class="grid grid-cols-2 gap-3 pt-3 border-t">
-                <div class="text-center">
-                  <Icon icon="mdi:package-variant" class="w-4 h-4 text-blue-600 mx-auto mb-1" />
-                  <span class="text-xs text-gray-600">Service ID</span>
-                  <p class="text-sm font-medium">SRV_{service.id}</p>
-                </div>
-                <div class="text-center">
-                  <Icon icon="mdi:warehouse" class="w-4 h-4 text-green-600 mx-auto mb-1" />
-                  <span class="text-xs text-gray-600">Availability</span>
-                  <p class="text-sm font-medium text-green-600">In Stock ({service.stock})</p>
-                </div>
-              </div>
             </div>
-          {:else}
-            <div class="text-center py-4">
-              <Icon icon="mdi:calendar-remove" class="w-8 h-8 text-red-400 mx-auto mb-2" />
-              <h4 class="font-medium text-red-600 mb-1">Currently Unavailable</h4>
-              <p class="text-xs text-gray-600">This service is temporarily out of stock</p>
-            </div>
-          {/if}
+          </div>
         </div>
 
         <!-- Pincode Checker -->
@@ -583,7 +581,7 @@
                     <td class="py-2">
                       <span class="inline-flex items-center gap-1 {service.stock > 0 ? 'text-green-600' : 'text-red-600'}">
                         <Icon icon={service.stock > 0 ? "mdi:check-circle" : "mdi:close-circle"} class="w-3 h-3" />
-                        {service.stock > 0 ? `Available (${service.stock} slots)` : 'Currently Unavailable'}
+                        {service.stock > 0 ? `Available` : 'Currently Unavailable'}
                       </span>
                     </td>
                   </tr>
