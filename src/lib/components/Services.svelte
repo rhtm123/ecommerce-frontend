@@ -175,6 +175,7 @@
 
   // Builds the hierarchical category structure (main 'categories' array)
   function buildCategoryHierarchy(flatCategories) {
+    console.log(flatCategories)
     const categoryMap = new Map();
     flatCategories.forEach(cat => {
       categoryMap.set(cat.id, { ...cat, children: [] });

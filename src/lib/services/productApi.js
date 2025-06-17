@@ -10,6 +10,7 @@ export const productApi = {
       try {
         const queryParams = new URLSearchParams({
           page: params.page || '1',
+          is_service: "false",
           page_size: params.pageSize || '12',
           ...(params.category_id && { category_id: params.category_id.toString() }),
           ...(params.search && { search: params.search.trim() }),
@@ -42,6 +43,7 @@ export const productApi = {
     // Get filter options
     getFilters: async (params = {}) => {
       const queryParams = new URLSearchParams({
+        is_service: "false",
         ...(params.category_id && { category_id: params.category_id }),
         ...(params.brand_ids && { brand_ids: params.brand_ids }),
         ...(params.search && { search: params.search.trim() }),
