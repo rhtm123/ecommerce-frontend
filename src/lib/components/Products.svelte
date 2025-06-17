@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
 
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
@@ -7,6 +8,7 @@
   import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
   import { myFetch } from '$lib/utils/myFetch';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   // import Categories from './Categories.svelte';
   import MobileShopView from './MobileShopView.svelte';
   import { writable } from 'svelte/store';
