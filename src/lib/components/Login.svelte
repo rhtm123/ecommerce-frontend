@@ -17,6 +17,8 @@
         googleToken = response.credential;
         isLoading = true; // Start loading
 
+        // console.log('JWT:', googleToken);
+
         fetch(`${PUBLIC_API_URL}/user/auth/google/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -82,11 +84,17 @@
         google.accounts.id.initialize({
             client_id: PUBLIC_GOOGLE_CLIENT_ID,
             callback: handleCredentialResponse,
+            auto_select: true, // enables automatic sign-in
+            // cancel_on_tap_outside: false,
         });
+
+
         google.accounts.id.renderButton(
             document.getElementById('googleSignInDiv'),
             { theme: 'outline', size: 'large' }
         );
+
+        // window.google?.accounts.id.prompt(); // shows the One Tap prompt
     }
 
     onMount(() => {

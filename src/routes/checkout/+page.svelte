@@ -116,7 +116,7 @@
     // }
 
     async function handleSubmit() {
-
+        orderPlacing = true;
         // First check if mobile is verified
         if (!authUser.mobile_verified) {
             // Save current path for redirect after verification
@@ -128,16 +128,19 @@
 
         if (dailyOrderCount >= 10) {
             addAlert("You cannot place more than 10 orders in a single day.", "error");
+            orderPlacing = false;
             return;
         }
 
         if (!termsAccepted) {
             addAlert("Please accept the terms and conditions", "error");
+            orderPlacing = false;
             return;
         }
 
         if (!selectedAddress) {
             addAlert("Please select a delivery address", "error");
+            orderPlacing = false;
             return;
         }
 
@@ -146,7 +149,6 @@
         // if (!stockAvailable) {
         //     return;
         // }
-        orderPlacing = true;
         try {
             let url = `${PUBLIC_API_URL}/order/orders/`;
             
