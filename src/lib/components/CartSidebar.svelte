@@ -20,9 +20,9 @@
       }, 0)
     );
   
-    let deliveryCharge = $derived(itemsTotal > 50000 ? 0 : 2500); // Free delivery above ₹500
-    let handlingCharge = $derived(200); // ₹2 handling charge
-    let grandTotal = $derived(itemsTotal + deliveryCharge + handlingCharge);
+    // let deliveryCharge = $derived(itemsTotal > 50000 ? 0 : 2500); // Free delivery above ₹500
+    // let handlingCharge = $derived(200); // ₹2 handling charge
+    let grandTotal = $derived(itemsTotal);
   
     // Dynamic info box text based on cart contents
     const infoBoxText = derived(cart, $cart => {
@@ -103,19 +103,19 @@
       transition:fly={{ x: 300, duration: 300 }}
     >
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <div class="flex items-center justify-between px-3 py-2 md:p-4 border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900">My Cart</h2>
         <button 
           onclick={handleClose}
-          class="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          class="p-1 md:p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
-          <Icon icon="mdi:close" class="w-5 h-5 text-gray-600" />
+          <Icon icon="mdi:close" class="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
         </button>
       </div>
   
       <!-- Out of Stock Alert -->
       {#if outOfStockCount > 0}
-        <div class="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div class="mx-3 mt-3 p-2 md:mx-4 md:mt-4 md:p-3 bg-red-50 border border-red-200 rounded-lg">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-red-800">
@@ -123,7 +123,7 @@
               </p>
               <p class="text-xs text-red-600">you can continue to checkout</p>
             </div>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium">
+            <button class="bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded text-xs font-medium">
               Review
             </button>
           </div>
@@ -131,7 +131,7 @@
       {/if}
   
       <!-- Delivery Info -->
-      <div class="mx-4 mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="mx-3 mt-3 p-2 md:mx-4 md:mt-4 md:p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <div class="flex items-center gap-2">
           <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
             <Icon icon="mdi:cart-outline" class="w-4 h-4 text-white" />
@@ -144,7 +144,7 @@
       </div>
   
       <!-- Cart Items -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <div class="flex-1 overflow-y-auto p-3 space-y-3 md:p-4 md:space-y-4">
         {#if cartItems.length === 0}
           <div class="text-center py-12">
             <Icon icon="mdi:cart-outline" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -152,14 +152,14 @@
             <p class="text-gray-500 mb-4">Add some items to get started</p>
             <button 
               onclick={handleClose}
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-1.5 rounded-lg font-medium"
             >
               Continue Shopping
             </button>
           </div>
         {:else}
           {#each cartItems as item (item.id)}
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
               <!-- Product Image -->
               <div class="w-12 h-12 bg-white rounded border overflow-hidden flex-shrink-0">
                 <img 
@@ -201,27 +201,27 @@
                 {#if item.quantity === 1}
                   <button 
                     onclick={() => removeItem(item.id)}
-                    class="w-8 h-8 flex items-center justify-center border border-red-300 rounded hover:bg-red-50 text-red-600"
+                    class="w-7 h-7 flex items-center justify-center border border-red-300 rounded hover:bg-red-50 text-red-600"
                   >
-                    <Icon icon="mdi:delete-outline" class="w-4 h-4" />
+                    <Icon icon="mdi:delete-outline" class="w-3 h-3" />
                   </button>
                 {:else}
                   <button 
                     onclick={() => updateQuantity(item.id, -1)}
-                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                    class="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
                   >
-                    <Icon icon="mdi:minus" class="w-4 h-4" />
+                    <Icon icon="mdi:minus" class="w-3 h-3" />
                   </button>
                 {/if}
                 
-                <span class="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                <span class="w-7 text-center text-sm font-medium">{item.quantity}</span>
                 
                 <button 
                   onclick={() => updateQuantity(item.id, 1)}
-                  class="w-8 h-8 flex items-center justify-center border border-green-300 rounded hover:bg-green-50 text-green-600"
+                  class="w-7 h-7 flex items-center justify-center border border-green-300 rounded hover:bg-green-50 text-green-600"
                   disabled={item.quantity >= (item.buy_limit || 10)}
                 >
-                  <Icon icon="mdi:plus" class="w-4 h-4" />
+                  <Icon icon="mdi:plus" class="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -231,7 +231,7 @@
   
       <!-- Bill Details & Checkout -->
       {#if cartItems.length > 0}
-        <div class="border-t border-gray-200 p-4 space-y-4">
+        <div class="border-t border-gray-200 p-3 space-y-3 md:p-4 md:space-y-4">
           <!-- Bill Details -->
           <div class="space-y-2">
             <h3 class="font-semibold text-gray-900 flex items-center gap-2">
@@ -257,11 +257,11 @@
           <!-- Checkout Button -->
           <button 
             onclick={handleProceedToCheckout}
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-between"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors flex items-center justify-between"
           >
             <span class="flex items-center gap-2">
-              <span class="text-lg font-bold">{formatPrice(grandTotal)}</span>
-              <span class="text-sm opacity-90">TOTAL</span>
+              <span class="text-base md:text-lg font-bold">{formatPrice(grandTotal)}</span>
+              <span class="text-xs md:text-sm opacity-90">TOTAL</span>
             </span>
             <span class="flex items-center gap-2">
               {#if !authUser}

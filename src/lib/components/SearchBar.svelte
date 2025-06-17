@@ -2,11 +2,9 @@
   import { goto } from '$app/navigation';
   import { productApi } from '$lib/services/productApi';
   import { onMount, onDestroy } from 'svelte';
-
   import { createEventDispatcher } from "svelte";
 
   const dispatch = createEventDispatcher();
-
 
   let searchQuery = '';
   let suggestions = [];
@@ -23,9 +21,7 @@
         node.dispatchEvent(new CustomEvent('outclick'));
       }
     };
-
     document.addEventListener('click', handleClick, true);
-
     return {
       destroy() {
         document.removeEventListener('click', handleClick, true);
@@ -127,21 +123,11 @@
     }
   }
 
-  // function toggleSearch() {
-  //   isSearchOpen = !isSearchOpen;
-  //   if (isSearchOpen) {
-  //     setTimeout(() => document.querySelector('input').focus(), 300);
-  //   } else {
-  //     closeSearch();
-  //   }
-  // }
-
   function closeSearch() {
     isSearchOpen = false;
     searchQuery = '';
     showSuggestions = false;
     dispatch("closeSearch", "close");
-    // console.log("Search Closed");
   }
 
   function handleClickOutside() {
@@ -149,6 +135,7 @@
   }
 </script>
 
+<!-- Main Search Container -->
 <div 
   class="relative w-full"
   bind:this={searchContainer}
@@ -157,12 +144,12 @@
 >
   <!-- Desktop Search -->
   <form 
-    class="flex items-center w-full bg-gray-100 rounded-full overflow-hidden shadow-sm"
+    class="flex items-center w-full bg-gray-100 rounded-full overflow-hidden shadow-sm md:rounded-full"
     on:submit|preventDefault={handleSearchSubmit}
   >
     <input
       type="text"
-      class="flex-1 px-6 py-3 bg-transparent focus:outline-none text-sm"
+      class="flex-1 px-4 py-2 md:px-6 md:py-3 bg-transparent focus:outline-none text-sm"
       placeholder="Search products..."
       bind:value={searchQuery}
       on:input={handleInput}
@@ -171,7 +158,7 @@
     />
     <button 
       type="submit" 
-      class="h-full px-6 py-3 bg-gray-200 hover:bg-gray-300 transition-colors"
+      class="h-full px-4 py-2 md:px-6 md:py-3 bg-gray-200 hover:bg-gray-300 transition-colors"
       disabled={isLoading}
     >
       {#if isLoading}
@@ -187,7 +174,7 @@
   <!-- Suggestions and History Dropdown -->
   {#if (showSuggestions && suggestions.length > 0) || (showSuggestions && !searchQuery && searchHistory.length > 0)}
     <div 
-      class="absolute top-14 w-full bg-white rounded-lg shadow-lg z-50 border border-gray-200"
+      class="absolute top-12 md:top-14 left-0 right-0 mx-2 md:mx-0 w-auto md:w-full bg-white rounded-lg shadow-lg z-50 border border-gray-200 max-h-96 overflow-y-auto"
       on:mousedown|stopPropagation
     >
       {#if showSuggestions && suggestions.length > 0}
@@ -256,8 +243,8 @@
       {/if}
     </div>
   {/if}
-
 </div>
+
 <style>
   /* Prevent body scroll when mobile search is open */
   @media (max-width: 768px) {
@@ -275,9 +262,18 @@
     color: #9CA3AF;
   }
 
-  /* Add subtle hover effects */
   button:hover {
     opacity: 0.8;
   }
-</style>
 
+  /* Ensure dropdown stays within viewport in mobile */
+  @media (max-width: 768px) {
+    .absolute {
+      left: 0;
+      right: 0;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+</style>
