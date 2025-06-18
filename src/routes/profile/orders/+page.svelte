@@ -100,8 +100,10 @@
 
           <!-- Order Footer -->
           <div class="p-3 flex justify-between items-center border-t bg-gray-50">
-            <InvoiceGenerator orderId={order.id} />
-            <div class="flex flex-col items-end gap-1">
+            {#if order.status === 'delivered'}
+              <InvoiceGenerator orderId={order.id} />
+            {/if}
+            <div class="flex flex-col items-end gap-1 text-right w-full">
               <div class="text-base font-semibold">Total: ₹{order.total_amount.toFixed(2)}</div>
               {#if order.total_discount > 0}
                 <div class="text-sm text-green-600">

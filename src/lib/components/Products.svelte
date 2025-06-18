@@ -72,7 +72,6 @@
   }
 
   onMount(() => {
-    loadProducts(params);
     fetchAllCategories();
     loadInitialSideFilters(params);
   });
@@ -248,17 +247,12 @@
     search: search ? search : ""
   };
 
-  $: if (currentCategory) {
+  $: if (params) {
     loadProducts(params);
     updateBrandCounts(params);
-    if (allCategories.length > 0) {
+    if (currentCategory && allCategories.length > 0) {
       updateCategoryContext(currentCategory.id);
     }
-  }
-
-  $: if (search !== undefined) {
-    loadProducts(params);
-    updateBrandCounts(params);
   }
 </script>
 
