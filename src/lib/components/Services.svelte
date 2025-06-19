@@ -9,6 +9,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { writable } from 'svelte/store';
+  import MobileServicesView from './MobileServicesView.svelte';
 
   export let currentCategory = null;
   export let searchQuery = '';
@@ -260,6 +261,17 @@
   }
 </script>
 
+<div class="md:hidden">
+  <MobileServicesView 
+    {currentCategory}
+    {services}
+    {filters}
+    {params}
+    {loadServices}
+  />
+</div>
+
+<div class="hidden md:block">
 <div class="h-screen bg-white">
   <div class="flex h-full">
     <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -459,4 +471,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>

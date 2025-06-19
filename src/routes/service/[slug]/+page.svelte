@@ -203,6 +203,11 @@
     }
   }
 
+  let showBadgeText = false;
+  let showGuaranteeText = [false, false, false, false];
+  let showProviderText = false;
+  let showHighlightText = [false, false, false];
+
   onMount(async () => {
     parseServiceData();
     
@@ -245,8 +250,8 @@
 <div class="bg-gray-50 min-h-screen">
   <!-- Breadcrumb -->
   <div class="bg-white border-b">
-    <div class=" mx-auto px-16 py-2">
-      <nav class="flex items-center space-x-1 text-sm text-gray-600">
+    <div class="mx-auto px-4 sm:px-8 md:px-16 py-2">
+      <nav class="flex items-center space-x-1 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap">
         <a href="/" class="hover:text-blue-600">
           <Icon icon="mdi:home" class="w-4 h-4" />
         </a>
@@ -260,7 +265,7 @@
     </div>
   </div>
 
-  <div class="mx-auto px-8 py-8">
+  <div class="mx-auto px-2 sm:px-4 md:px-8 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Left Column - Images -->
       <div class="space-y-3">
@@ -275,14 +280,36 @@
             
             <!-- Badges -->
             <div class="absolute top-3 left-3 flex flex-col gap-1">
-              <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                <Icon icon="mdi:star" class="w-3 h-3 inline mr-1" />
-                Professional Service
-              </span>
+              <!-- Professional Service Badge -->
+              <button
+                class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium flex items-center md:inline"
+                onclick={() => showBadgeText = !showBadgeText}
+                onblur={() => showBadgeText = false}
+                tabindex="0"
+              >
+                <Icon icon="mdi:star" class="w-3 h-3 inline" />
+                <span class="hidden md:inline ml-1">Professional Service</span>
+              </button>
+              {#if showBadgeText}
+                <div class="md:hidden absolute left-0 mt-8 bg-white shadow rounded p-2 text-xs z-10">
+                  Professional Service
+                </div>
+              {/if}
               {#if calculateDiscount(service.mrp, service.price)}
-                <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                  {calculateDiscount(service.mrp, service.price)}% OFF
-                </span>
+                <button
+                  class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold flex items-center md:inline mt-1"
+                  onclick={() => showBadgeText = !showBadgeText}
+                  onblur={() => showBadgeText = false}
+                  tabindex="0"
+                >
+                  <span class="hidden md:inline">{calculateDiscount(service.mrp, service.price)}% OFF</span>
+                  <Icon icon="mdi:tag" class="w-3 h-3 inline md:hidden" />
+                </button>
+                {#if showBadgeText}
+                  <div class="md:hidden absolute left-0 mt-16 bg-white shadow rounded p-2 text-xs z-10">
+                    {calculateDiscount(service.mrp, service.price)}% OFF
+                  </div>
+                {/if}
               {/if}
             </div>
 
@@ -296,10 +323,10 @@
 
         <!-- Thumbnails -->
         {#if allImages.length > 1}
-          <div class="flex gap-2 mt-2">
+          <div class="flex gap-2 mt-2 overflow-x-auto">
             {#each allImages as image, index}
               <button
-                class="w-16 h-16 rounded border-2 overflow-hidden {selectedImage === image ? 'border-blue-500' : 'border-gray-200'}"
+                class="w-12 h-12 sm:w-16 sm:h-16 rounded border-2 overflow-hidden {selectedImage === image ? 'border-blue-500' : 'border-gray-200'}"
                 onclick={() => selectedImage = image}
               >
                 <img src={image || "/placeholder.svg"} alt={`View ${index + 1}`} class="w-full h-full object-cover" />
@@ -352,30 +379,45 @@
           
           <!-- Service Guarantees -->
           <div class="grid grid-cols-4 gap-2 mb-4">
-            <div class="text-center p-2 bg-blue-50 rounded">
-              <Icon icon="mdi:shield-check" class="w-5 h-5 text-blue-600 mx-auto mb-1" />
-              <span class="text-xs text-blue-800 font-medium">100% Satisfaction</span>
-            </div>
-            <div class="text-center p-2 bg-green-50 rounded">
-              <Icon icon="mdi:account-check" class="w-5 h-5 text-green-600 mx-auto mb-1" />
-              <span class="text-xs text-green-800 font-medium">Verified Professionals</span>
-            </div>
-            <div class="text-center p-2 bg-purple-50 rounded">
-              <Icon icon="mdi:clock-fast" class="w-5 h-5 text-purple-600 mx-auto mb-1" />
-              <span class="text-xs text-purple-800 font-medium">Quick Booking</span>
-            </div>
-            <div class="text-center p-2 bg-orange-50 rounded">
-              <Icon icon="mdi:home-city" class="w-5 h-5 text-orange-600 mx-auto mb-1" />
-              <span class="text-xs text-orange-800 font-medium">At Your Location</span>
-            </div>
+            {#each [
+              { icon: 'mdi:shield-check', text: '100% Satisfaction', color: 'text-blue-600' },
+              { icon: 'mdi:account-check', text: 'Verified Professionals', color: 'text-green-600' },
+              { icon: 'mdi:clock-fast', text: 'Quick Booking', color: 'text-purple-600' },
+              { icon: 'mdi:home-city', text: 'At Your Location', color: 'text-orange-600' }
+            ] as guarantee, i}
+              <div class="text-center p-2 bg-blue-50 rounded relative">
+                <button
+                  class="mx-auto flex items-center justify-center md:hidden"
+                  onclick={() => showGuaranteeText[i] = !showGuaranteeText[i]}
+                  onblur={() => showGuaranteeText[i] = false}
+                  tabindex="0"
+                >
+                  <Icon icon={guarantee.icon} class={`w-5 h-5 ${guarantee.color}`} />
+                </button>
+                <span class="hidden md:inline text-xs font-medium">{guarantee.text}</span>
+                {#if showGuaranteeText[i]}
+                  <div class="md:hidden absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow rounded p-2 text-xs z-10">
+                    {guarantee.text}
+                  </div>
+                {/if}
+              </div>
+            {/each}
           </div>
         </div>
 
         <!-- Service Provider + Booking Card (Modern, Compact, Combined) -->
-        <div class="service-booking-card bg-white rounded-xl shadow-md border border-gray-100 p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-4 items-stretch mb-6">
+        <div class="service-booking-card bg-white rounded-xl shadow-md border border-gray-100 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 items-stretch mb-6">
           <!-- Provider Info (fixed width, compact) -->
           <div class="w-full md:max-w-xs flex flex-col justify-center items-center md:items-start gap-2 md:gap-3">
-            <div class="flex items-center gap-3">
+            <button
+              class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow md:hidden"
+              onclick={() => showProviderText = !showProviderText}
+              onblur={() => showProviderText = false}
+              tabindex="0"
+            >
+              {service.brand?.name?.charAt(0).toUpperCase()}
+            </button>
+            <div class="hidden md:flex items-center gap-3">
               <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow">
                 {service.brand?.name?.charAt(0).toUpperCase()}
               </div>
@@ -388,6 +430,16 @@
                 </div>
               </div>
             </div>
+            {#if showProviderText}
+              <div class="md:hidden mt-2 bg-white shadow rounded p-2 text-xs z-10 text-center">
+                <div class="font-semibold text-gray-900">{service.brand?.name}</div>
+                <div class="text-xs text-gray-500">Professional Service Provider</div>
+                <div class="flex items-center gap-1 mt-1 justify-center">
+                  <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span class="text-xs text-green-600">Verified Provider</span>
+                </div>
+              </div>
+            {/if}
             <!-- Service ID and Availability below provider info -->
             <div class="flex flex-col gap-2 mt-4 w-full">
               <div class="flex items-center gap-2">
@@ -469,10 +521,10 @@
     <div class="mt-6 bg-white rounded-lg shadow-sm overflow-hidden">
       <!-- Tab Headers -->
       <div class="border-b">
-        <nav class="flex">
+        <nav class="flex overflow-x-auto">
           {#each ['OVERVIEW', 'DETAILS', 'POLICY', 'QNA'] as tab}
             <button
-              class="flex-1 py-3 px-4 text-sm font-medium transition-colors {activeTab === tab ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'}"
+              class="flex-1 py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm font-medium transition-colors {activeTab === tab ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'}"
               onclick={() => activeTab = tab}
             >
               {#if tab === 'OVERVIEW'}
@@ -531,21 +583,32 @@
             <div>
               <h3 class="font-semibold text-gray-900 mb-2">Service Highlights</h3>
               <div class="grid grid-cols-3 gap-3">
-                <div class="text-center p-3 bg-blue-50 rounded">
-                  <Icon icon="mdi:clock-outline" class="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                  <h4 class="text-sm font-medium text-gray-900">Duration</h4>
-                  <p class="text-xs text-gray-600">{serviceDuration || '45-60 mins'}</p>
-                </div>
-                <div class="text-center p-3 bg-green-50 rounded">
-                  <Icon icon="mdi:star-circle" class="w-6 h-6 text-green-600 mx-auto mb-1" />
-                  <h4 class="text-sm font-medium text-gray-900">Popularity</h4>
-                  <p class="text-xs text-gray-600">{service.popularity}% satisfaction</p>
-                </div>
-                <div class="text-center p-3 bg-purple-50 rounded">
-                  <Icon icon="mdi:account-group" class="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                  <h4 class="text-sm font-medium text-gray-900">Experience</h4>
-                  <p class="text-xs text-gray-600">Professional</p>
-                </div>
+                {#each [
+                  { icon: 'mdi:clock-outline', text: serviceDuration || '45-60 mins', label: 'Duration', color: 'text-blue-600' },
+                  { icon: 'mdi:star-circle', text: service.popularity + '% satisfaction', label: 'Popularity', color: 'text-green-600' },
+                  { icon: 'mdi:account-group', text: 'Professional', label: 'Experience', color: 'text-purple-600' }
+                ] as highlight, i}
+                  <div class="text-center p-3 bg-blue-50 rounded relative">
+                    <button
+                      class="mx-auto flex items-center justify-center md:hidden"
+                      onclick={() => showHighlightText[i] = !showHighlightText[i]}
+                      onblur={() => showHighlightText[i] = false}
+                      tabindex="0"
+                    >
+                      <Icon icon={highlight.icon} class={`w-6 h-6 ${highlight.color}`} />
+                    </button>
+                    <div class="hidden md:block">
+                      <h4 class="text-sm font-medium text-gray-900">{highlight.label}</h4>
+                      <p class="text-xs text-gray-600">{highlight.text}</p>
+                    </div>
+                    {#if showHighlightText[i]}
+                      <div class="md:hidden absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow rounded p-2 text-xs z-10">
+                        <h4 class="text-sm font-medium text-gray-900 mb-1">{highlight.label}</h4>
+                        <p class="text-xs text-gray-600">{highlight.text}</p>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
               </div>
             </div>
           </div>
@@ -764,7 +827,7 @@
           class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors"
         >
           <Icon icon="mdi:facebook" class="w-4 h-4" />
-          Facebook
+          <span class="hidden sm:inline">Facebook</span>
         </a>
         <a 
           href="https://twitter.com/intent/tweet?url={encodeURIComponent($page.url.href)}&text={encodeURIComponent(service.name)}"
@@ -773,7 +836,7 @@
           class="flex items-center gap-1 bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded text-sm transition-colors"
         >
           <Icon icon="mdi:twitter" class="w-4 h-4" />
-          Twitter
+          <span class="hidden sm:inline">Twitter</span>
         </a>
         <a 
           href="https://wa.me/?text={encodeURIComponent(service.name + ' ' + $page.url.href)}"
@@ -782,7 +845,7 @@
           class="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors"
         >
           <Icon icon="mdi:whatsapp" class="w-4 h-4" />
-          WhatsApp
+          <span class="hidden sm:inline">WhatsApp</span>
         </a>
       </div>
     </div>
