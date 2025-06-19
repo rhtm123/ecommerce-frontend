@@ -199,6 +199,30 @@
   </div>
 </div>
 
+<!-- Recent Searches (below navbar, only on empty state) -->
+{#if !searchQuery && !isSearching && searchHistory.length > 0}
+  <div class="max-w-7xl mx-auto pt-8 px-4 pb-2 flex flex-col md:flex-row md:items-center md:justify-between">
+    <div>
+      <h3 class="text-base font-semibold text-gray-900 mb-2 md:mb-0">Recent Searches</h3>
+      <div class="flex flex-wrap gap-2">
+        {#each searchHistory.slice(0, 8) as query}
+          <button 
+            onclick={() => handleHistoryClick(query)}
+            class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm transition-colors"
+          >
+            {query}
+          </button>
+        {/each}
+      </div>
+    </div>
+    <button
+      onclick={clearAllHistory}
+      class="text-green-700 text-sm font-medium hover:underline mt-2 md:mt-0 md:ml-4"
+      style="align-self:flex-start"
+    >clear</button>
+  </div>
+{/if}
+
 <!-- Main Content -->
 <div class="max-w-7xl mx-auto md:pt-10  px-4 lg:pt-12 pb-16">
   {#if searchQuery && !isSearching}
@@ -345,23 +369,6 @@
       <p class="text-gray-600 mb-6">
         Search for products, services, or categories to get started
       </p>
-      
-      <!-- Popular Searches -->
-      {#if searchHistory.length > 0}
-        <div class="max-w-md mx-auto">
-          <h3 class="text-sm font-medium text-gray-900 mb-3">Recent Searches</h3>
-          <div class="flex flex-wrap gap-2 justify-center">
-            {#each searchHistory.slice(0, 5) as query}
-              <button 
-                onclick={() => handleHistoryClick(query)}
-                class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm transition-colors"
-              >
-                {query}
-              </button>
-            {/each}
-          </div>
-        </div>
-      {/if}
     </div>
   {/if}
 </div>
