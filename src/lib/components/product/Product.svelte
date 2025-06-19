@@ -60,6 +60,7 @@
   <div class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-gray-50/30 pointer-events-none"></div>
   
   <!-- Product Image with Badges -->
+  <a href="/product/{product.slug}" class="block w-full h-full">
   <div class="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
     <!-- Discount Badge -->
     {#if discount}
@@ -84,18 +85,18 @@
   
 
     <!-- Product Image -->
-    <a href="/product/{product.slug}" class="block w-full h-full">
       <img 
         src={product.main_image || product.category?.image || "/placeholder.svg?height=150&width=150"} 
         alt={product.name}
         class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
       />
-    </a>
+    
 
     <!-- Hover overlay -->
     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300"></div>
   </div>
+  </a>
 
   <!-- Product Info - Flex column to push content to bottom -->
   <div class="p-3 flex flex-col flex-1 relative z-10">
