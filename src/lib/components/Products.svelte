@@ -263,6 +263,7 @@
     {filters}
     {params}
     {loadProducts}
+    loading={loading}
   />
 </div>
 

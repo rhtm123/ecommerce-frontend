@@ -9,6 +9,7 @@
   export let filters = {};
   export let params = {};
   export let loadServices;
+  export let loading = false;
 
   let showSortModal = false;
   let showFilterModal = false;
@@ -296,14 +297,20 @@
 </div>
 
 <!-- Services Grid -->
-{#if services && services.length > 0}
-  <div class="grid grid-cols-1 gap-4 mt-4">
-    {#each services as service (service.id)}
-      <Service {service} />
-    {/each}
+{#if loading}
+  <div class="flex justify-center items-center py-12">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
   </div>
 {:else}
-  <div class="text-center text-gray-500 mt-8">No services found.</div>
+  {#if services && services.length > 0}
+    <div class="grid grid-cols-1 gap-4 mt-4">
+      {#each services as service (service.id)}
+        <Service {service} />
+      {/each}
+    </div>
+  {:else}
+    <div class="text-center text-gray-500 mt-8">No services found.</div>
+  {/if}
 {/if}
 
 <style>

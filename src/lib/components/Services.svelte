@@ -268,6 +268,7 @@
     {filters}
     {params}
     {loadServices}
+    loading={loading}
   />
 </div>
 

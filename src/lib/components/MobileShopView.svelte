@@ -9,6 +9,7 @@
   export let filters = {};
   export let params = {};
   export let loadProducts;
+  export let loading = false;
 
   let showSortModal = false;
   let showFilterModal = false;
@@ -341,14 +342,20 @@
 </div>
 
 <!-- After your hero/info section -->
-{#if products && products.length > 0}
-  <div class="grid grid-cols-1 gap-4 mt-4">
-    {#each products as product (product.id)}
-      <Product {product} />
-    {/each}
+{#if loading}
+  <div class="flex justify-center items-center py-12">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
   </div>
 {:else}
-  <div class="text-center text-gray-500 mt-8">No products found.</div>
+  {#if products && products.length > 0}
+    <div class="grid grid-cols-1 gap-4 mt-4">
+      {#each products as product (product.id)}
+        <Product {product} />
+      {/each}
+    </div>
+  {:else}
+    <div class="text-center text-gray-500 mt-8">No products found.</div>
+  {/if}
 {/if}
 
 <style>
