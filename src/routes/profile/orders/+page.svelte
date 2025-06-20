@@ -84,29 +84,31 @@
     <div class="space-y-6">
       {#each orders as order}
       <div class="bg-white border rounded-lg">
-        <div class="p-3 flex justify-between items-center border-b">
+        <div class="p-2 sm:p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b">
           <div class="flex items-center gap-2">
-            <p class="text text-gray-600">#{order.order_number}</p>
+            <p class="text-sm font-medium text-gray-600">#{order.order_number}</p>
             <span class="flex items-center gap-1">
               {@html getPaymentStatusIcon(order.payment_status)}
-              <span class="text-sm capitalize">{order.payment_status}</span>
+              <span class="text-xs sm:text-sm capitalize">{order.payment_status}</span>
             </span>
           </div>
-          <a class="btn btn-outline btn-primary" href={"/profile/orders/"+order.order_number}>
+          <a class="btn btn-sm btn-outline btn-primary w-full sm:w-auto" href={"/profile/orders/"+order.order_number}>
             Details & Track
           </a>
         </div>
           <OrderItems order_id={order.id} items={order.items} />
 
           <!-- Order Footer -->
-          <div class="p-3 flex justify-between items-center border-t bg-gray-50">
-            {#if order.status === 'delivered'}
-              <InvoiceGenerator orderId={order.id} />
-            {/if}
+          <div class="p-2 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t bg-gray-50">
+            <div class="w-full sm:w-auto">
+              {#if order.status === 'delivered'}
+                <InvoiceGenerator orderId={order.id} />
+              {/if}
+            </div>
             <div class="flex flex-col items-end gap-1 text-right w-full">
-              <div class="text-base font-semibold">Total: ₹{order.total_amount.toFixed(2)}</div>
+              <div class="text-sm sm:text-base font-semibold">Total: ₹{order.total_amount.toFixed(2)}</div>
               {#if order.total_discount > 0}
-                <div class="text-sm text-green-600">
+                <div class="text-xs sm:text-sm text-green-600">
                   {#if order.discount_amount_offer > 0}
                     <div>Offer Discount: -₹{order.discount_amount_offer.toFixed(2)}</div>
                   {/if}
@@ -115,7 +117,7 @@
                   {/if}
                   <div>Total Discount: -₹{order.total_discount.toFixed(2)}</div>
                 </div>
-                <div class="text-base font-medium">Subtotal: ₹{(order.total_amount - order.total_discount).toFixed(2)}</div>
+                <div class="text-sm sm:text-base font-medium">Subtotal: ₹{(order.total_amount - order.total_discount).toFixed(2)}</div>
               {/if}
             </div>
           </div>
@@ -123,19 +125,19 @@
       {/each}
 
       {#if loadingMore}
-        <div class="p-4 flex justify-center">
+        <div class="p-2 sm:p-4 flex justify-center">
           <span class="loading loading-spinner loading-sm"></span>
         </div>
       {/if}
 
       {#if (next && !loadingMore && !loading)}
-        <div class="flex justify-center p-4">
+        <div class="flex justify-center p-2 sm:p-4">
           <button class="btn btn-sm btn-outline" on:click={loadMore}>Load More</button>
         </div>
       {/if}
     </div>
   {:else if (!loading)}
-    <div class="text-center py-8 px-4">
+    <div class="text-center py-6 sm:py-8 px-2 sm:px-4">
       <div class="mb-4">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
