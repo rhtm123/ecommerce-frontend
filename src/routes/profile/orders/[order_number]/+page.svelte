@@ -362,12 +362,12 @@
 </div>
 {:else}
 <div class="mx-auto max-w-4xl px-4 py-8">
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
-    <div class="flex items-center gap-2">
+  <div class="mb-6">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Items in Your Order</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
       <p class="text-sm text-gray-600">Order #{data.order_number}</p>
-      <span class="badge {order.payment_status === 'completed' ? 'badge-success' : 'badge-warning'}">
-       Payment : {order.payment_status}
+      <span class="badge {order.payment_status === 'completed' ? 'badge-success' : 'badge-warning'} text-xs sm:text-sm">
+       Payment: {order.payment_status}
       </span>
     </div>
     

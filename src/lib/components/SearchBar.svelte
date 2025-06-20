@@ -99,7 +99,7 @@
   function handleInput(e) {
     searchQuery = e.target.value;
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => searchProducts(searchQuery), 300);
+    timeoutId = setTimeout(() => searchProducts(searchQuery), 500);
   }
 
   function handleSuggestionClick(product) {
