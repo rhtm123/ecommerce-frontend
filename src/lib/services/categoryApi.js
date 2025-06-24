@@ -34,7 +34,7 @@ export const categoryApi = {
         ...params,
       })
       const data = await myFetch(`${PUBLIC_API_URL}/product/categories/?${searchParams}`)
-      console.log(data)
+      // console.log(data)
       return data
     } catch (e) {
       throw new Error("Failed to fetch service categories")

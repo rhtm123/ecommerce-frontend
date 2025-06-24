@@ -25,7 +25,7 @@ export const productApi = {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-        console.log('API Response:', data); 
+        // console.log('API Response:', data); 
         return data;
       } catch (error) {
         console.error('Error fetching products:', error);
