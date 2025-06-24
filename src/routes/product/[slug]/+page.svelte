@@ -10,12 +10,18 @@
   import Slider from '$lib/components/Slider.svelte';
   import { user } from '$lib/stores/auth.js';
   import { goto } from '$app/navigation';
-  import Product from '$lib/components/product/Product.svelte';
-  import ProductOffers from '$lib/components/product/ProductOffers.svelte';
-  
+
 
   export let data;
-  const { product_listing, category } = data;
+
+  // $: console.log('Data changed:', data);
+
+  let product_listing;
+  let category;
+
+  $: if (data) {
+        ({ product_listing, category } = data);
+  }
   
   
   let activeTab = 'DETAIL';
@@ -23,7 +29,7 @@
   // console.log(product_listing.return_exchange_policy.conditions);
   
   // Selected image state (default to main image)
-  let selectedImage = product_listing.main_image;
+  $: selectedImage = product_listing?.main_image;
 
 
   
@@ -132,9 +138,10 @@
   let RelatedProducts;
   let Reviews;
   let Variants;
+  let AvailabilityCheck;
+  let ProductOffers;
   // let Qna;
 
-  import Variants from '$lib/components/product/Variants.svelte';
 
   onMount(async () => {
     
@@ -143,36 +150,17 @@
     RelatedProducts = import('$lib/components/product/RelatedProducts.svelte');
     Reviews = import('$lib/components/product/Reviews.svelte');
     Variants = import('$lib/components/product/Variants.svelte');
+    AvailabilityCheck = import('$lib/components/product/AvailabilityCheck.svelte');
+    ProductOffers = import('$lib/components/product/ProductOffers.svelte');
+
+
 
     // Qna = import('$lib/components/product/Qna.svelte');
 
 
   });
 
-  let pincode = '';
-  let pincodeResult = '';
-  let pinData = null;
-
-  async function checkPincodeAvailability() {
-    if (!pincode) return; // Don't do anything if pincode is empty
-    
-    if (pincode.length === 6) {
-      const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
-      const data = await response.json();
-      const foundPinData = data.results.find(pin => pin.pin_code === pincode);
-      
-      pinData = foundPinData;
-      
-      if (foundPinData) {
-        pincodeResult = `Delivery is available in ${foundPinData.city}, ${foundPinData.state}. COD is ${foundPinData.cod_available ? 'available' : 'not available'}.`;
-      } else {
-        pincodeResult = 'Delivery is not available for this pincode.';
-      }
-    } else if (pincode.length > 0) {
-      pincodeResult = 'Please enter a valid 6-digit pincode.';
-      pinData = null;
-    }
-  }
+ 
 
   let showModal = false;
   let returnExchangeConditions = '';
@@ -191,6 +179,7 @@
 
 
   let isExpanded = false;
+
 
 
   
@@ -266,7 +255,7 @@
       </div>
 
       <!-- Magnifier Lens -->
-      <div 
+      <!-- <div 
         class="hidden md:block absolute w-[200px] h-[200px] border-2 border-gray-200 rounded-lg pointer-events-none bg-white opacity-0 transition-opacity duration-200 hover:opacity-100"
         style="display: none;"
       >
@@ -278,14 +267,14 @@
             class="w-full h-full object-contain origin-top-left"
           />
         </div>
-      </div>
+      </div> -->
 
 
-      {#if product_listing?.isBestSeller}
+      <!-- {#if product_listing?.isBestSeller}
         <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
           BEST SELLER
         </span>
-      {/if}
+      {/if} -->
     </div>
 
     <!-- Product Info -->
@@ -353,30 +342,20 @@
         </div>
       </div>
 
-      {#if variants.length > 1}
-        <div class="space-y-2">
-          <h3 class="font-medium">Select Variant</h3>
-          <div class="flex flex-wrap gap-2">
-            {#each variants as variant}
-              <button
-                class="px-4 py-2 border rounded-lg transition-all duration-200 {product_listing.id === variant.id ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}"
-                on:click={() => handleVariantChange(variant)}
-              >
-                {variant.variant?.name || variant.name}
-              </button>
-            {/each}
-          </div>
-          {#if loadingVariants}
-            <div class="flex items-center gap-2">
-              <span class="loading loading-spinner loading-sm text-primary"></span>
-              <span>Loading variants...</span>
-            </div>
-          {/if}
-        </div>
+      {#if Variants}
+          {#await Variants then { default: Variants }}
+            <Variants product_listing={product_listing} />
+          {/await}
       {/if}
 
+
       <!-- Product Offers Section - Moved here -->
-      <ProductOffers {product_listing} />
+
+      {#if ProductOffers}
+          {#await ProductOffers then { default: ProductOffers }}
+            <ProductOffers product_listing={product_listing} />
+          {/await}
+      {/if}
 
       <!-- Product Guarantees -->
       <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
@@ -426,7 +405,7 @@
       <!-- <p class="text-gray-600">{product_listing.description}</p> -->
 
       <!-- Color Selection (if applicable) -->
-      {#if product_listing.color}
+      <!-- {#if product_listing.color}
         <div class="space-y-2">
           <h3 class="font-medium">COLOR</h3>
           <div class="flex gap-2">
@@ -436,35 +415,34 @@
             ></button>
           </div>
         </div>
-      {/if}
+      {/if} -->
 
       <!-- Quantity and Add to Cart -->
       {#if product_listing.stock && product_listing.stock > 0}
         {#if showQtyControls}
 
-
-            <div class="inline-flex items-center border-2 border-green-500 rounded-lg px-2 py-1 gap-2 bg-green-50/50">
+            <div class="inline-flex items-center border-2 border-green-500 rounded-lg px-4 py-2 gap-2 bg-green-50/50">
             <button 
               class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
               on:click={quantity > 1 ? handleDecrement : handleRemove}
               aria-label={quantity === 1 ? 'Remove item from cart' : 'Decrease quantity'}
             >
               {#if quantity === 1}
-                <Icon icon="mdi:delete-outline" class="text-red-600" width="12" height="12" />
+                <Icon icon="mdi:delete-outline" class="text-red-600 h-6 w-6" />
               {:else}
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                 </svg>
               {/if}
             </button>
-            <span class="font-semibold text-green-600 text-xs min-w-[1rem] text-center">{quantity}</span>
+            <span class="font-semibold text-green-600 min-w-[1rem] text-center">{quantity}</span>
             <button 
               class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
               on:click={handleIncrement}
               disabled={quantity >= 10}
               aria-label="Increase quantity"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
               </svg>
             </button>
@@ -472,7 +450,7 @@
 
         {:else}
           <button 
-            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 text-xs shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold btn py-2 px-4 rounded-lg transition-all duration-200 text-xs shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             on:click={handleAddToCart}
           >
             ADD TO CART
@@ -485,17 +463,7 @@
 
       <!-- Additional Product Info -->
       <div class="space-y-1 pt-4 border-t">
-        <div class="flex gap-2">
-          <span class="font-medium">SKU:</span>
-          <span class="text-gray-600">NM_{product_listing.id}</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="font-medium">CATEGORY:</span>
-          <span class="text-gray-600">{category?.name}</span>
-        </div>
-        
-
-        
+         
         <div class="flex gap-4">
           <span class="font-medium">SHARE LINK:</span>
           <div class="flex gap-2">
@@ -527,44 +495,13 @@
         </div>
 
         <!-- New Pin Code Check Section -->
-        <div class="flex flex-col gap-2">
-          <div class=" font-medium">Check Delivery Availability</div>
-          <div class="flex items-center gap-2">
-            <input 
-              type="text" 
-              placeholder="Enter Pincode" 
-              bind:value={pincode}
-              class="input input-bordered input-sm h-9 w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-              maxlength="6"
-            />
-            <button 
-              class="btn btn-primary btn-sm h-9 px-4"
-              on:click={checkPincodeAvailability}
-            >
-              Check
-            </button>
-          </div>
-          {#if pincode && pincodeResult}
-            <div class="flex items-start gap-2">
-              <Icon 
-                icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"} 
-                class="w-4 h-4 mt-0.5 {pinData ? 'text-green-500' : 'text-red-500'}"
-              />
-              <div class="flex flex-col">
-                {#if pinData}
-                  <p class="text-xs text-green-700">
-                    Delivery is available in <span class="font-medium">{pinData.city}, {pinData.state}</span>
-                  </p>
-                  <p class="text-xs {pinData.cod_available ? 'text-green-700' : 'text-red-600'}">
-                    COD is <span class="font-medium">{pinData.cod_available ? 'available' : 'not available'}</span>
-                  </p>
-                {:else}
-                  <p class="text-xs text-red-600">{pincodeResult}</p>
-                {/if}
-              </div>
-            </div>
-          {/if}
-        </div>
+       
+
+        {#if AvailabilityCheck}
+          {#await AvailabilityCheck then { default: AvailabilityCheck }}
+            <AvailabilityCheck product_listing={product_listing} />
+          {/await}
+        {/if}
 
       </div>
     </div>
@@ -624,30 +561,32 @@
           </div>
         </div>
       {:else if activeTab === 'INFO'}
+
+      
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
           <div class="overflow-x-auto">
             <table class="table border-4 w-full">
               <tbody>
-                {#if product_listing.weight}
+                <!-- {#if product_listing.weight}
                   <tr class="border-t">
                     <td class="font-medium text-gray-600 w-1/3 border-l">WEIGHT</td>
                     <td class=" italic text-gray-500 border-l border-r">{product_listing.weight}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
-                {#if product_listing.dimensions}
+                <!-- {#if product_listing.dimensions}
                   <tr>
                     <td class="font-medium text-gray-600 w-1/3 border-l">DIMENSIONS</td>
                     <td class="italic text-gray-500 border-l border-r">{product_listing.dimensions}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
-                {#if product_listing.color}
+                <!-- {#if product_listing.color}
                   <tr>
                     <td class="font-medium text-gray-600 w-1/3 border-l">COLOR</td>
                     <td class="italic text-gray-500 border-l border-r">{product_listing.color}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
          
                 
@@ -657,14 +596,29 @@
                     <td class="italic text-gray-500 border-l border-r">{product_listing.brand.name}</td>
                   </tr>
                 {/if}
+
+                <tr>
+
+                  <td class="font-medium text-gray-600 w-1/3 border-l">SKU</td>
+                  <td class="italic text-gray-500 border-l border-r">NM_{product_listing.id}</td>
+
+                </tr>
+
+                <tr>
+
+                  <td class="font-medium text-gray-600 w-1/3 border-l">CATEGORY</td>
+                  <td class="italic text-gray-500 border-l border-r">{category?.name}</td>
+                  
+                </tr>
+
     
                 <!-- Dynamically render any additional properties -->
-                {#each Object.entries(product_listing.additionalInfo || {}) as [key, value]}
+                <!-- {#each Object.entries(product_listing.additionalInfo || {}) as [key, value]}
                   <tr class="border-b">
                     <td class="font-medium text-gray-600 w-1/3 border-l">{key}</td>
                     <td class="italic text-gray-500 border-l border-r">{value}</td>
                   </tr>
-                {/each}
+                {/each} -->
               </tbody>
             </table>
           </div>
@@ -719,6 +673,8 @@
     </div>
   </div>
 {/if}
+
+
 
 <style>
   input[type="number"]::-webkit-inner-spin-button,

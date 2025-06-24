@@ -266,8 +266,8 @@
   <!-- Breadcrumb -->
   
   <!-- Progress Steps -->
-  <div class="progress-container mb-8">
-    <div class="flex items-center justify-between max-w-3xl mx-auto relative">
+  <div class="mb-8">
+    <div class="flex items-center px-4 justify-between max-w-3xl mx-auto relative">
         <div class="absolute inset-0 flex items-center">
             <div class="h-1 w-full bg-gray-200">
                 <div class={!orderdCompleted?"h-full bg-red-500 w-2/3":"h-full bg-red-500"}></div>
@@ -309,11 +309,11 @@
       </div>
       {:else}
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <!-- Billing Details Form -->
         <div class="space-y-6 mt-10">
           
-          <div class="bg-white p-6 rounded shadow-sm">
+          <div class="bg-white p-4 rounded shadow-sm">
             
             <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold mb-4">Select Address</h2>
@@ -550,9 +550,7 @@
 
     /* Mobile-specific styles */
     @media (max-width: 768px) {
-        .progress-container {
-            padding: 0 1rem;
-        }
+        
         
         .step-number {
             height: 24px !important;
