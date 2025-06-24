@@ -7,11 +7,9 @@
   import { myFetch } from '$lib/utils/myFetch';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import MobileShopView from './MobileShopView.svelte';
   import { writable } from 'svelte/store';
 
   export let currentCategory = null;
-  export let searchQuery = '';
 
   let products = [];
   let next = null;
@@ -36,7 +34,7 @@
   const search = $page.url.searchParams.get('q');
   let selectedBrands = writable(brand_ids ? brand_ids.split(',') : []);
 
-  async function loadInitialSideFilters(params) {
+  async function loadInitialFilters(params) {
     try {
       const filtersData = await productApi.getFilters({ ...params, brand_ids: '' });
       filters = filtersData;
@@ -71,10 +69,6 @@
     }
   }
 
-  onMount(() => {
-    fetchAllCategories();
-    loadInitialSideFilters(params);
-  });
 
   function updateCategoryContext(categoryId) {
     const category = findCategoryById(categoryId);
@@ -244,55 +238,94 @@
   $: params = {
     category_id: currentCategory?.id,
     brand_ids: $selectedBrands.join(','),
-    search: search ? search : ""
   };
 
-  $: if (params) {
-    loadProducts(params);
-    updateBrandCounts(params);
-    if (currentCategory && allCategories.length > 0) {
-      updateCategoryContext(currentCategory.id);
+  $: {
+    if (currentCategory) {
+      applyFilters();
+      fetchAllCategories();
+
     }
   }
+
+ 
+
+  let isMobile = false;
+  
+  onMount(async () => {
+    // Detect mobile on mount
+    isMobile = window.innerWidth < 768;
+    window.addEventListener('resize', () => {
+      isMobile = window.innerWidth < 768;
+    });
+    
+    fetchAllCategories();
+    await loadInitialFilters(params);
+    await applyFilters();
+  });
+
+  let showSortModal = false;
+
+  
+
+
 </script>
 
-<div class="md:hidden">
-  <MobileShopView 
-    {currentCategory}
-    {products}
-    {filters}
-    {params}
-    {loadProducts}
-    loading={loading}
-  />
-</div>
 
-<div class="hidden md:block">
-  <div class="h-screen bg-white">
-    <div class="flex h-full">
-      <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-          <h2 class="font-bold text-gray-800 flex items-center gap-2">
-            {#if currentCategory}
-              <button 
-                class="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                on:click={parentCategory ? goToParentCategory : clearCategory}
-                aria-label="Back to parent category"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-              </button>
-              <span>{currentCategory.name}</span>
-            {:else}
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
-              <span>All Categories</span>
-            {/if}
-          </h2>
-        </div>
+
+
+<!-- Main container -->
+<div class="mt-4">
+  <div class="min-h-screen bg-white">
+    <!-- {/*-- Mobile Header --*/} -->
+    <div class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 p-3 flex items-center justify-between">
+      <h2 class="text-sm font-medium truncate max-w-[50vw]">
+        {#if currentCategory}
+          {currentCategory.name}
+        {:else}
+          All Products
+        {/if}
+      </h2>
+      <div class="flex gap-2">
+        <button 
+          class="btn btn-sm btn-outline gap-1"
+          on:click={() => showFilters = true}
+          aria-label="Open filters"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+          </svg>
+          Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- {/*-- Mobile Categories Bar (Visible on mobile) --*/} -->
+    <div class="md:hidden sticky top-12 z-20 bg-white border-b border-gray-200 overflow-x-auto">
+      <div class="flex space-x-2 p-2 min-w-max">
+        {#each displayCategories as category (category.id)}
+          <a 
+            href="/shop/{category.slug}"
+            class="px-3 py-1.5 text-sm whitespace-nowrap rounded-full border border-gray-300 transition-colors
+                  {currentCategory?.id === category.id 
+                    ? 'bg-blue-50 text-blue-600 border-blue-200 font-medium' 
+                    : 'text-gray-700 hover:bg-gray-50'}"
+          >
+            {category.name}
+          </a>
+        {/each}
+      </div>
+    </div>
+
+    <!-- {/*-- Desktop Title --*/} -->
+    
+
+    <div class="flex flex-col md:flex-row h-full">
+      <!-- {/*-- Desktop Category Sidebar --*/} -->
+      <div class="hidden md:block w-64 bg-white border-r border-gray-200 flex flex-col">
         <div class="flex-1 overflow-y-auto">
+
+
           <div class="p-2">
             {#each displayCategories as category (category.id)}
               <div class="relative">
@@ -307,9 +340,9 @@
                       class="w-full h-full object-cover"
                     />
                   </div>
-                  <span class="text-sm truncate">{category.name}</span>
+                  <span class="text-sm flex-1">{category.name}</span>
                   {#if category.children && category.children.length > 0}
-                    <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                   {/if}
@@ -319,23 +352,25 @@
           </div>
         </div>
       </div>
+
+      <!-- {/*-- Main Content Area --*/} -->
       <div class="flex-1 flex flex-col">
-        <div class="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
-          <div>
-            <h1 class="text-lg font-semibold text-gray-900">
-              {currentCategory ? currentCategory.name : 'All Products'}
-            </h1>
-            <p class="text-xs text-gray-500">
-              {totalProducts} products
-            </p>
-          </div>
+        <!-- {/*-- Desktop Top Bar --*/} -->
+        <div class="hidden md:flex px-4 py-3 border-b border-gray-200 bg-white justify-between items-center">
+
+
+          <h1 class="font-medium opacity-80 hidden md:block ">
+            {currentCategory?.name} {totalProducts} Products
+          </h1>
+
+
           <div class="flex items-center gap-3">
             <select 
               class="select select-sm select-bordered bg-white text-sm min-w-0 w-auto"
               bind:value={sortOption}
               on:change={applyFilters}
             >
-              <option value="default">Default Sorting</option>
+              <option value="default">Default </option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
               <option value="popularity">Sort by Popularity</option>
@@ -354,29 +389,29 @@
             </button>
           </div>
         </div>
+
+        <!-- {/*-- Product Grid --*/} -->
         <div class="flex-1 overflow-hidden bg-gray-50 relative">
           <div class="flex h-full">
-            <div class="flex-1 overflow-y-auto p-4">
+            <div class="flex-1 overflow-y-auto p-0 md:p-4">
+              <!-- {/*-- Mobile product count --*/} -->
+              <div class="md:hidden px-3 py-2 text-sm text-gray-500">
+                {totalProducts} products
+              </div>
+              
               {#if loading}
-                <div class="flex justify-center items-center py-8">
+                <div class="flex justify-center py-10">
                   <div class="loading loading-spinner loading-md text-blue-500"></div>
                 </div>
               {:else if error}
-                <div class="text-center py-8">
-                  <p class="text-red-500 text-sm">{error}</p>
-                </div>
+                <div class="text-center py-10 text-sm text-red-600">{error}</div>
               {:else if products.length === 0}
-                <div class="text-center py-8">
-                  <div class="text-gray-400 mb-2">
-                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5"></path>
-                    </svg>
-                  </div>
-                  <h3 class="text-base font-medium text-gray-900 mb-1">No products found</h3>
-                  <p class="text-gray-500 text-sm">Try adjusting your search or filters</p>
+                <div class="text-center py-10 text-gray-600">
+                  <p class="text-lg font-medium mb-1">No products found</p>
+                  <p class="text-sm">Try adjusting your filters or search query</p>
                 </div>
               {:else}
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 px-2 md:px-0">
                   {#each products as product (product.id)}
                     <Product {product} />
                   {/each}
@@ -391,75 +426,75 @@
                 </div>
               {/if}
             </div>
+            
+            <!-- {/*-- Filter Drawer (Mobile & Desktop) --*/} -->
             {#if showFilters}
-              <div class="w-72 bg-white border-l border-gray-200 overflow-y-auto" transition:fly={{ x: 300, duration: 300 }}>
-                <div class="p-4">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-gray-900">Filters</h3>
-                    <button 
-                      class="btn btn-ghost btn-xs"
-                      on:click={() => showFilters = false}
-                      aria-label="Close filters"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
+              <div class="fixed inset-0 z-40 bg-white md:relative md:w-72 md:border-l md:shadow-lg" 
+                   transition:fly={{ x: isMobile ? 300 : 0, duration: 300 }}>
+                <div class="p-4 divide-y divide-gray-200 space-y-4 h-full overflow-y-auto">
+                  <div class="flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-800 text-base">Filters</h3>
+                    <button on:click={() => showFilters = false} class="text-gray-500 hover:text-gray-700">
+                      ✕
                     </button>
                   </div>
-                  <div class="mb-6">
-                    <h3 class="text-sm font-medium mb-2">Price Range</h3>
-                    <div class="flex flex-col gap-4">
-                      <div class="relative group">
-                        <div 
-                          class="absolute -top-8 transform -translate-x-1/2 transition-all duration-200 pointer-events-none"
-                          style="left: calc({((selectedPriceRange[1] - (filters.price_range?.min_price || 0)) / ((filters.price_range?.max_price || 100) - (filters.price_range?.min_price || 0)) * 100)}%)"
-                        >
-                          <div class="bg-primary text-white px-2 py-1 rounded text-xs shadow-md opacity-0 group-hover:opacity-100 whitespace-nowrap">
-                            {selectedPriceRange[1]}
-                          </div>
-                          <div class="w-2 h-2 bg-primary rotate-45 transform -translate-x-1/2 left-1/2 absolute -bottom-1"></div>
-                        </div>
-                        <input
-                          type="range"
-                          min={filters.price_range?.min_price || 0}
-                          max={filters.price_range?.max_price || 100}
-                          bind:value={selectedPriceRange[1]}
-                          on:change={applyFilters}
-                          class="range range-primary w-full cursor-pointer"
-                        />
-                      </div>
-                      <div class="flex justify-between text-sm text-gray-600">
-                        <span>{filters.price_range?.min_price || 0}</span>
-                        <span>{filters.price_range?.max_price || 100}</span>
-                      </div>
+              
+                  <div class="pt-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Price Range</h4>
+                    <div class="px-2">
+                      <input
+                        type="range"
+                        min={filters.price_range?.min_price || 0}
+                        max={filters.price_range?.max_price || 100}
+                        bind:value={selectedPriceRange[1]}
+                        class="range range-primary w-full"
+                      />
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 px-1">
+                      <span>₹{filters.price_range?.min_price || 0}</span>
+                      <span>₹{filters.price_range?.max_price || 100}</span>
                     </div>
                   </div>
-                  <div class="mb-6">
-                    <h4 class="font-medium text-gray-900 mb-3 text-sm">Brands</h4>
-                    <div class="space-y-2">
+              
+                  <div class="pt-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Brands</h4>
+                    <div class="space-y-2 max-h-60 overflow-y-auto">
                       {#each allBrands as brand}
-                        <label class="flex items-center gap-2 text-sm">
-                          <input 
-                            type="checkbox" 
-                            class="checkbox checkbox-primary checkbox-sm"
-                            checked={$selectedBrands.includes(brand.brand__id.toString())}
+                        <label class="flex items-center gap-2 text-sm text-gray-700 p-1">
+                          <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" 
+                            checked={$selectedBrands.includes(brand.brand__id?.toString())}
                             on:change={() => {
-                              selectedBrands.update(sb => 
+                              selectedBrands.update(sb =>
                                 sb.includes(brand.brand__id.toString())
                                   ? sb.filter(id => id !== brand.brand__id.toString())
-                                  : [...sb, band.brand__id.toString()]
+                                  : [...sb, brand.brand__id.toString()]
                               );
-                              applyFilters();
                             }}
                           />
-                          {brand.brand__name} ({brand.count})
+                          <span class="truncate flex-1">{brand.brand__name}</span> 
+                          <span class="text-gray-400 text-xs">({brand.count})</span>
                         </label>
                       {/each}
                     </div>
                   </div>
-                  <button class="btn btn-primary btn-sm w-full" on:click={applyFilters}>
-                    Apply Filters
-                  </button>
+              
+                  <div class="flex gap-2 pt-4">
+                    <button class="btn btn-outline btn-sm flex-1" on:click={() => {
+                      $selectedBrands = [];
+                      selectedPriceRange = [
+                        parseFloat(filters?.price_range?.min_price ?? 0),
+                        parseFloat(filters?.price_range?.max_price ?? 100)
+                      ];
+                    }}>
+                      Reset
+                    </button>
+                    <button class="btn btn-primary btn-sm flex-1" on:click={() => {
+                      applyFilters();
+                      if (isMobile) showFilters = false;
+                    }}>
+                      Apply
+                    </button>
+                  </div>
                 </div>
               </div>
             {/if}
@@ -467,5 +502,64 @@
         </div>
       </div>
     </div>
+
+    <!-- {/*-- Mobile Sort Button (Fixed at bottom) --*/} -->
+   
+
+    <!-- Mobile Sort Button with Action -->
+<div class="md:hidden fixed bottom-4 right-4 z-30">
+  <button 
+    class="btn btn-primary btn-circle shadow-lg"
+    on:click={() => showSortModal = true}
+    aria-label="Sort options"
+  >
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Mobile Sort Modal -->
+{#if showSortModal}
+  <div class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end md:hidden" 
+       on:click={() => showSortModal = false}>
+    <div class="bg-white w-full rounded-t-2xl p-4 max-h-[80vh] overflow-y-auto"
+         on:click|stopPropagation>
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">Sort By</h3>
+        <button on:click={() => showSortModal = false} class="text-gray-500">
+          ✕
+        </button>
+      </div>
+      
+      <div class="space-y-2">
+        {#each [
+          { value: 'default', label: 'Default' },
+          { value: 'price_asc', label: 'Price: Low to High' },
+          { value: 'price_desc', label: 'Price: High to Low' },
+          { value: 'popularity', label: 'Popularity' },
+          { value: 'rating', label: 'Rating' },
+          { value: 'newest', label: 'Newest' }
+        ] as option}
+          <button
+            class="w-full text-left p-3 rounded-lg text-sm
+                   {sortOption === option.value 
+                     ? 'bg-blue-50 text-blue-600 font-medium' 
+                     : 'text-gray-700 hover:bg-gray-50'}"
+            on:click={() => {
+              sortOption = option.value;
+              applyFilters();
+              showSortModal = false;
+            }}
+          >
+            {option.label}
+          </button>
+        {/each}
+      </div>
+    </div>
+  </div>
+{/if}
+
+
   </div>
 </div>

@@ -61,7 +61,7 @@
 <div class="relative">
   <div
     bind:this={scrollContainer}
-    class="flex space-x-2 md:space-x-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide transition-all duration-300 ease-out"
+    class="flex space-x-2 md:space-x-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide transition-all duration-300 ease-out"
   >
     <slot {items} />
   </div>

@@ -18,8 +18,7 @@
   import BestSelling from '$lib/components/home/BestSelling.svelte';
   import Testimonials from '$lib/components/home/Testimonials.svelte';
   import ShopByBrands from '$lib/components/home/ShopByBrands.svelte';
-  import Ads from '$lib/components/Ads.svelte';
-  // import ProductSlider from '$lib/components/home/ProductSlider.svelte';
+  // import Ads from '$lib/components/Ads.svelte';
 
 </script>
 
@@ -39,7 +38,7 @@
 <div class="bg-base-100">
   <!-- <Login /> -->
   <Hero slides={heroProducts} />
-  <Ads />
+  <!-- <Ads /> -->
   <!-- <Navigation /> -->
   <HomeCategories categories={mainCategories} />
   <ProductSection products={newProducts} />
@@ -50,6 +49,5 @@
   <!-- <Carousel /> -->
   <Testimonials recentReviews={recentReviews} />
 
-  <!-- <ProductSlider /> -->
   <!-- <Footer /> -->
 </div>

@@ -2,8 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { fade, slide } from 'svelte/transition';
-  import { addToCart } from '../../../lib/stores/cart.js';
-  import Reviews from '$lib/components/product/Reviews.svelte';
+  import { addToCart, cart } from '../../../lib/stores/cart.js';
   import  Icon  from '@iconify/svelte';
   import { myFetch } from '$lib/utils/myFetch.js';
   import { PUBLIC_API_URL } from '$env/static/public';
@@ -13,13 +12,13 @@
   import { goto } from '$app/navigation';
   import Product from '$lib/components/product/Product.svelte';
   import ProductOffers from '$lib/components/product/ProductOffers.svelte';
+  
 
   export let data;
   const { product_listing, category } = data;
   
   
   let activeTab = 'DETAIL';
-  let quantity = 1;
   
   // console.log(product_listing.return_exchange_policy.conditions);
   
@@ -50,26 +49,41 @@
     return Math.round(((mrp - price) / mrp) * 100);
   }
   
+  // function handleAddToCart() {
+  //   for (let i = 0; i < quantity; i++) {
+  //     addToCart(product_listing);
+  //   }
+  // }
+
+  $: cartItem = $cart.find(item => item.id === product_listing.id);
+  $: quantity = cartItem ? cartItem.quantity : 0;
+  $: showQtyControls = quantity>0?true:false;
+
+
+
   function handleAddToCart() {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product_listing);
-    }
+    addToCart(product_listing);
+    quantity = 1;
   }
 
-  let relatedProducts = [];
-  let loadingRelatedProducts = true;
-  async function getRelatedProducts() {
-    try{
-    let url = `${PUBLIC_API_URL}/product/product-listings/related/${product_listing.id}/`
-    let data = await myFetch(url);
-    relatedProducts = data.results;
-    console.log(relatedProducts);
-    } catch(e){
-
-    }finally{
-      loadingRelatedProducts = false
+  function handleIncrement() {
+    if (quantity < 10) {
+      cart.update(items => items.map(item => item.id === product_listing.id ? { ...item, quantity: item.quantity + 1 } : item));
     }
   }
+  
+  function handleDecrement() {
+
+    if (quantity > 1) {
+      cart.update(items => items.map(item => item.id === product_listing.id ? { ...item, quantity: item.quantity - 1 } : item));
+    }
+
+  }
+  
+  function handleRemove() {
+    cart.update(items => items.filter(item => item.id !== product_listing.id));
+  }
+
 
   async function getProductListingImages(){
     let url = `${PUBLIC_API_URL}/product/product-listing-images/?product_listing_id=${product_listing.id}`
@@ -115,33 +129,24 @@
     }
   }
 
-  onMount(async () => {
-    // Subscribe to user store
-    const unsubscribe = user.subscribe(value => {
-      if (value) {
-        currentUser = value;
-        userId = value.user_id;
-        // Set role based on entity field
-        userRole = value.entity ? 'seller' : 'buyer';
-        console.log("User data:", { userId, userRole, entity: value.entity });
-        checkPurchaseHistory();
-      } else {
-        currentUser = null;
-        userId = null;
-        userRole = null;
-        hasPurchased = false;
-      }
-    });
+  let RelatedProducts;
+  let Reviews;
+  let Variants;
+  // let Qna;
 
-    // Get product listing images
+  import Variants from '$lib/components/product/Variants.svelte';
+
+  onMount(async () => {
+    
     await getProductListingImages();
 
-    await getRelatedProducts();
+    RelatedProducts = import('$lib/components/product/RelatedProducts.svelte');
+    Reviews = import('$lib/components/product/Reviews.svelte');
+    Variants = import('$lib/components/product/Variants.svelte');
 
-    // Cleanup subscription on component destroy
-    return () => {
-      unsubscribe();
-    };
+    // Qna = import('$lib/components/product/Qna.svelte');
+
+
   });
 
   let pincode = '';
@@ -175,174 +180,20 @@
   function openModal(conditions) {
     returnExchangeConditions = conditions;
     showModal = true; // Open the modal
-    console.log("Modal opened with conditions:", conditions); // Debugging line
+    // console.log("Modal opened with conditions:", conditions); // Debugging line
   }
 
   function closeModal() {
     showModal = false; // Close the modal
-    console.log("Modal closed"); // Debugging line
-  }
-
-  let reviews = [];
-  let reviewsLoading = false;
-  let reviewsNext = null;
-  let reviewsLoaded = false;
-
-  async function fetchReviews() {
-    if (reviewsLoaded) return;
-    reviewsLoading = true;
-    try {
-      let url = `${PUBLIC_API_URL}/review/reviews/?product_listing_id=${product_listing.id}&ordering=-id`;
-      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
-      reviews = data.results;
-      reviewsNext = data.next;
-      reviewsLoaded = true;
-    } catch (e) {
-      console.error("Error fetching reviews:", e);
-    } finally {
-      reviewsLoading = false;
-    }
-  }
-
-  // Watch activeTab changes
-  $: if (activeTab === 'REVIEWS' && !reviewsLoaded) {
-    fetchReviews();
+    // console.log("Modal closed"); // Debugging line
   }
 
 
-  // Add these to your existing variables
-  let questions = [];
-  let questionsLoading = false;
-  let questionsNext = null;
-  let questionsLoaded = false;
-  let newQuestion = '';
-  let newAnswer = {};
-  let userRole = null;
-  let userId = null;
-  let hasPurchased = false;
-  let currentUser = null;
-
-  // Fetch questions
-  async function fetchQuestions() {
-    if (questionsLoaded) return;
-    questionsLoading = true;
-    try {
-      let url = `${PUBLIC_API_URL}/qna/questions/?product_listing_id=${product_listing.id}&ordering=-id&answers_required=true`;
-      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
-      questions = data.results;
-      questionsNext = data.next;
-      questionsLoaded = true;
-      console.log("questions",questions);
-    } catch (e) {
-      console.error("Error fetching questions:", e);
-    } finally {
-      questionsLoading = false;
-    }
-  }
-
-  // Check if user has purchased the product
-  async function checkPurchaseHistory() {
-    if (!userId) return;
-    try {
-      // First get user's orders
-      const ordersResponse = await myFetch(
-        `${PUBLIC_API_URL}/order/orders?user_id=${userId}`,
-        'GET',
-        {},
-        currentUser?.access_token
-      );
-      
-      // Get all order IDs
-      const orderIds = ordersResponse.results.map(order => order.id);
-      
-      // If there are orders, check order items
-      if (orderIds.length > 0) {
-        const orderItemsResponse = await myFetch(
-          `${PUBLIC_API_URL}/order/order-items/?page=1&page_size=100&need_reviews=true`,
-          'GET',
-          {},
-          currentUser?.access_token
-        );
-        
-        // Check if any order item matches the current product
-        hasPurchased = orderItemsResponse.results.some(item => 
-          orderIds.includes(item.order_id) && 
-          item.product_listing.id === product_listing.id &&
-          ['delivered', 'ready_for_delivery'].includes(item.status)
-        );
-      }
-    } catch (e) {
-      console.error("Error checking purchase history:", e);
-    }
-  }
-
-  // Submit new question
-  async function submitQuestion() {
-    if (!userId) {
-      goto('/login');
-      return;
-    }
-    if (!newQuestion.trim()) return;
-
-    try {
-      const response = await myFetch(
-        `${PUBLIC_API_URL}/qna/questions/`, 
-        'POST',
-        {
-          question_text: newQuestion,
-          user_id: userId,
-          product_listing_id: product_listing.id
-        },
-        currentUser?.access_token
-      );
-      
-      if (response) {
-        newQuestion = '';
-        questionsLoaded = false;
-        fetchQuestions();
-      }
-    } catch (e) {
-      console.error("Error submitting question:", e);
-    }
-  }
-
-  // Submit new answer
-  async function submitAnswer(questionId) {
-    if (!userId) {
-      goto('/login');
-      return;
-    }
-    if (!newAnswer[questionId]?.trim()) return;
-
-    try {
-      const response = await myFetch(
-        `${PUBLIC_API_URL}/qna/answers/`,
-        'POST',
-        {
-          answer_text: newAnswer[questionId],
-          user_id: userId,
-          question_id: questionId
-        },
-        currentUser?.access_token
-      );
-      console.log("response",response);
-      
-      if (response) {
-        newAnswer[questionId] = '';
-        questionsLoaded = false;
-        fetchQuestions();
-      }
-    } catch (e) {
-      console.error("Error submitting answer:", e);
-    }
-  }
-
-  // Watch activeTab changes
-  $: if (activeTab === 'QNA' && !questionsLoaded) {
-    fetchQuestions();
-  }
 
   let isExpanded = false;
+
+
+  
 </script>
 
 <svelte:head>
@@ -502,6 +353,28 @@
         </div>
       </div>
 
+      {#if variants.length > 1}
+        <div class="space-y-2">
+          <h3 class="font-medium">Select Variant</h3>
+          <div class="flex flex-wrap gap-2">
+            {#each variants as variant}
+              <button
+                class="px-4 py-2 border rounded-lg transition-all duration-200 {product_listing.id === variant.id ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}"
+                on:click={() => handleVariantChange(variant)}
+              >
+                {variant.variant?.name || variant.name}
+              </button>
+            {/each}
+          </div>
+          {#if loadingVariants}
+            <div class="flex items-center gap-2">
+              <span class="loading loading-spinner loading-sm text-primary"></span>
+              <span>Loading variants...</span>
+            </div>
+          {/if}
+        </div>
+      {/if}
+
       <!-- Product Offers Section - Moved here -->
       <ProductOffers {product_listing} />
 
@@ -567,27 +440,44 @@
 
       <!-- Quantity and Add to Cart -->
       {#if product_listing.stock && product_listing.stock > 0}
-        <div class="flex items-center gap-4">
-          <div class="flex items-center border rounded-lg">
+        {#if showQtyControls}
+
+
+            <div class="inline-flex items-center border-2 border-green-500 rounded-lg px-2 py-1 gap-2 bg-green-50/50">
             <button 
-              class="px-4 py-2 hover:bg-base-50"
-              on:click={() => updateQuantity(-1)}
-            >-</button>
-            <input 
-              type="number" 
-              bind:value={quantity}
-              disabled
-              class="w-16 text-center bg-inherit border-x"
-              min="1"
-              max="10"
-            />
+              class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
+              on:click={quantity > 1 ? handleDecrement : handleRemove}
+              aria-label={quantity === 1 ? 'Remove item from cart' : 'Decrease quantity'}
+            >
+              {#if quantity === 1}
+                <Icon icon="mdi:delete-outline" class="text-red-600" width="12" height="12" />
+              {:else}
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                </svg>
+              {/if}
+            </button>
+            <span class="font-semibold text-green-600 text-xs min-w-[1rem] text-center">{quantity}</span>
             <button 
-              class="px-4 py-2 hover:bg-base-50"
-              on:click={() => updateQuantity(1)}
-            >+</button>
-          </div>
-          <button class="border bg-primary text-white rounded-lg px-4 py-2" on:click={handleAddToCart}>ADD TO CART</button>
-        </div>
+              class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
+              on:click={handleIncrement}
+              disabled={quantity >= 10}
+              aria-label="Increase quantity"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+            </button>
+            </div>
+
+        {:else}
+          <button 
+            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 text-xs shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            on:click={handleAddToCart}
+          >
+            ADD TO CART
+          </button>
+        {/if}
       {:else}
         <div class="text-red-500 font-medium text-lg">Out of Stock</div>
       {/if}
@@ -697,15 +587,13 @@
         >
           INFO
         </button>
-        <button 
+        <!-- <button 
           class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'QNA' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'QNA'}
         >
           <span>Q&A</span>
-          {#if questions.length > 0}
-            <span class="ml-1">({questions.length})</span>
-          {/if}
-        </button>
+          
+        </button> -->
         <button 
           class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'REVIEWS'}
@@ -761,12 +649,7 @@
                   </tr>
                 {/if}
                 
-                {#if product_listing.ageRange}
-                  <tr>
-                    <td class="font-medium text-gray-600 w-1/3 border-l">AGE</td>
-                    <td class="italic text-gray-500 border-l border-r">{product_listing.ageRange}</td>
-                  </tr>
-                {/if}
+         
                 
                 {#if product_listing.brand}
                   <tr>
@@ -787,173 +670,25 @@
           </div>
         </div>
 
-        {:else if activeTab === 'QNA'}
-        <div class="max-w-3xl mx-auto space-y-6">
-          <!-- Question Input -->
-          <div class="bg-white rounded-lg shadow-sm border p-4">
-            <h3 class="text-lg font-medium mb-3">Ask a Question</h3>
-            <div class="flex gap-3">
-              <textarea
-                bind:value={newQuestion}
-                placeholder="Type your question here..."
-                class="textarea textarea-bordered w-full  resize-none text-sm focus:ring-2 focus:ring-primary/20"
-                disabled={questionsLoading}
-              ></textarea>
-              <button
-                on:click={submitQuestion}
-                class="btn btn-primary px-6 h-auto"
-                disabled={questionsLoading || !newQuestion.trim()}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-
-          <!-- Questions List -->
-          {#if questionsLoading}
-            <div class="flex justify-center py-6">
-              <span class="loading loading-spinner loading-md text-primary"></span>
-            </div>
-          {:else if questions.length === 0}
-            <div class="text-center py-8 text-gray-500">
-              No questions yet. Be the first to ask!
-            </div>
-          {:else}
-            <div class="space-y-4">
-              {#each questions as question}
-                <div class="bg-white rounded-lg shadow-sm border p-4">
-                  <!-- Question -->
-                  <div class="flex gap-3">
-                    <div class="avatar placeholder flex-shrink-0">
-                      <div class="bg-neutral-focus text-neutral-content rounded-full w-8 h-8">
-                        <span class="text-sm">{question.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                      </div>
-                    </div>
-                    <div class="flex-1 space-y-1">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium text-sm">
-                          {question.user?.first_name} {question.user?.last_name}
-                        </span>
-                        {#if question.user?.role === 'entity'}
-                          <span class="badge badge-warning badge-sm">Seller</span>
-                        {:else if hasPurchased}
-                          <span class="badge badge-success badge-sm">Verified Buyer</span>
-                        {/if}
-                      </div>
-                      <p class="text-gray-700">{question.question_text}</p>
-                      <p class="text-xs text-gray-500">
-                        Asked on {new Date(question.created).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Answers -->
-                  {#if question.answers?.length}
-                    <div class="ml-11 mt-3 space-y-3">
-                      <!-- Show first verified buyer answer or first answer -->
-                      {#if question.answers.length > 0}
-                        {@const verifiedBuyerAnswer = question.answers.find(a => a.user?.role !== 'entity')}
-                        {@const firstAnswer = verifiedBuyerAnswer || question.answers[0]}
-                        <div class="border-l-2 border-primary/20 pl-4 py-2">
-                          <div class="flex items-start gap-2">
-                            <div class="avatar placeholder flex-shrink-0">
-                              <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
-                                <span class="text-xs">{firstAnswer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                              </div>
-                            </div>
-                            <div class="flex-1 space-y-1">
-                              <div class="flex items-center gap-2">
-                                <span class="font-medium text-sm">{firstAnswer.user?.first_name} {firstAnswer.user?.last_name}</span>
-                                {#if firstAnswer.user?.role === 'entity'}
-                                  <span class="badge badge-warning badge-sm">Seller</span>
-                                {:else if hasPurchased}
-                                  <span class="badge badge-success badge-sm">Verified Buyer</span>
-                                {/if}
-                              </div>
-                              <p class="text-gray-600 text-sm">{firstAnswer.answer_text}</p>
-                              <p class="text-xs text-gray-500">
-                                Answered on {new Date(firstAnswer.created).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Show expand button if there are more answers -->
-                        {#if question.answers.length > 1}
-                          <details class="ml-4">
-                            <summary class="cursor-pointer text-sm text-primary hover:text-primary/80 mb-2">
-                              Show {question.answers.length - 1} more {question.answers.length - 1 === 1 ? 'reply' : 'replies'}
-                            </summary>
-                            {#each question.answers.filter(a => a !== firstAnswer) as answer}
-                              <div class="border-l-2 border-primary/20 pl-4 py-2">
-                                <div class="flex items-start gap-2">
-                                  <div class="avatar placeholder flex-shrink-0">
-                                    <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
-                                      <span class="text-xs">{answer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                                    </div>
-                                  </div>
-                                  <div class="flex-1 space-y-1">
-                                    <div class="flex items-center gap-2">
-                                      <span class="font-medium text-sm">{answer.user?.first_name} {answer.user?.last_name}</span>
-                                      {#if answer.user?.role === 'entity'}
-                                        <span class="badge badge-warning badge-sm">Seller</span>
-                                      {:else if hasPurchased}
-                                        <span class="badge badge-success badge-sm">Verified Buyer</span>
-                                      {/if}
-                                    </div>
-                                    <p class="text-gray-600 text-sm">{answer.answer_text}</p>
-                                    <p class="text-xs text-gray-500">
-                                      Answered on {new Date(answer.created).toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            {/each}
-                          </details>
-                        {/if}
-                      {/if}
-                    </div>
-                  {/if}
-
-                  <!-- Answer Input -->
-                  <div class="ml-11 mt-3">
-                    <div class="flex gap-2">
-                      <input
-                        type="text"
-                        bind:value={newAnswer[question.id]}
-                        placeholder="Write a reply..."
-                        class="input input-bordered input-sm w-full text-sm focus:ring-2 focus:ring-primary/20"
-                      />
-                      <button
-                        on:click={() => submitAnswer(question.id)}
-                        class="btn btn-sm btn-outline btn-primary"
-                        disabled={!newAnswer[question.id]?.trim()}
-                      >
-                        Reply
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
+      <!-- {:else if activeTab === 'QNA'}
+        
+        {#if Qna}
+              {#await Qna then { default: Qna }}
+                <Qna product_listing={product_listing} />
+              {/await}
+            {/if} -->
       {:else}
         <div in:fade>
           <div class="overflow-x-auto max-w-3xl mx-auto">
-            <Reviews 
-              {product_listing}
-              {reviews}
-              loading={reviewsLoading}
-              next={reviewsNext}
-              on:loadMore={async () => {
-                reviewsLoading = true;
-                const dataNew = await myFetch(reviewsNext, 'GET', {}, currentUser?.access_token);
-                reviews = [...reviews, ...dataNew.results];
-                reviewsNext = dataNew.next;
-                reviewsLoading = false;
-              }}
-            />
+            
+
+            {#if Reviews}
+              {#await Reviews then { default: Reviews }}
+                <Reviews product_listing={product_listing} />
+              {/await}
+            {/if}
+
+
           </div>
         </div>
       {/if}
@@ -961,28 +696,13 @@
   </div>
 
   <!-- Related Products Section -->
-  <div class="mx-4 md:mx-8 lg:mx-16 mt-12 mb-8">
-    <h2 class="text-2xl font-bold text-primary mb-6">Related Products</h2>
-    
-    {#if loadingRelatedProducts}
-      <div class="flex justify-center items-center py-8">
-        <div class="loading loading-spinner loading-sm"></div>
-      </div>
-    {:else if relatedProducts.length > 0}
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {#each relatedProducts as product (product.id)}
-          <Product product={product} />
-        {/each}
-      </div>
-    {:else}
-      <div class="text-center py-8 text-gray-500">
-        No related products found
-      </div>
-    {/if}
-  </div>
 
-  <!-- Add this after the product description section
-  <ProductOffers {product_listing} /> -->
+  {#if RelatedProducts}
+    {#await RelatedProducts then { default: RelatedProducts }}
+      <RelatedProducts product_listing={product_listing} />
+    {/await}
+  {/if}
+
 </div>
 
 
