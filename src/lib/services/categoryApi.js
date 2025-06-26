@@ -16,7 +16,7 @@ export const categoryApi = {
   getMainCategories: async () => {
     try {
       const data = await myFetch(
-        `${PUBLIC_API_URL}/product/categories/?page=1&page_size=10&estore_id=${PUBLIC_ESTORE_ID}&level=1`,
+        `${PUBLIC_API_URL}/product/categories/?page=1&page_size=10&estore_id=${PUBLIC_ESTORE_ID}&level=1&category_type=product`,
       )
       return data
     } catch (e) {

@@ -20,7 +20,8 @@
   $: if (inCart && cartQuantity !== quantity) quantity = cartQuantity;
 
   function handleWishlistClick(event) {
-    event.stopPropagation();
+    event.stopPropagation(); 
+    event.preventDefault();     // ⛔️ Prevent the <a> link from navigating
     toggleWishlistItem(product);
   }
 
