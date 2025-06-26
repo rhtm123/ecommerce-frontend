@@ -4,7 +4,9 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { onMount } from "svelte";
     export let items;
+    export let order_id;
     let orderItems = items;
+
 
     import OrderItemReview from "./OrderItemReview.svelte";
 
@@ -36,7 +38,7 @@
 
 <!-- Order Status Summary -->
 {#if orderItems.length > 0}
-    <div class="p-2 sm:p-4 border-b border-gray-200">
+    <div class="p-4 sm:p-4 border-b border-gray-200">
         <div class="flex flex-wrap gap-3 items-center">
             <span class="text-sm font-semibold text-gray-700">Order Status:</span>
             {#each orderStatuses as status}
@@ -55,7 +57,7 @@
 <!-- Order Items -->
 <div class="divide-y divide-gray-200">
     {#each orderItems as item}
-        <div class="p-2 sm:p-4">
+        <div class="p-4 sm:p-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-start gap-4 flex-1 min-w-0">
                     <a href={`/product/${item.product_slug}`}>
@@ -98,7 +100,17 @@
                     </div>
                 </div>
                 <div class="w-full sm:w-auto flex justify-end">
+                    {#if item?.review_added}
                     <OrderItemReview order_item_id={item.id} />
+                    {:else}
+                    <a 
+                        class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                            href={"/profile/add-review/" + order_id}
+                        >
+                            <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />
+                            Add Review
+                        </a>
+                    {/if}
                 </div>
             </div>
         </div>

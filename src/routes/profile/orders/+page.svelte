@@ -4,7 +4,6 @@
   import { myFetch } from "$lib/utils/myFetch";
   import { user } from "$lib/stores/auth";
   import OrderItems from "$lib/components/OrderItems.svelte";
-  import InvoiceGenerator from "$lib/components/InvoiceGenerator.svelte";
 
   let authUser;
   $: authUser = $user;
@@ -15,6 +14,9 @@
   let orders = [];
   let next;
 
+
+  let InvoiceGenerator;
+
   onMount(async ()=>{
 
     let url = `${PUBLIC_API_URL}/order/orders/?items_needed=true&user_id=${authUser.user_id}&ordering=-id`;
@@ -22,37 +24,24 @@
     orders = data.results;
     next = data.next;
     loading = false;
-    console.log("orders",data);
+
+    InvoiceGenerator = import("$lib/components/InvoiceGenerator.svelte");
+
+    // console.log("orders",data);
+
+
   })
 
   async function loadMore() {
     loadingMore = true;
         // console.log("Hello Bhai")
 		const dataNew = await myFetch(next);
-        console.log(dataNew);
+        // console.log(dataNew);
     orders = [...orders,...dataNew.results];
     next = dataNew.next;
     loadingMore = false
     }
 
-
-  // let orders = [
-  //   {
-  //     id: 'OD123456789',
-  //     date: '2024-02-15',
-  //     status: 'Delivered',
-  //     total: 149.99,
-  //     items: [
-  //       {
-  //         name: "Baby's First Blocks Set",
-  //         image: '/img/Toy-Names-For-Kids.webp',
-  //         quantity: 2,
-  //         price: 74.99
-  //       }
-  //     ]
-  //   }
-  //   // Add more orders as needed
-  // ];
 
   function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -69,6 +58,7 @@
       ? '<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
       : '<svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 002 0V7zm-1 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>';
   }
+  
 </script>
 
 <h2 class="text-2xl font-bold md:block hidden py-4 sticky top-0 z-10 ">My Orders</h2>
@@ -81,12 +71,12 @@
   {/if}
 
   {#if orders.length > 0}
-    <div class="space-y-6">
+    <div class="space-y-6 ">
       {#each orders as order}
-      <div class="bg-white border rounded-lg">
-        <div class="p-2 sm:p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b">
+      <div class="bg-base-100 border rounded-lg">
+        <div class="p-4 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b">
           <div class="flex items-center gap-2">
-            <p class="text-sm font-medium text-gray-600">#{order.order_number}</p>
+            <p class="font-medium  text-gray-600">#{order.order_number}</p>
             <span class="flex items-center gap-1">
               {@html getPaymentStatusIcon(order.payment_status)}
               <span class="text-xs sm:text-sm capitalize">{order.payment_status}</span>
@@ -102,7 +92,13 @@
           <div class="p-2 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t bg-gray-50">
             <div class="w-full sm:w-auto">
               {#if order.status === 'delivered'}
-                <InvoiceGenerator orderId={order.id} />
+
+                  {#if InvoiceGenerator}
+                    {#await InvoiceGenerator then { default: InvoiceGenerator }}
+                      <InvoiceGenerator orderId={order.id} />
+                    {/await}
+                  {/if}
+
               {/if}
             </div>
             <div class="flex flex-col items-end gap-1 text-right w-full">
