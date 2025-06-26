@@ -69,14 +69,10 @@
                         />
                     </a>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2">
                             <a href={`/product/${item.product_slug}`} class="text-sm font-medium hover:text-blue-600 transition-colors truncate">
                                 {item.product_listing_name}
                             </a>
-                            <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm">
-                                <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
-                                <span class="hidden md:inline">{statusConfig[item.status].label}</span>
-                            </div>
                         </div>
                         <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
                             <p>Quantity: <span class="font-medium">{item.quantity}</span></p>
@@ -99,12 +95,16 @@
                         {/if}
                     </div>
                 </div>
-                <div class="w-full sm:w-auto flex justify-end">
+                <div class="w-full sm:w-auto flex flex-col items-end justify-end gap-2">
+                    <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm mb-2 sm:mb-0">
+                        <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
+                        <span class="hidden md:inline">{statusConfig[item.status].label}</span>
+                    </div>
                     {#if item?.review_added}
-                    <OrderItemReview order_item_id={item.id} />
+                        <OrderItemReview order_item_id={item.id} />
                     {:else}
-                    <a 
-                        class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                        <a 
+                            class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors"
                             href={"/profile/add-review/" + order_id}
                         >
                             <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />

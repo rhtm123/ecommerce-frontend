@@ -4,7 +4,7 @@
     import { user } from '$lib/stores/auth';
     import { onDestroy, onMount } from 'svelte';
     import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
-
+    import Icon from '@iconify/svelte';
     import { myFetch } from '$lib/utils/myFetch';
     import { goto } from '$app/navigation';
 
@@ -245,6 +245,38 @@
 
       let selectedPaymentMethod = "cod"
 
+    // Add MRP, delivery, handling, savings logic
+    function formatPrice(price) {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    }
+    function calculateDiscountPercentage(mrp, price) {
+        if (!mrp || mrp <= price) return 0;
+        return Math.floor(((mrp - price) / mrp) * 100);
+    }
+    $: mrpTotal = $cart.reduce((total, item) => {
+        const mrp = item.mrp || item.price;
+        return total + (mrp * item.quantity);
+    }, 0);
+    $: itemsTotal = $cart.reduce((total, item) => {
+        const price = item.price;
+        return total + (price * item.quantity);
+    }, 0);
+    $: totalSavings = $cart.reduce((total, item) => {
+        const mrp = item.mrp || item.price;
+        const price = item.price;
+        return total + ((mrp - price) * item.quantity);
+    }, 0);
+    $: deliveryCharge = itemsTotal < 200 ? 40 : 0;
+    $: originalDeliveryCharge = 40;
+    $: handlingCharge = 0;
+    $: originalHandlingCharge = 10;
+    $: discountedTotal = itemsTotal - $cartDiscounts.totalDiscount;
+    $: grandTotal = discountedTotal + deliveryCharge + handlingCharge;
 
   </script>
   
@@ -383,13 +415,18 @@
                     {/if}
                   </div>
                 </div>
-                <div class="text-right">
-                  {#if !item.productOffer}
-                    <span class="font-medium">₹ {(item.price * item.quantity).toFixed(2)}</span>
-                  {:else}
-                    <span class="font-medium">₹ {(item.discountedPrice * item.quantity).toFixed(2)}</span>
-                    <div class="text-sm text-gray-500 line-through">₹ {(item.originalPrice * item.quantity).toFixed(2)}</div>
-                  {/if}
+                <div class="text-right flex flex-col items-end gap-1">
+                  <div class="flex items-center gap-2">
+                    {#if item.mrp && item.mrp > item.price}
+                      <span class="text-xs text-gray-500 line-through">{formatPrice(item.mrp)}</span>
+                    {/if}
+                    <span class="font-medium">{formatPrice(item.price * item.quantity)}</span>
+                    {#if item.mrp && item.mrp > item.price}
+                      <span class="text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded">
+                        {calculateDiscountPercentage(item.mrp, item.price)}% OFF
+                      </span>
+                    {/if}
+                  </div>
                 </div>
               </div>
             {/each}
@@ -403,108 +440,115 @@
             <!-- Update the totals section -->
             <div class="space-y-2 pt-4 border-t">
               <div class="flex justify-between mb-2">
-                <span class="text-gray-600">Subtotal</span>
-                <span>₹ {subtotal.toFixed(2)}</span>
-              </div>
-              
-              <!-- Product-specific offers total -->
-              {#if $cart.some(item => item.productOffer)}
-                <div class="flex justify-between text-green-600">
-                  <span>Product Offers</span>
-                  <span>- ₹ {$cart.reduce((sum, item) => {
-                    if (!item.productOffer) return sum;
-                    return sum + ((item.originalPrice - item.discountedPrice) * item.quantity);
-                  }, 0).toFixed(2)}</span>
+                <span class="text-gray-600">Items total</span>
+                <div class="flex items-center gap-2 text-right">
+                  {#if totalSavings > 0}
+                    <span class="text-xs text-gray-500 line-through">{formatPrice(mrpTotal)}</span>
+                  {/if}
+                  <span class="text-base font-bold text-gray-900">{formatPrice(itemsTotal)}</span>
                 </div>
-              {/if}
-              
-              {#if $cartDiscounts.offerDiscount > 0}
-                <div class="flex justify-between text-green-600">
-                  <span>Cart Offer</span>
-                  <div class="text-right">
-                    <span>- ₹ {$cartDiscounts.offerDiscount}</span>
-                    {#if Math.abs(offerRoundingAdjustment) >= 0.01}
-                      <div class="text-xs text-gray-500">
-                        {offerRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactOfferDiscount.toFixed(2)}
-                      </div>
-                    {/if}
+              </div>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-1 relative group">
+                  <span class="text-gray-600">Delivery charge</span>
+                  <Icon icon="mdi:information-outline" class="w-3 h-3 text-gray-400 cursor-help" />
+                  <div class="absolute bottom-full left-0 mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                    🚚 FREE delivery on orders above ₹199! For orders below ₹199, we charge only ₹40 to cover our delivery partner costs.
                   </div>
                 </div>
-              {/if}
-              
-              {#if $cartDiscounts.couponDiscount > 0}
-                <div class="flex justify-between text-green-600">
-                  <span>Coupon Discount</span>
-                  <div class="text-right">
-                    <span>- ₹ {$cartDiscounts.couponDiscount}</span>
-                    {#if Math.abs(couponRoundingAdjustment) >= 0.01}
-                      <div class="text-xs text-gray-500">
-                        {couponRoundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactCouponDiscount.toFixed(2)}
-                      </div>
-                    {/if}
+                <div class="text-right">
+                  {#if deliveryCharge > 0}
+                    <span class="font-medium">{formatPrice(deliveryCharge)}</span>
+                  {:else}
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm text-gray-500 line-through">{formatPrice(originalDeliveryCharge)}</span>
+                      <span class="font-medium text-green-600">FREE</span>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-1 relative group">
+                  <span class="text-gray-600">Handling charge</span>
+                  <Icon icon="mdi:information-outline" class="w-3 h-3 text-gray-400 cursor-help" />
+                  <div class="absolute bottom-full left-0 mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                    🎁 We've waived the handling charges for you! This usually covers packaging, quality checks, and secure handling of your items.
                   </div>
                 </div>
-              {/if}
-
-              <div class="flex justify-between font-bold text-lg pt-2 border-t">
-                <span>Total</span>
-                <span>₹ {finalTotal.toFixed(2)}</span>
-              </div>
-              
-              {#if Math.abs(roundingAdjustment) >= 0.01}
-                <div class="text-xs text-gray-500 text-right">
-                  {roundingAdjustment > 0 ? 'Rounded up' : 'Rounded down'} from ₹{exactTotal.toFixed(2)}
+                <div class="text-right">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-500 line-through">{formatPrice(originalHandlingCharge)}</span>
+                    <span class="font-medium text-green-600">FREE</span>
+                  </div>
                 </div>
+              </div>
+              <div class="border-t pt-2">
+                <div class="flex justify-between items-center rounded-lg shadow font-bold text-lg tracking-wide" style="box-shadow: 0 2px 8px rgba(34,197,94,0.08);">
+                  <span>Grand total</span>
+                  <span class="font-bold">{formatPrice(grandTotal)}</span>
+                </div>
+              </div>
+            </div>
+            {#if totalSavings > 0}
+              <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg px-2 py-1 mt-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                    <span class="text-blue-800 font-semibold text-base">Your total savings</span>
+                  </div>
+                  <span class="text-green-700 font-bold">{formatPrice(totalSavings)}</span>
+                </div>
+                <p class="text-xs text-blue-700 mt-1">🎉 You're saving big on this order!</p>
+              </div>
+            {/if}
+
+            <label class="flex items-start gap-2">
+              <input 
+                  type="checkbox" 
+                  class="mt-1" 
+                  bind:checked={termsAccepted}
+                  required 
+              />
+              <span class="text-sm text-gray-600">
+                  I have read and agree to the website's 
+                  <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
+              </span>
+          </label>
+          
+          <div class="flex items-center gap-4">
+              <label>
+                  <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="cod" 
+                      bind:group={selectedPaymentMethod} 
+                      checked 
+                  />
+                  Cash on Delivery
+              </label>
+              <label>
+                  <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="pg" 
+                      bind:group={selectedPaymentMethod} 
+                  />
+                  Pay Online
+              </label>
+          </div>
+
+          <button 
+              on:click={handleSubmit}
+              class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+              disabled={orderPlacing}
+          >
+              {#if orderPlacing}
+                  <span class="loading loading-spinner loading-sm mr-2"></span>
+                  PLACING ORDER
+              {:else}
+                  PLACE ORDER
               {/if}
-
-              <label class="flex items-start gap-2">
-                <input 
-                    type="checkbox" 
-                    class="mt-1" 
-                    bind:checked={termsAccepted}
-                    required 
-                />
-                <span class="text-sm text-gray-600">
-                    I have read and agree to the website's 
-                    <a href="/terms-of-service" class="text-red-500 hover:underline">terms and conditions</a>
-                </span>
-            </label>
-            
-            <div class="flex items-center gap-4">
-                <label>
-                    <input 
-                        type="radio" 
-                        name="paymentMethod" 
-                        value="cod" 
-                        bind:group={selectedPaymentMethod} 
-                        checked 
-                    />
-                    Cash on Delivery
-                </label>
-                <label>
-                    <input 
-                        type="radio" 
-                        name="paymentMethod" 
-                        value="pg" 
-                        bind:group={selectedPaymentMethod} 
-                    />
-                    Pay Online
-                </label>
-            </div>
-
-            <button 
-                on:click={handleSubmit}
-                class="w-full bg-red-500 text-white py-3 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
-                disabled={orderPlacing}
-            >
-                {#if orderPlacing}
-                    <span class="loading loading-spinner loading-sm mr-2"></span>
-                    PLACING ORDER
-                {:else}
-                    PLACE ORDER
-                {/if}
-            </button>
-            </div>
+          </button>
           </div>
         </div>
       </div>
