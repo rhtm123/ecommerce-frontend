@@ -60,11 +60,11 @@
     loadInitialFilters(params);
   }
 
-  async function initializePage() {
+  function initializePage() {
     if (currentCategory?.id !== initializedCategoryId) {
       initializedCategoryId = currentCategory?.id;
-      await fetchCategories();
-      await applyFilters();
+      fetchCategories();
+      applyFilters();
     }
   }
 
