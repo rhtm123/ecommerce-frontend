@@ -298,7 +298,7 @@
   <!-- Breadcrumb -->
   
   <!-- Progress Steps -->
-  <div class="mb-8">
+  <div class="progress-container mb-8">
     <div class="flex items-center px-4 justify-between max-w-3xl mx-auto relative">
         <div class="absolute inset-0 flex items-center">
             <div class="h-1 w-full bg-gray-200">
@@ -592,16 +592,56 @@
       max-width: 1200px;
     }
 
+    .progress-container {
+      padding: 0 2rem;
+    }
+    .progress-container .max-w-3xl {
+      max-width: 100%;
+    }
+    .progress-container .flex.items-center.px-4 {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .progress-container .absolute.inset-0.flex.items-center > .h-1.w-full.bg-gray-200 {
+      margin: 0 2.5rem;
+    }
+
     /* Mobile-specific styles */
     @media (max-width: 768px) {
-        
-        
+        .progress-container {
+            padding: 0 0.25rem;
+        }
+        .progress-container .absolute.inset-0.flex.items-center > .h-1.w-full.bg-gray-200 {
+            margin: 0 2.2rem;
+        }
+        .progress-container .flex.items-center.px-4 {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .px-4 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .md\:px-8 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .lg\:px-16 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .progress-container .max-w-3xl {
+            max-width: 100%;
+        }
+        .progress-container .absolute.inset-0.flex.items-center > .h-1.w-full.bg-gray-200 {
+            margin: 0 1.7rem;
+        }
+    
         .step-number {
             height: 24px !important;
             width: 24px !important;
             font-size: 12px !important;
         }
-        
         .step-text {
             font-size: 10px !important;
             text-align: center;
