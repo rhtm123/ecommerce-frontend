@@ -280,7 +280,7 @@
     <!-- Product Info -->
     <div class="space-y-4">
       <!-- Product Title and Assured Badge -->
-      <h1 class="text-3xl font-bold flex items-center gap-2">
+      <h1 class="text-4xl font-bold flex items-center gap-2">
         {product_listing.name}
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
           <svg class="w-3 h-3 md:w-4 md:h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
@@ -290,44 +290,29 @@
         </span>
       </h1>
 
-      <!-- Add mobile sticky header
-  <div class="md:hidden ">
-    <h1 class="text-xl font-semibold truncate">{product_listing.name}</h1>
-    <div class="flex items-center gap-2 mt-2">
-      <div class="flex items-center">
-        {#each Array(5) as _, i}
-          <Icon 
-            icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
-                 (i < product_listing.rating ? "ic:baseline-star-half" : "ic:baseline-star-outline")}
-            class="w-4 h-4 text-yellow-400"
-          />
-        {/each}
-      </div>
-    </div>
-  </div> -->
+    
       
       <!-- Price Section -->
-      <div class="flex flex-col items-center md:items-start gap-2">
-        <!-- Update Price section for mobile -->
-        <div class="mobile-price-stack md:flex md:items-center gap-2">
-          <p class="text-2xl md:text-3xl font-bold text-primary">
-            {formatPrice(product_listing.price)}
-          </p>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-500 line-through text-lg md:text-xl">
+      
+      <div class="flex flex-col md:flex-row md:items-center md:gap-6">
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-3">
+            <p class="text-2xl font-bold text-gray-900">
+              {formatPrice(product_listing.price)}
+            </p>
+
+            <span class="text-gray-500 line-through text-lg">
               {formatPrice(product_listing.mrp)}
             </span>
+
             {#if calculateDiscount(product_listing.mrp, product_listing.price)}
-              <span class="text-green-600 text-lg md:text-xl font-semibold">
-                Save {calculateDiscount(product_listing.mrp, product_listing.price)}%!
+              <span class="text-green-600 font-semibold text-lg">
+                {calculateDiscount(product_listing.mrp, product_listing.price)}% OFF
               </span>
             {/if}
+            
           </div>
-        </div>
-        
-        <!-- Rating Section -->
-        <div class="flex items-center gap-2">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
             {#each Array(5) as _, i}
               <Icon 
                 icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
@@ -342,130 +327,117 @@
         </div>
       </div>
 
-      {#if Variants}
-          {#await Variants then { default: Variants }}
-            <Variants product_listing={product_listing} />
-          {/await}
-      {/if}
+
+      <!-- Variants and Offers -->
+  <div class="space-y-4">
+    {#if Variants}
+      {#await Variants then { default: Variants }}
+        <Variants product_listing={product_listing} />
+      {/await}
+    {/if}
+
+    {#if ProductOffers}
+      {#await ProductOffers then { default: ProductOffers }}
+        <ProductOffers product_listing={product_listing} />
+      {/await}
+    {/if}
+  </div>
 
 
-      <!-- Product Offers Section - Moved here -->
-
-      {#if ProductOffers}
-          {#await ProductOffers then { default: ProductOffers }}
-            <ProductOffers product_listing={product_listing} />
-          {/await}
-      {/if}
-
-      <!-- Product Guarantees -->
-      <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
-        <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            {#if product_listing.return_exchange_policy !=null && (product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available) }
-            <button class="" on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
-              <Icon 
-                icon="mdi:refresh-circle" 
-                class="w-6 h-6 md:w-8 md:h-8 text-secondary cursor-pointer" 
-              />
-            </button>
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">
-              {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policy.exchange_available}
-              {product_listing.return_exchange_policy.exchange_days} days Return<br/> & Exchange
-              {:else if product_listing.return_exchange_policy.return_available}
-              {product_listing.return_exchange_policy.return_days} days Return
-              {:else if product_listing.return_exchange_policy.exchange_available}
-              {product_listing.return_exchange_policy.exchange_days} days Exchange
-              {/if}
-            </span>
-            {/if}
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:cash-multiple" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Pay on<br/>Delivery</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:truck-delivery" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Free<br/>Delivery</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:shield-check" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Top<br/>Brand</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:package-variant" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Naigaon Market<br/>Delivered</span>
-          </div>
-        </div>
+  <!-- Product Guarantees -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200">
+    {#if product_listing.return_exchange_policy !=null && (product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available)}
+      <div class="flex flex-col items-center gap-2">
+        <button on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
+          <Icon icon="mdi:refresh-circle" class="w-8 h-8 text-blue-600" />
+        </button>
+        <span class="text-xs text-gray-600 text-center">
+          {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policyexchange_available}
+            {product_listing.return_exchange_policy.exchange_days} days Return & Exchange
+          {:else if product_listing.return_exchange_policy.return_available}
+            {product_listing.return_exchange_policy.return_days} days Return
+          {:else if product_listing.return_exchange_policy.exchange_available}
+            {product_listing.return_exchange_policy.exchange_days} days Exchange
+          {/if}
+        </span>
       </div>
-      <!-- Product Description -->
-      <!-- <p class="text-gray-600">{product_listing.description}</p> -->
+    {/if}
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:cash-multiple" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Pay on Delivery</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:truck-delivery" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Free Delivery</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:shield-check" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Top Brand</span>
+    </div>
 
-      <!-- Color Selection (if applicable) -->
-      <!-- {#if product_listing.color}
-        <div class="space-y-2">
-          <h3 class="font-medium">COLOR</h3>
-          <div class="flex gap-2">
-            <button 
-              class="w-8 h-8 rounded-full border-2 transition-all duration-200"
-              style="background-color: {product_listing.color}"
-            ></button>
-          </div>
-        </div>
-      {/if} -->
+  </div>
 
-      <!-- Quantity and Add to Cart -->
-      {#if product_listing.stock && product_listing.stock > 0}
-        {#if showQtyControls}
+      
 
-            <div class="inline-flex items-center border-2 border-green-500 rounded-lg px-4 py-2 gap-2 bg-green-50/50">
-            <button 
-              class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
-              on:click={quantity > 1 ? handleDecrement : handleRemove}
-              aria-label={quantity === 1 ? 'Remove item from cart' : 'Decrease quantity'}
-            >
-              {#if quantity === 1}
-                <Icon icon="mdi:delete-outline" class="text-red-600 h-6 w-6" />
-              {:else}
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                </svg>
-              {/if}
-            </button>
-            <span class="font-semibold text-green-600 min-w-[1rem] text-center">{quantity}</span>
-            <button 
-              class="w-6 h-6 flex items-center justify-center text-green-600 hover:bg-green-100 rounded transition-colors"
-              on:click={handleIncrement}
-              disabled={quantity >= 10}
-              aria-label="Increase quantity"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
-            </button>
-            </div>
+  {#if product_listing.stock && product_listing.stock > 0}
+  <div class="flex items-center gap-4">
+    {#if showQtyControls}
+      <div class="inline-flex items-center border border-gray-300 rounded-full p-1.5 bg-white shadow-sm">
+        <button
+          class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          on:click={quantity > 1 ? handleDecrement : handleRemove}
+          aria-label={quantity === 1 ? 'Remove item from cart' : 'Decrease quantity'}
+        >
+          {#if quantity === 1}
+            <Icon icon="mdi:delete-outline" class="text-red-500 h-6 w-6" />
+          {:else}
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          {/if}
+        </button>
+        <span class="font-bold text-gray-900 min-w-[2.5rem] text-center text-lg">{quantity}</span>
+        <button
+          class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          on:click={handleIncrement}
+          disabled={quantity >= 10}
+          aria-label="Increase quantity"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </button>
+      </div>
+    {:else}
+      <button
+        class="relative w-full md:w-auto bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-500 hover:to-green-500 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95 overflow-hidden"
+        on:click={handleAddToCart}
+      >
+        <span class="relative z-10">Add to Cart</span>
+        <span class="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300"></span>
+        <span class="absolute inset-0 animate-pulse bg-white opacity-5 rounded-full"></span>
+      </button>
+    {/if}
+  </div>
 
-        {:else}
-          <button 
-            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold btn py-2 px-4 rounded-lg transition-all duration-200 text-xs shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            on:click={handleAddToCart}
-          >
-            ADD TO CART
-          </button>
-        {/if}
-      {:else}
-        <div class="text-red-500 font-medium text-lg">Out of Stock</div>
+      {#if AvailabilityCheck}
+          {#await AvailabilityCheck then { default: AvailabilityCheck }}
+            <AvailabilityCheck product_listing={product_listing} />
+          {/await}
       {/if}
+        
+{:else}
+  <div class="text-red-600 font-semibold text-lg animate-pulse">Out of Stock</div>
+{/if}
+
+
 
 
       <!-- Additional Product Info -->
-      <div class="space-y-1 pt-4 border-t">
-         
-        <div class="flex gap-4">
-          <span class="font-medium">SHARE LINK:</span>
+
+      <div class="space-y-4 pt-4 border-t border-gray-200">
+        <div class="flex items-center gap-4">
+          <span class="font-medium text-gray-700">Share:</span>
           <div class="flex gap-2">
             <!-- Facebook Share -->
             <a 
@@ -492,18 +464,13 @@
               <Icon icon="ic:outline-whatsapp" class="w-5 h-5" />
             </a>
           </div>
+
+
         </div>
 
-        <!-- New Pin Code Check Section -->
-       
-
-        {#if AvailabilityCheck}
-          {#await AvailabilityCheck then { default: AvailabilityCheck }}
-            <AvailabilityCheck product_listing={product_listing} />
-          {/await}
-        {/if}
-
+        
       </div>
+      
     </div>
   </div>
 

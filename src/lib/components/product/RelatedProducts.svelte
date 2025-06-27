@@ -1,7 +1,11 @@
 <script>
-    import { onMount } from "svelte";
+  
+  import { onMount } from "svelte";
+  import { myFetch } from "$lib/utils/myFetch";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import Product from "./Product.svelte";
 
-   export let product_listing;
+  export let product_listing;
   let relatedProducts = [];
   let loadingRelatedProducts = true;
   
@@ -10,17 +14,18 @@
     let url = `${PUBLIC_API_URL}/product/product-listings/related/${product_listing.id}/`
     let data = await myFetch(url);
     relatedProducts = data.results;
-    console.log(relatedProducts);
+    console.log("related products",relatedProducts);
     } catch(e){
-
+      console.log("SOme Error ", e);
     }finally{
       loadingRelatedProducts = false
     }
   }
 
-  onMount(()=>{
+  $: if (product_listing){
     getRelatedProducts();
-  })
+
+  }
 
   
 </script>
