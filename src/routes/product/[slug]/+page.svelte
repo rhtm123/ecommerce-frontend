@@ -143,9 +143,9 @@
   // let Qna;
 
 
-  onMount(async () => {
+  onMount( () => {
     
-    await getProductListingImages();
+    getProductListingImages();
 
     RelatedProducts = import('$lib/components/product/RelatedProducts.svelte');
     Reviews = import('$lib/components/product/Reviews.svelte');
