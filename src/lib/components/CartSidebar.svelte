@@ -4,50 +4,38 @@
   import { goto } from '$app/navigation';
   import { fly } from 'svelte/transition';
   import Icon from '@iconify/svelte';
-  import { derived } from 'svelte/store';
+  import { derived, get } from 'svelte/store';
 
-  let { isOpen = false, onClose } = $props();
+  export let isOpen = false;
+  export let onClose = () => {};
 
-  let authUser = $derived($user);
-  let cartItems = $derived($cart);
-  let cartCount = $derived($cart.reduce((total, item) => total + item.quantity, 0));
+  // Reactive values using $store
+  $: authUser = $user;
+  $: cartItems = $cart;
+  $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
 
-  // Calculate totals
-  let itemsTotal = $derived(
-    $cart.reduce((total, item) => {
-      const price = item.price;
-      return total + (price * item.quantity);
-    }, 0)
-  );
+  $: itemsTotal = $cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  // Calculate MRP total
-  let mrpTotal = $derived(
-    $cart.reduce((total, item) => {
-      const mrp = item.mrp || item.price;
-      return total + (mrp * item.quantity);
-    }, 0)
-  );
+  $: mrpTotal = $cart.reduce((total, item) => {
+    const mrp = item.mrp || item.price;
+    return total + mrp * item.quantity;
+  }, 0);
 
-  // Calculate total savings from MRP vs price difference
-  let totalSavings = $derived(
-    $cart.reduce((total, item) => {
-      const mrp = item.mrp || item.price;
-      const price = item.price;
-      return total + ((mrp - price) * item.quantity);
-    }, 0)
-  );
+  $: totalSavings = $cart.reduce((total, item) => {
+    const mrp = item.mrp || item.price;
+    const price = item.price;
+    return total + (mrp - price) * item.quantity;
+  }, 0);
 
-  // Delivery charge logic - ₹40 if total < ₹200, otherwise FREE
-  let deliveryCharge = $derived(itemsTotal < 200 ? 40 : 0);
-  let originalDeliveryCharge = 40;
-  
-  // Handling charge - always ₹10 but shown as crossed out (free)
-  let handlingCharge = 0; // Actually free
-  let originalHandlingCharge = 10;
+  $: deliveryCharge = itemsTotal < 200 ? 40 : 0;
+  const originalDeliveryCharge = 40;
 
-  let grandTotal = $derived(itemsTotal + deliveryCharge + handlingCharge);
+  const handlingCharge = 0;
+  const originalHandlingCharge = 10;
 
-  // Dynamic info box text based on cart contents
+  $: grandTotal = itemsTotal + deliveryCharge + handlingCharge;
+
+  // Derived store for info box text
   const infoBoxText = derived(cart, $cart => {
     const hasService = $cart.some(item => item.is_service);
     const hasProduct = $cart.some(item => !item.is_service);
@@ -63,8 +51,8 @@
   });
 
   function formatPrice(price) {
-    return new Intl.NumberFormat('en-IN', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
@@ -77,15 +65,17 @@
   }
 
   function updateQuantity(productId, change) {
-    cart.update(items => {
-      return items.map(item => {
-        if (item.id === productId) {
-          const newQuantity = Math.max(0, item.quantity + change);
-          return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
-        }
-        return item;
-      }).filter(Boolean);
-    });
+    cart.update(items =>
+      items
+        .map(item => {
+          if (item.id === productId) {
+            const newQuantity = Math.max(0, item.quantity + change);
+            return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
+          }
+          return item;
+        })
+        .filter(Boolean)
+    );
   }
 
   function removeItem(productId) {
@@ -107,11 +97,10 @@
     onClose();
   }
 
-  // Check for out of stock items
-  let outOfStockCount = $derived(
-    $cart.filter(item => item.stock <= 0).length
-  );
+  $: outOfStockCount = $cart.filter(item => item.stock <= 0).length;
 </script>
+
+
 
 <!-- Backdrop -->
 {#if isOpen}
