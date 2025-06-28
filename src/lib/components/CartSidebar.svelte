@@ -5,6 +5,7 @@
   import { fly } from 'svelte/transition';
   import Icon from '@iconify/svelte';
   import { derived, get } from 'svelte/store';
+  import { onMount, onDestroy } from "svelte";
 
   export let isOpen = false;
   export let onClose = () => {};
@@ -98,6 +99,19 @@
   }
 
   $: outOfStockCount = $cart.filter(item => item.stock <= 0).length;
+
+  $: {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }
+
+  onDestroy(() => {
+    // Always clean up in case the component is destroyed while open
+    document.body.style.overflow = "";
+  });
 </script>
 
 
@@ -131,136 +145,130 @@
     </button>
   </div>
 
-  <!-- Out of Stock Alert -->
-  {#if outOfStockCount > 0}
-    <div class="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-red-800">
-            {outOfStockCount} out of stock item{outOfStockCount > 1 ? 's' : ''}...
-          </p>
-          <p class="text-xs text-red-600">you can continue to checkout</p>
-        </div>
-        <button class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium">
-          Review
-        </button>
-      </div>
-    </div>
-  {/if}
-
-  <!-- Delivery Info -->
-  <div class="mx-4 mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-        <Icon icon="mdi:cart-outline" class="w-4 h-4 text-white" />
-      </div>
-      <div>
-        <p class="text-sm font-medium text-blue-900">{$infoBoxText}</p>
-        <p class="text-xs text-blue-700">Your selected items are ready for checkout</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cart Items -->
+  <!-- Main Scrollable Content (Info box, Out of Stock, Cart Items, Bill Details) -->
   <div class="flex-1 overflow-y-auto p-4 space-y-4">
-    {#if cartItems.length === 0}
-      <div class="text-center py-12">
-        <Icon icon="mdi:cart-outline" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-        <p class="text-gray-500 mb-4">Add some items to get started</p>
-        <button 
-          onclick={handleClose}
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium"
-        >
-          Continue Shopping
-        </button>
-      </div>
-    {:else}
-      {#each cartItems as item (item.id)}
-        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-          <!-- Product Image -->
-          <div class="w-14 h-14 bg-white rounded border overflow-hidden flex-shrink-0">
-            <img 
-              src={item.main_image || item.thumbnail || "/placeholder.svg?height=56&width=56"} 
-              alt={item.name}
-              class="w-full h-full object-cover"
-            />
+    <!-- Out of Stock Alert -->
+    {#if outOfStockCount > 0}
+      <div class="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-red-800">
+              {outOfStockCount} out of stock item{outOfStockCount > 1 ? 's' : ''}...
+            </p>
+            <p class="text-xs text-red-600">you can continue to checkout</p>
           </div>
+          <button class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium">
+            Review
+          </button>
+        </div>
+      </div>
+    {/if}
 
-          <!-- Product Details -->
-          <div class="flex-1 min-w-0">
-            <h4 class="text-sm font-medium text-gray-900 leading-tight mb-1">{item.name}</h4>
-            {#if item.category}
-              <p class="text-xs text-gray-500 mb-2">{item.category.name}</p>
-            {/if}
-            
-            <!-- Price Section with MRP and Discount -->
-            <div class="space-y-1">
-              <div class="flex items-center gap-2 flex-wrap">
-                {#if item.mrp && item.mrp > item.price}
-                  <span class="text-sm text-gray-500 line-through">
-                    {formatPrice(item.mrp)}
+    <!-- Delivery Info (Info Box) -->
+    <div class="  p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+          <Icon icon="mdi:cart-outline" class="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p class="text-sm font-medium text-blue-900">{$infoBoxText}</p>
+          <p class="text-xs text-blue-700">Your selected items are ready for checkout</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="space-y-4">
+      {#if cartItems.length === 0}
+        <div class="text-center py-12">
+          <Icon icon="mdi:cart-outline" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
+          <p class="text-gray-500 mb-4">Add some items to get started</p>
+          <button 
+            onclick={handleClose}
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      {:else}
+        {#each cartItems as item (item.id)}
+          <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+            <!-- Product Image -->
+            <div class="w-14 h-14 bg-white rounded border overflow-hidden flex-shrink-0">
+              <img 
+                src={item.main_image || item.thumbnail || "/placeholder.svg?height=56&width=56"} 
+                alt={item.name}
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <!-- Product Details -->
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-medium text-gray-900 leading-tight mb-1">{item.name}</h4>
+              {#if item.category}
+                <p class="text-xs text-gray-500 mb-2">{item.category.name}</p>
+              {/if}
+              <!-- Price Section with MRP and Discount -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  {#if item.mrp && item.mrp > item.price}
+                    <span class="text-sm text-gray-500 line-through">
+                      {formatPrice(item.mrp)}
+                    </span>
+                  {/if}
+                  <span class="text-base font-bold text-gray-900">
+                    {formatPrice(item.price)}
                   </span>
-                {/if}
-                <span class="text-base font-bold text-gray-900">
-                  {formatPrice(item.price)}
+                  {#if item.mrp && item.mrp > item.price}
+                    <span class="text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded">
+                      {calculateDiscountPercentage(item.mrp, item.price)}% OFF
+                    </span>
+                  {/if}
+                </div>
+              </div>
+              <!-- Stock Status -->
+              {#if item.stock <= 0}
+                <span class="inline-block text-xs text-red-600 bg-red-100 px-2 py-1 rounded mt-2">
+                  Out of Stock
                 </span>
-                {#if item.mrp && item.mrp > item.price}
-                  <span class="text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded">
-                    {calculateDiscountPercentage(item.mrp, item.price)}% OFF
-                  </span>
+              {/if}
+            </div>
+            <!-- Quantity Controls -->
+            <div class="flex flex-col items-center gap-2">
+              <div class="flex items-center border border-gray-300 rounded">
+                {#if item.quantity === 1}
+                  <button 
+                    onclick={() => removeItem(item.id)}
+                    class="w-8 h-8 flex items-center justify-center hover:bg-red-50 text-red-600 border-r border-gray-300"
+                  >
+                    <Icon icon="mdi:delete-outline" class="w-4 h-4" />
+                  </button>
+                {:else}
+                  <button 
+                    onclick={() => updateQuantity(item.id, -1)}
+                    class="w-8 h-8 flex items-center justify-center hover:bg-gray-50 border-r border-gray-300"
+                  >
+                    <Icon icon="mdi:minus" class="w-4 h-4" />
+                  </button>
                 {/if}
+                <span class="w-10 text-center text-sm font-medium py-2">{item.quantity}</span>
+                <button 
+                  onclick={() => updateQuantity(item.id, 1)}
+                  class="w-8 h-8 flex items-center justify-center hover:bg-green-50 text-green-600 border-l border-gray-300"
+                  disabled={item.quantity >= (item.buy_limit || 10)}
+                >
+                  <Icon icon="mdi:plus" class="w-4 h-4" />
+                </button>
               </div>
             </div>
-
-            <!-- Stock Status -->
-            {#if item.stock <= 0}
-              <span class="inline-block text-xs text-red-600 bg-red-100 px-2 py-1 rounded mt-2">
-                Out of Stock
-              </span>
-            {/if}
           </div>
+        {/each}
+      {/if}
+    </div>
 
-          <!-- Quantity Controls -->
-          <div class="flex flex-col items-center gap-2">
-            <div class="flex items-center border border-gray-300 rounded">
-              {#if item.quantity === 1}
-                <button 
-                  onclick={() => removeItem(item.id)}
-                  class="w-8 h-8 flex items-center justify-center hover:bg-red-50 text-red-600 border-r border-gray-300"
-                >
-                  <Icon icon="mdi:delete-outline" class="w-4 h-4" />
-                </button>
-              {:else}
-                <button 
-                  onclick={() => updateQuantity(item.id, -1)}
-                  class="w-8 h-8 flex items-center justify-center hover:bg-gray-50 border-r border-gray-300"
-                >
-                  <Icon icon="mdi:minus" class="w-4 h-4" />
-                </button>
-              {/if}
-              
-              <span class="w-10 text-center text-sm font-medium py-2">{item.quantity}</span>
-              
-              <button 
-                onclick={() => updateQuantity(item.id, 1)}
-                class="w-8 h-8 flex items-center justify-center hover:bg-green-50 text-green-600 border-l border-gray-300"
-                disabled={item.quantity >= (item.buy_limit || 10)}
-              >
-                <Icon icon="mdi:plus" class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      {/each}
-    {/if}
-  </div>
-
-  <!-- Bill Details & Checkout -->
-  {#if cartItems.length > 0}
-    <div class="border-t border-gray-200 p-4 space-y-4 bg-white">
-      <!-- Bill Details -->
-      <div class="space-y-3">
+    <!-- Bill Details (scrolls with content) -->
+    {#if cartItems.length > 0}
+      <div class="space-y-3 mt-4">
         <div class="flex items-center gap-2 mb-3">
           <Icon icon="mdi:receipt-text-outline" class="w-4 h-4 text-gray-600" />
           <h3 class="font-semibold text-gray-900">Bill details</h3>
@@ -321,9 +329,15 @@
           </div>
         </div>
       </div>
+    {/if}
+  </div>
+
+  <!-- Fixed Bottom: Total Savings Banner & Checkout Button -->
+  {#if cartItems.length > 0}
+    <div class="sticky bottom-0 left-0 right-0 bg-white z-10 border-t border-gray-200 px-4 pt-2 pb-4">
       <!-- Total Savings Banner -->
       {#if totalSavings > 0}
-        <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg px-2 py-1 mt-2">
+        <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg px-2 py-1 mb-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <Icon icon="mdi:tag-multiple" class="w-4 h-4 text-blue-600" />
@@ -355,7 +369,7 @@
         </div>
       </button>
       <!-- Friendly Message -->
-      <p class="text-xs text-center text-gray-500">
+      <p class="text-xs text-center text-gray-500 mt-2">
         Thank you for shopping with us!
       </p>
     </div>
