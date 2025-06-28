@@ -293,7 +293,7 @@
               {#if showBadgeText}
                 <div class="md:hidden absolute left-0 mt-8 bg-white shadow rounded p-2 text-xs z-10">
                   Professional Service
-                </div>
+          </div>
               {/if}
               {#if calculateDiscount(service.mrp, service.price)}
                 <button
@@ -311,15 +311,15 @@
                   </div>
                 {/if}
               {/if}
-            </div>
+      </div>
 
             {#if service.popularity > 50}
               <span class="absolute top-3 right-3 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
                 Popular
-              </span>
-            {/if}
-          </div>
-        </div>
+          </span>
+        {/if}
+      </div>
+    </div>
 
         <!-- Thumbnails -->
         {#if allImages.length > 1}
@@ -337,7 +337,7 @@
       </div>
 
       <!-- Right Column - Service Details -->
-      <div class="space-y-4">
+    <div class="space-y-4">
         <!-- Service Header -->
         <div class="bg-white rounded-lg shadow-sm p-4">
           <h1 class="text-2xl font-bold text-gray-900 mb-2">{service.name}</h1>
@@ -349,20 +349,20 @@
                 {category.name}
               </span>
             {/if}
-            {#if service.rating > 0}
+        {#if service.rating > 0}
               <div class="flex items-center gap-1">
                 <div class="flex">
-                  {#each Array(5) as _, i}
-                    <Icon 
+              {#each Array(5) as _, i}
+                <Icon 
                       icon={i < Math.floor(service.rating) ? "mdi:star" : "mdi:star-outline"}
                       class="w-4 h-4 text-yellow-400"
-                    />
-                  {/each}
+                />
+              {/each}
                 </div>
                 <span class="text-xs text-gray-600">
                   {service.rating} ({service.review_count})
-                </span>
-              </div>
+              </span>
+            </div>
             {/if}
           </div>
 
@@ -374,10 +374,10 @@
               <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
                 Save {formatPrice(service.mrp - service.price)}
               </span>
-            {/if}
-          </div>
-          
-          <!-- Service Guarantees -->
+        {/if}
+      </div>
+
+      <!-- Service Guarantees -->
           <div class="grid grid-cols-4 gap-2 mb-4">
             {#each [
               { icon: 'mdi:shield-check', text: '100% Satisfaction', color: 'text-blue-600' },
@@ -398,13 +398,13 @@
                 {#if showGuaranteeText[i]}
                   <div class="md:hidden absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow rounded p-2 text-xs z-10">
                     {guarantee.text}
-                  </div>
+          </div>
                 {/if}
-              </div>
+          </div>
             {/each}
           </div>
-        </div>
-
+          </div>
+          
         <!-- Service Provider + Booking Card (Modern, Compact, Combined) -->
         <div class="service-booking-card bg-white rounded-xl shadow-md border border-gray-100 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 items-stretch mb-6">
           <!-- Provider Info (fixed width, compact) -->
@@ -420,15 +420,15 @@
             <div class="hidden md:flex items-center gap-3">
               <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow">
                 {service.brand?.name?.charAt(0).toUpperCase()}
-              </div>
+          </div>
               <div>
                 <div class="font-semibold text-gray-900 text-base md:text-lg">{service.brand?.name}</div>
                 <div class="text-xs text-gray-500">Professional Service Provider</div>
                 <div class="flex items-center gap-1 mt-1">
                   <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                   <span class="text-xs text-green-600">Verified Provider</span>
-                </div>
-              </div>
+        </div>
+      </div>
             </div>
             {#if showProviderText}
               <div class="md:hidden mt-2 bg-white shadow rounded p-2 text-xs z-10 text-center">
@@ -437,7 +437,7 @@
                 <div class="flex items-center gap-1 mt-1 justify-center">
                   <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                   <span class="text-xs text-green-600">Verified Provider</span>
-                </div>
+            </div>
               </div>
             {/if}
             <!-- Service ID and Availability below provider info -->
@@ -445,12 +445,12 @@
               <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2"/></svg>
                 <span class="font-medium">Service ID:</span> <span class="font-bold text-gray-900">SRV_{service.id}</span>
-              </div>
+          </div>
               <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3m10 0h3a1 1 0 001-1V7m-1-4H5a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
                 <span class="font-medium">Availability:</span> <span class="font-bold text-green-600">In Stock</span>
-              </div>
-            </div>
+        </div>
+          </div>
           </div>
           <!-- Booking Controls (right side, only button and quantity) -->
           <div class="flex-1 w-full flex flex-col justify-center gap-4 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-8 items-center">
@@ -463,16 +463,16 @@
                 <span class="px-3 py-1 text-base font-semibold text-gray-900">{quantity}</span>
                 <button class="px-2 py-1 hover:bg-gray-100 text-gray-600 disabled:opacity-50" onclick={() => updateQuantity(1)} disabled={quantity >= (service.buy_limit || 5) || isInCart}>
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                </button>
-              </div>
+          </button>
+        </div>
               <span class="text-xs text-gray-400 ml-2">Max: {service.buy_limit || 5}</span>
-            </div>
+        </div>
             <div class="flex justify-center w-full mt-2">
               <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-base flex items-center justify-center gap-2 shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed" style="min-width:180px;" onclick={handleBookService} disabled={isInCart}>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 {isInCart ? 'ADDED TO CART' : 'BOOK SERVICE NOW'}
               </button>
-            </div>
+        </div>
           </div>
         </div>
 
@@ -498,7 +498,7 @@
               {#if checkingPincode}
                 <Icon icon="mdi:loading" class="w-3 h-3 animate-spin" />
               {:else}
-                Check
+              Check
               {/if}
             </button>
           </div>
@@ -508,22 +508,22 @@
                 <Icon icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"} class="w-3 h-3" />
                 <span>{pincodeResult}</span>
               </div>
-              {#if pinData}
+                {#if pinData}
                 <p class="mt-1">COD: {pinData.cod_available ? 'Available' : 'Not Available'}</p>
-              {/if}
+                {/if}
             </div>
           {/if}
-        </div>
       </div>
     </div>
+  </div>
 
     <!-- Service Details Tabs -->
     <div class="mt-6 bg-white rounded-lg shadow-sm overflow-hidden">
-      <!-- Tab Headers -->
+    <!-- Tab Headers -->
       <div class="border-b">
         <nav class="flex overflow-x-auto">
           {#each ['OVERVIEW', 'DETAILS', 'POLICY', 'QNA'] as tab}
-            <button
+        <button 
               class="flex-1 py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm font-medium transition-colors {activeTab === tab ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'}"
               onclick={() => activeTab = tab}
             >
@@ -541,13 +541,13 @@
                 <span class="ml-1 bg-blue-100 text-blue-800 px-1 py-0.5 rounded text-xs">
                   {questions.length}
                 </span>
-              {/if}
-            </button>
+          {/if}
+        </button>
           {/each}
         </nav>
-      </div>
-
-      <!-- Tab Content -->
+    </div>
+  
+    <!-- Tab Content -->
       <div class="p-4">
         {#if activeTab === 'OVERVIEW'}
           <div class="space-y-4" in:fade={{ duration: 200 }}>
@@ -559,7 +559,7 @@
                   {@html service.product.description}
                 </div>
               </div>
-            {/if}
+              {/if}
 
             <!-- What's Included -->
             {#if serviceIncludes.length > 0}
@@ -573,7 +573,7 @@
                     <div class="flex items-center gap-2 p-2 bg-green-50 rounded text-sm">
                       <Icon icon="mdi:check" class="w-3 h-3 text-green-600 flex-shrink-0" />
                       <span class="text-gray-800">{feature}</span>
-                    </div>
+            </div>
                   {/each}
                 </div>
               </div>
@@ -589,18 +589,18 @@
                   { icon: 'mdi:account-group', text: 'Professional', label: 'Experience', color: 'text-purple-600' }
                 ] as highlight, i}
                   <div class="text-center p-3 bg-blue-50 rounded relative">
-                    <button
+            <button 
                       class="mx-auto flex items-center justify-center md:hidden"
                       onclick={() => showHighlightText[i] = !showHighlightText[i]}
                       onblur={() => showHighlightText[i] = false}
                       tabindex="0"
                     >
                       <Icon icon={highlight.icon} class={`w-6 h-6 ${highlight.color}`} />
-                    </button>
+            </button>
                     <div class="hidden md:block">
                       <h4 class="text-sm font-medium text-gray-900">{highlight.label}</h4>
                       <p class="text-xs text-gray-600">{highlight.text}</p>
-                    </div>
+          </div>
                     {#if showHighlightText[i]}
                       <div class="md:hidden absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow rounded p-2 text-xs z-10">
                         <h4 class="text-sm font-medium text-gray-900 mb-1">{highlight.label}</h4>
@@ -611,12 +611,12 @@
                 {/each}
               </div>
             </div>
-          </div>
+        </div>
 
         {:else if activeTab === 'DETAILS'}
           <div class="space-y-3" in:fade={{ duration: 200 }}>
             <h3 class="font-semibold text-gray-900">Service Information</h3>
-            <div class="overflow-x-auto">
+          <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <tbody class="divide-y divide-gray-200">
                   <tr>
@@ -627,14 +627,14 @@
                     <td class="py-2 font-medium text-gray-700">Category</td>
                     <td class="py-2 text-gray-900">{category?.name || 'N/A'}</td>
                   </tr>
-                  <tr>
+                <tr>
                     <td class="py-2 font-medium text-gray-700">Service Provider</td>
                     <td class="py-2 text-gray-900">{service.brand?.name || 'N/A'}</td>
-                  </tr>
-                  <tr>
+                </tr>
+                <tr>
                     <td class="py-2 font-medium text-gray-700">Base Price</td>
                     <td class="py-2 text-gray-900">{formatPrice(service.product?.base_price || service.price)}</td>
-                  </tr>
+                </tr>
                   <tr>
                     <td class="py-2 font-medium text-gray-700">Booking Limit</td>
                     <td class="py-2 text-gray-900">{service.buy_limit || 5} per booking</td>
@@ -647,11 +647,11 @@
                         {service.stock > 0 ? `Available` : 'Currently Unavailable'}
                       </span>
                     </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
 
         {:else if activeTab === 'POLICY'}
           <div class="space-y-3" in:fade={{ duration: 200 }}>
@@ -716,47 +716,47 @@
                 <p class="text-sm">No specific return/exchange policy available for this service.</p>
               </div>
             {/if}
-          </div>
+        </div>
 
-        {:else if activeTab === 'QNA'}
+      {:else if activeTab === 'QNA'}
           <div class="space-y-4" in:fade={{ duration: 200 }}>
-            <!-- Question Input -->
+          <!-- Question Input -->
             <div class="bg-blue-50 rounded p-4">
               <h3 class="font-medium text-gray-900 mb-2">Ask a Question</h3>
               <div class="flex gap-2">
-                <textarea
-                  bind:value={newQuestion}
+              <textarea
+                bind:value={newQuestion}
                   placeholder="Have a question about this service?"
                   class="flex-1 px-3 py-2 border rounded text-sm focus:border-blue-500 focus:outline-none resize-none"
                   rows="2"
-                  disabled={questionsLoading}
-                ></textarea>
-                <button
-                  onclick={submitQuestion}
+                disabled={questionsLoading}
+              ></textarea>
+              <button
+                onclick={submitQuestion}
                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-                  disabled={questionsLoading || !newQuestion.trim()}
-                >
-                  Submit
-                </button>
-              </div>
+                disabled={questionsLoading || !newQuestion.trim()}
+              >
+                Submit
+              </button>
             </div>
+          </div>
 
-            <!-- Questions List -->
-            {#if questionsLoading}
+          <!-- Questions List -->
+          {#if questionsLoading}
               <div class="flex justify-center py-4">
                 <Icon icon="mdi:loading" class="w-6 h-6 animate-spin text-blue-600" />
-              </div>
-            {:else if questions.length === 0}
-              <div class="text-center py-8 text-gray-500">
+            </div>
+          {:else if questions.length === 0}
+            <div class="text-center py-8 text-gray-500">
                 <Icon icon="mdi:help-circle-outline" class="w-12 h-12 mx-auto mb-2" />
                 <h4 class="font-medium text-gray-600 mb-1">No Questions Yet</h4>
                 <p class="text-sm">Be the first to ask a question about this service!</p>
-              </div>
-            {:else}
+            </div>
+          {:else}
               <div class="space-y-3">
-                {#each questions as question}
+              {#each questions as question}
                   <div class="border rounded p-3">
-                    <!-- Question -->
+                  <!-- Question -->
                     <div class="flex gap-3 mb-2">
                       <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <span class="text-blue-600 font-medium text-xs">
@@ -766,20 +766,20 @@
                       <div class="flex-1">
                         <div class="flex items-center gap-2 mb-1">
                           <span class="font-medium text-gray-900 text-sm">
-                            {question.user?.first_name} {question.user?.last_name}
-                          </span>
+                          {question.user?.first_name} {question.user?.last_name}
+                        </span>
                           <span class="text-xs text-gray-500">
                             {new Date(question.created).toLocaleDateString()}
                           </span>
-                        </div>
-                        <p class="text-gray-700 text-sm">{question.question_text}</p>
                       </div>
+                        <p class="text-gray-700 text-sm">{question.question_text}</p>
                     </div>
+                  </div>
 
-                    <!-- Answers -->
-                    {#if question.answers?.length}
+                  <!-- Answers -->
+                  {#if question.answers?.length}
                       <div class="ml-11 space-y-2">
-                        {#each question.answers as answer}
+                      {#each question.answers as answer}
                           <div class="bg-green-50 rounded p-2 border-l-2 border-green-500">
                             <div class="flex items-center gap-2 mb-1">
                               <Icon icon="mdi:reply" class="w-3 h-3 text-green-600" />
@@ -789,20 +789,20 @@
                               <span class="text-xs text-gray-500">
                                 {new Date(answer.created).toLocaleDateString()}
                               </span>
-                            </div>
+                              </div>
                             <p class="text-gray-700 text-xs">{answer.answer_text}</p>
-                          </div>
-                        {/each}
-                      </div>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            {/if}
-          </div>
-        {/if}
-      </div>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
+  </div>
 
     <!-- Related Services -->
     {#if relatedServices.length > 0}
@@ -810,9 +810,9 @@
         <h2 class="text-xl font-bold text-gray-900 mb-4">Related Services</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {#each relatedServices as relatedService}
-            <Service service={relatedService} />
-          {/each}
-        </div>
+          <Service service={relatedService} />
+        {/each}
+      </div>
       </div>
     {/if}
 
@@ -872,15 +872,15 @@
   }
   
   .prose li {
-    position: relative;
+      position: relative;
     padding-left: 1.25rem;
     margin-bottom: 0.25rem;
   }
   
   .prose li::before {
     content: "✓";
-    position: absolute;
-    left: 0;
+      position: absolute;
+      left: 0;
     color: #10b981;
     font-weight: bold;
   }

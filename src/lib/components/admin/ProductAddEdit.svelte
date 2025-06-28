@@ -565,7 +565,7 @@
                 <div class="px-6 py-8 sm:px-8">
                     <form onsubmit={submitProduct} class="space-y-8">
                         <!-- Basic Information -->
-                        <div>
+                    <div>
                             <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -594,10 +594,10 @@
                                             {errors.name}
                                         </p>
                                     {/if}
-                                </div>
+                    </div>
 
                                 <!-- Category -->
-                                <div>
+                    <div>
                                     <label for="product-category" class="block text-sm font-medium text-gray-700 mb-2">
                                         Category <span class="text-red-500">*</span>
                                     </label>
@@ -607,10 +607,10 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors {errors.category_id ? 'border-red-500' : ''}"
                                     >
                                         <option value="">Select a category</option>
-                                        {#each categories as category}
-                                            <option value={category.id}>{category.name}</option>
-                                        {/each}
-                                    </select>
+                            {#each categories as category}
+                                <option value={category.id}>{category.name}</option>
+                            {/each}
+                        </select>
                                     {#if errors.category_id}
                                         <p class="mt-1 text-sm text-red-600 flex items-center">
                                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -619,10 +619,10 @@
                                             {errors.category_id}
                                         </p>
                                     {/if}
-                                </div>
+                    </div>
 
                                 <!-- Brand -->
-                                <div>
+                    <div>
                                     <label for="product-brand" class="block text-sm font-medium text-gray-700 mb-2">
                                         Brand <span class="text-red-500">*</span>
                                     </label>
@@ -632,10 +632,10 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors {errors.brand_id ? 'border-red-500' : ''}"
                                     >
                                         <option value="">Select a brand</option>
-                                        {#each brands as brand}
-                                            <option value={brand.id}>{brand.name}</option>
-                                        {/each}
-                                    </select>
+                            {#each brands as brand}
+                                <option value={brand.id}>{brand.name}</option>
+                            {/each}
+                        </select>
                                     {#if errors.brand_id}
                                         <p class="mt-1 text-sm text-red-600 flex items-center">
                                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -644,25 +644,25 @@
                                             {errors.brand_id}
                                         </p>
                                     {/if}
-                                </div>
+                    </div>
 
                                 <!-- Tax Category -->
-                                <div>
+                    <div>
                                     <label for="product-tax" class="block text-sm font-medium text-gray-700 mb-2">Tax Category</label>
                                     <select 
                                         bind:value={product.tax_category_id}
                                         id="product-tax"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     >
-                                        <option value="">Select tax category</option>
-                                        {#each taxCategories as tax}
-                                            <option value={tax.id}>{tax.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                            <option value="">Select tax category</option>
+                            {#each taxCategories as tax}
+                                <option value={tax.id}>{tax.name}</option>
+                            {/each}
+                        </select>
+                    </div>
 
                                 <!-- Country of Origin -->
-                                <div>
+                    <div>
                                     <label for="product-country" class="block text-sm font-medium text-gray-700 mb-2">Country of Origin</label>
                                     <input 
                                         type="text" 
@@ -671,15 +671,15 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         placeholder="e.g., India"
                                     />
-                                </div>
+                    </div>
 
                                 <!-- Base Price -->
-                                <div>
+                    <div>
                                     <label for="product-base-price" class="block text-sm font-medium text-gray-700 mb-2">Base Price (₹)</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                                        </div>
+                    </div>
                                         <input 
                                             type="number" 
                                             bind:value={product.base_price}
@@ -688,8 +688,8 @@
                                             placeholder="0.00" 
                                             step="0.01"
                                         />
-                                    </div>
-                                </div>
+                    </div>
+                </div>
 
                                 <!-- Is Service -->
                                 <div class="flex items-center">
@@ -709,7 +709,7 @@
                         </div>
 
                         <!-- Product Details -->
-                        <div>
+                <div>
                             <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -728,10 +728,10 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                                         placeholder="Brief description about the product"
                                     ></textarea>
-                                </div>
+                </div>
 
                                 <!-- Important Info -->
-                                <div>
+                <div>
                                     <label for="product-important-info" class="block text-sm font-medium text-gray-700 mb-2">Important Information</label>
                                     <textarea 
                                         bind:value={product.important_info}
@@ -740,14 +740,14 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                                         placeholder="Important information customers should know"
                                     ></textarea>
-                                </div>
+                </div>
 
                                 <!-- Description -->
-                                <div>
+                <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Detailed Description</label>
                                     <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                        <TiptapEditor content={editorContent} on:change={handleEditorChange} />
-                                    </div>
+                    <TiptapEditor content={editorContent} on:change={handleEditorChange} />
+                </div>
                                 </div>
                             </div>
                         </div>
@@ -759,22 +759,22 @@
                                 disabled={isSubmitting} 
                                 class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {#if isSubmitting}
+                        {#if isSubmitting}
                                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     Saving...
-                                {:else}
+                        {:else}
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     {editMode ? 'Update Product' : 'Continue to Listings'}
-                                {/if}
-                            </button>
-                        </div>
-                    </form>
+                        {/if}
+                    </button>
                 </div>
+                    </form>
+            </div>
             </div>
 
         {:else}
@@ -787,7 +787,7 @@
                             <div>
                                 <h2 class="text-lg font-semibold text-gray-900">{product.name}</h2>
                                 <p class="text-sm text-gray-500">Product Details</p>
-                            </div>
+                </div>
                             <div class="flex items-center space-x-3">
                                 <button 
                                     onclick={editProduct}
@@ -805,7 +805,7 @@
                         </div>
                     </div>
                     
-                    {#if isProductDropdownOpen}
+                {#if isProductDropdownOpen}
                         <div class="px-6 py-4 bg-gray-50">
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
@@ -835,9 +835,9 @@
                                     <p class="mt-1 text-gray-900">{product.about}</p>
                                 </div>
                             {/if}
-                        </div>
-                    {/if}
-                </div>
+                    </div>
+                {/if}
+            </div>
 
                 <!-- Variants Section -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -974,9 +974,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+            </div>
 
-                <!-- Listings Section -->
+            <!-- Listings Section -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex items-center justify-between">
@@ -988,7 +988,7 @@
                                     Product Listings ({productListings.length})
                                 </h2>
                                 <p class="text-sm text-gray-500 mt-1">Manage pricing, inventory, and availability</p>
-                            </div>
+            </div>
                             <button 
                                 onclick={resetListingForm} 
                                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -1002,7 +1002,7 @@
                     </div>
 
                     <div class="px-6 py-6">
-                        {#if productListings.length === 0}
+            {#if productListings.length === 0}
                             <div class="text-center py-12">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009.586 13H7"/>
@@ -1023,8 +1023,8 @@
                             </div>
                         {:else}
                             <!-- Existing Listings Grid -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                {#each productListings as listing (listing.id)}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {#each productListings as listing (listing.id)}
                                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                                         <div class="flex items-start justify-between mb-3">
                                             <h3 class="font-medium text-gray-900 truncate">{listing.name || product.name}</h3>
@@ -1057,21 +1057,21 @@
                                                 <span class="text-gray-500">Variant:</span>
                                                 <span class="font-medium text-gray-900">{variants.find(v => v.id === listing.variant_id)?.name || 'None'}</span>
                                             </div>
-                                        </div>
-                                    </div>
-                                {/each}
-                            </div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
                         {/if}
 
                         <!-- Add New Listing Form -->
-                        {#if !currentListing.id}
+            {#if !currentListing.id}
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-6">Add New Listing</h3>
                                 
                                 <form onsubmit={submitProductListing} class="space-y-6">
                                     <!-- Basic Listing Info -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
                                             <label for="listing-name" class="block text-sm font-medium text-gray-700 mb-2">Listing Name</label>
                                             <input 
                                                 type="text" 
@@ -1080,16 +1080,16 @@
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 placeholder="Optional custom name"
                                             />
-                                        </div>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label for="listing-price" class="block text-sm font-medium text-gray-700 mb-2">
                                                 Price (₹) <span class="text-red-500">*</span>
                                             </label>
                                             <div class="relative">
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span class="text-gray-500 sm:text-sm">₹</span>
-                                                </div>
+                        </div>
                                                 <input 
                                                     type="number" 
                                                     bind:value={currentListing.price}
@@ -1109,12 +1109,12 @@
                                             {/if}
                                         </div>
 
-                                        <div>
+                        <div>
                                             <label for="listing-mrp" class="block text-sm font-medium text-gray-700 mb-2">MRP (₹)</label>
                                             <div class="relative">
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span class="text-gray-500 sm:text-sm">₹</span>
-                                                </div>
+                        </div>
                                                 <input 
                                                     type="number" 
                                                     bind:value={currentListing.mrp}
@@ -1126,7 +1126,7 @@
                                             </div>
                                         </div>
 
-                                        <div>
+                        <div>
                                             <label for="listing-stock" class="block text-sm font-medium text-gray-700 mb-2">
                                                 Stock <span class="text-red-500">*</span>
                                             </label>
@@ -1145,9 +1145,9 @@
                                                     {errors.stock}
                                                 </p>
                                             {/if}
-                                        </div>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label for="listing-buy-limit" class="block text-sm font-medium text-gray-700 mb-2">
                                                 Buy Limit <span class="text-red-500">*</span>
                                             </label>
@@ -1166,92 +1166,92 @@
                                                     {errors.buy_limit}
                                                 </p>
                                             {/if}
-                                        </div>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
                                             <select 
                                                 bind:value={currentListing.variant_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">No variant</option>
-                                                {#each variants as variant}
-                                                    <option value={variant.id}>{variant.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
+                                <option value="">No variant</option>
+                                {#each variants as variant}
+                                    <option value={variant.id}>{variant.name}</option>
+                                {/each}
+                            </select>
+                        </div>
                                     </div>
 
                                     <!-- Additional Details -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Manufacturer</label>
                                             <select 
                                                 bind:value={currentListing.manufacturer_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select manufacturer</option>
-                                                {#each entities as entity}
-                                                    <option value={entity.id}>{entity.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
+                                <option value="">Select manufacturer</option>
+                                {#each entities as entity}
+                                    <option value={entity.id}>{entity.name}</option>
+                                {/each}
+                            </select>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Packer</label>
                                             <select 
                                                 bind:value={currentListing.packer_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select packer</option>
-                                                {#each entities as entity}
-                                                    <option value={entity.id}>{entity.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
+                                <option value="">Select packer</option>
+                                {#each entities as entity}
+                                    <option value={entity.id}>{entity.name}</option>
+                                {/each}
+                            </select>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Importer</label>
                                             <select 
                                                 bind:value={currentListing.importer_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select importer</option>
-                                                {#each entities as entity}
-                                                    <option value={entity.id}>{entity.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
+                                <option value="">Select importer</option>
+                                {#each entities as entity}
+                                    <option value={entity.id}>{entity.name}</option>
+                                {/each}
+                            </select>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Return/Exchange Policy</label>
                                             <select 
                                                 bind:value={currentListing.return_exchange_policy_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select policy</option>
-                                                {#each returnExchangePolicies as policy}
-                                                    <option value={policy.id}>{policy.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
+                                <option value="">Select policy</option>
+                                {#each returnExchangePolicies as policy}
+                                    <option value={policy.id}>{policy.name}</option>
+                                {/each}
+                            </select>
+                        </div>
 
-                                        <div>
+                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Tax Category</label>
                                             <select 
                                                 bind:value={currentListing.tax_category_id} 
                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select tax category</option>
-                                                {#each taxCategories as tax}
-                                                    <option value={tax.id}>{tax.name}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
-                                    </div>
+                                <option value="">Select tax category</option>
+                                {#each taxCategories as tax}
+                                    <option value={tax.id}>{tax.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                    </div>
 
                                     <!-- Box Items -->
-                                    <div>
+                    <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Box Items</label>
                                         <textarea 
                                             bind:value={currentListing.box_items} 
@@ -1259,10 +1259,10 @@
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                             placeholder="List items included in the box"
                                         ></textarea>
-                                    </div>
+                    </div>
 
                                     <!-- Features Section -->
-                                    <div>
+                    <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-4">Product Features</label>
                                         
                                         {#if currentListing.features.length > 0}
@@ -1273,11 +1273,11 @@
                                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature</th>
                                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
                                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                                        </tr>
-                                                    </thead>
+                                    </tr>
+                                </thead>
                                                     <tbody class="bg-white divide-y divide-gray-200">
-                                                        {#each currentListing.features as feature, index}
-                                                            <tr>
+                                    {#each currentListing.features as feature, index}
+                                        <tr>
                                                                 <td class="px-4 py-3 text-sm text-gray-900">
                                                                     {featureTemplates.find(ft => ft.id === feature.feature_template_id)?.name || 'N/A'}
                                                                 </td>
@@ -1289,12 +1289,12 @@
                                                                     >
                                                                         Remove
                                                                     </button>
-                                                                </td>
-                                                            </tr>
-                                                        {/each}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                            </td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
                                         {/if}
 
                                         <!-- Add Feature Form -->
@@ -1303,11 +1303,11 @@
                                                 bind:value={newFeature.feature_template_id} 
                                                 class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             >
-                                                <option value="">Select feature</option>
-                                                {#each featureTemplates as ft}
-                                                    <option value={ft.id}>{ft.name}</option>
-                                                {/each}
-                                            </select>
+                                <option value="">Select feature</option>
+                                {#each featureTemplates as ft}
+                                    <option value={ft.id}>{ft.name}</option>
+                                {/each}
+                            </select>
                                             <input 
                                                 type="text" 
                                                 bind:value={newFeature.value} 
@@ -1324,13 +1324,13 @@
                                                 </svg>
                                                 Add
                                             </button>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Images Section -->
                                     <div class="space-y-6">
                                         <!-- Main Image -->
-                                        <div>
+                    <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Main Image</label>
                                             <div class="flex items-center space-x-4">
                                                 <input 
@@ -1341,9 +1341,9 @@
                                                 />
                                                 {#if currentListing.main_image && typeof currentListing.main_image === 'string'}
                                                     <img src={currentListing.main_image || "/placeholder.svg"} alt="Main Image" class="h-16 w-16 object-cover rounded-lg border border-gray-200" />
-                                                {/if}
-                                            </div>
-                                        </div>
+                            {/if}
+                    </div>
+                </div>
 
                                         <!-- Gallery Images -->
                                         <div>
@@ -1362,8 +1362,8 @@
                                                         <div class="relative">
                                                             <img src={URL.createObjectURL(file) || "/placeholder.svg"} alt="Preview" class="h-20 w-20 object-cover rounded-lg border border-gray-200" />
                                                         </div>
-                                                    {/each}
-                                                </div>
+                                    {/each}
+                        </div>
                                             {/if}
                                             
                                             {#if currentListing.id && galleryImages.length > 0}
@@ -1379,12 +1379,12 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                                 </svg>
                                                             </button>
-                                                        </div>
-                                                    {/each}
-                                                </div>
+                    </div>
+                {/each}
+                    </div>
                                             {/if}
-                                        </div>
-                                    </div>
+                    </div>
+                    </div>
 
                                     <!-- Form Actions -->
                                     <div class="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-200 space-y-4 sm:space-y-0">
@@ -1449,9 +1449,9 @@
                 <!-- Modal Content -->
                 <div class="px-6 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                     <form onsubmit={submitModalData} class="space-y-6">
-                        {#if modalType === 'product'}
+                    {#if modalType === 'product'}
                             <!-- Product Edit Form -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
                                     <label for="modal-product-name" class="block text-sm font-medium text-gray-700 mb-2">
                                         Product Name <span class="text-red-500">*</span>
@@ -1466,9 +1466,9 @@
                                     {#if errors.name}
                                         <p class="mt-1 text-sm text-red-600">{errors.name}</p>
                                     {/if}
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-product-category" class="block text-sm font-medium text-gray-700 mb-2">
                                         Category <span class="text-red-500">*</span>
                                     </label>
@@ -1477,17 +1477,17 @@
                                         id="modal-product-category"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.category_id ? 'border-red-500' : ''}"
                                     >
-                                        <option value="">Select category</option>
-                                        {#each categories as category}
-                                            <option value={category.id}>{category.name}</option>
-                                        {/each}
-                                    </select>
+                                    <option value="">Select category</option>
+                                    {#each categories as category}
+                                        <option value={category.id}>{category.name}</option>
+                                    {/each}
+                                </select>
                                     {#if errors.category_id}
                                         <p class="mt-1 text-sm text-red-600">{errors.category_id}</p>
                                     {/if}
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-product-brand" class="block text-sm font-medium text-gray-700 mb-2">
                                         Brand <span class="text-red-500">*</span>
                                     </label>
@@ -1496,31 +1496,31 @@
                                         id="modal-product-brand"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {errors.brand_id ? 'border-red-500' : ''}"
                                     >
-                                        <option value="">Select brand</option>
-                                        {#each brands as brand}
-                                            <option value={brand.id}>{brand.name}</option>
-                                        {/each}
-                                    </select>
+                                    <option value="">Select brand</option>
+                                    {#each brands as brand}
+                                        <option value={brand.id}>{brand.name}</option>
+                                    {/each}
+                                </select>
                                     {#if errors.brand_id}
                                         <p class="mt-1 text-sm text-red-600">{errors.brand_id}</p>
                                     {/if}
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-product-tax" class="block text-sm font-medium text-gray-700 mb-2">Tax Category</label>
                                     <select 
                                         bind:value={modalData.tax_category_id}
                                         id="modal-product-tax"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select tax category</option>
-                                        {#each taxCategories as tax}
-                                            <option value={tax.id}>{tax.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select tax category</option>
+                                    {#each taxCategories as tax}
+                                        <option value={tax.id}>{tax.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-product-country" class="block text-sm font-medium text-gray-700 mb-2">Country of Origin</label>
                                     <input 
                                         type="text" 
@@ -1529,14 +1529,14 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="India"
                                     />
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-product-base-price" class="block text-sm font-medium text-gray-700 mb-2">Base Price (₹)</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                                        </div>
+                            </div>
                                         <input 
                                             type="number" 
                                             bind:value={modalData.base_price}
@@ -1545,8 +1545,8 @@
                                             placeholder="0.00" 
                                             step="0.01"
                                         />
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
 
                                 <div class="flex items-center">
                                     <div class="flex items-center h-5">
@@ -1562,7 +1562,7 @@
                                 </div>
                             </div>
 
-                            <div>
+                        <div>
                                 <label for="modal-product-about" class="block text-sm font-medium text-gray-700 mb-2">About</label>
                                 <textarea 
                                     bind:value={modalData.about}
@@ -1571,9 +1571,9 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                     placeholder="Brief about the product"
                                 ></textarea>
-                            </div>
+                        </div>
 
-                            <div>
+                        <div>
                                 <label for="modal-product-important-info" class="block text-sm font-medium text-gray-700 mb-2">Important Info</label>
                                 <textarea 
                                     bind:value={modalData.important_info}
@@ -1582,19 +1582,19 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                     placeholder="Important information"
                                 ></textarea>
-                            </div>
+                        </div>
 
-                            <div>
+                        <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                                 <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <TiptapEditor content={modalEditorContent} on:change={handleModalEditorChange} />
-                                </div>
+                            <TiptapEditor content={modalEditorContent} on:change={handleModalEditorChange} />
+                        </div>
                             </div>
 
-                        {:else}
+                    {:else}
                             <!-- Listing Edit Form -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
                                     <label for="modal-listing-name" class="block text-sm font-medium text-gray-700 mb-2">Listing Name</label>
                                     <input 
                                         type="text" 
@@ -1603,16 +1603,16 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Optional custom name"
                                     />
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-listing-price" class="block text-sm font-medium text-gray-700 mb-2">
                                         Price (₹) <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                                        </div>
+                            </div>
                                         <input 
                                             type="number" 
                                             bind:value={modalData.price}
@@ -1627,12 +1627,12 @@
                                     {/if}
                                 </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-listing-mrp" class="block text-sm font-medium text-gray-700 mb-2">MRP (₹)</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                                        </div>
+                            </div>
                                         <input 
                                             type="number" 
                                             bind:value={modalData.mrp}
@@ -1644,7 +1644,7 @@
                                     </div>
                                 </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-listing-stock" class="block text-sm font-medium text-gray-700 mb-2">
                                         Stock <span class="text-red-500">*</span>
                                     </label>
@@ -1658,9 +1658,9 @@
                                     {#if errors.stock}
                                         <p class="mt-1 text-sm text-red-600">{errors.stock}</p>
                                     {/if}
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label for="modal-listing-buy-limit" class="block text-sm font-medium text-gray-700 mb-2">
                                         Buy Limit <span class="text-red-500">*</span>
                                     </label>
@@ -1674,88 +1674,88 @@
                                     {#if errors.buy_limit}
                                         <p class="mt-1 text-sm text-red-600">{errors.buy_limit}</p>
                                     {/if}
-                                </div>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
                                     <select 
                                         bind:value={modalData.variant_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">No variant</option>
-                                        {#each variants as variant}
-                                            <option value={variant.id}>{variant.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">No variant</option>
+                                    {#each variants as variant}
+                                        <option value={variant.id}>{variant.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Manufacturer</label>
                                     <select 
                                         bind:value={modalData.manufacturer_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select manufacturer</option>
-                                        {#each entities as entity}
-                                            <option value={entity.id}>{entity.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select manufacturer</option>
+                                    {#each entities as entity}
+                                        <option value={entity.id}>{entity.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Packer</label>
                                     <select 
                                         bind:value={modalData.packer_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select packer</option>
-                                        {#each entities as entity}
-                                            <option value={entity.id}>{entity.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select packer</option>
+                                    {#each entities as entity}
+                                        <option value={entity.id}>{entity.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Importer</label>
                                     <select 
                                         bind:value={modalData.importer_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select importer</option>
-                                        {#each entities as entity}
-                                            <option value={entity.id}>{entity.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select importer</option>
+                                    {#each entities as entity}
+                                        <option value={entity.id}>{entity.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Return/Exchange Policy</label>
                                     <select 
                                         bind:value={modalData.return_exchange_policy_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select policy</option>
-                                        {#each returnExchangePolicies as policy}
-                                            <option value={policy.id}>{policy.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select policy</option>
+                                    {#each returnExchangePolicies as policy}
+                                        <option value={policy.id}>{policy.name}</option>
+                                    {/each}
+                                </select>
+                            </div>
 
-                                <div>
+                            <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Tax Category</label>
                                     <select 
                                         bind:value={modalData.tax_category_id} 
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select tax category</option>
-                                        {#each taxCategories as tax}
-                                            <option value={tax.id}>{tax.name}</option>
-                                        {/each}
-                                    </select>
-                                </div>
+                                    <option value="">Select tax category</option>
+                                    {#each taxCategories as tax}
+                                        <option value={tax.id}>{tax.name}</option>
+                                    {/each}
+                                </select>
                             </div>
+                        </div>
 
-                            <div>
+                        <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Box Items</label>
                                 <textarea 
                                     bind:value={modalData.box_items} 
@@ -1763,10 +1763,10 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                                     placeholder="Items included in the box"
                                 ></textarea>
-                            </div>
+                        </div>
 
                             <!-- Features in Modal -->
-                            <div>
+                        <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-4">Features</label>
                                 
                                 {#if modalData.features && modalData.features.length > 0}
@@ -1777,11 +1777,11 @@
                                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature</th>
                                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
                                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                                </tr>
-                                            </thead>
+                                        </tr>
+                                    </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
-                                                {#each modalData.features as feature, index}
-                                                    <tr>
+                                        {#each modalData.features as feature, index}
+                                            <tr>
                                                         <td class="px-4 py-3 text-sm text-gray-900">
                                                             {featureTemplates.find(ft => ft.id === feature.feature_template_id)?.name || 'N/A'}
                                                         </td>
@@ -1793,12 +1793,12 @@
                                                             >
                                                                 Remove
                                                             </button>
-                                                        </td>
-                                                    </tr>
-                                                {/each}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </tbody>
+                                </table>
+                            </div>
                                 {/if}
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1806,11 +1806,11 @@
                                         bind:value={newFeature.feature_template_id} 
                                         class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="">Select feature</option>
-                                        {#each featureTemplates as ft}
-                                            <option value={ft.id}>{ft.name}</option>
-                                        {/each}
-                                    </select>
+                                    <option value="">Select feature</option>
+                                    {#each featureTemplates as ft}
+                                        <option value={ft.id}>{ft.name}</option>
+                                    {/each}
+                                </select>
                                     <input 
                                         type="text" 
                                         bind:value={newFeature.value} 
@@ -1831,10 +1831,10 @@
                                         </svg>
                                         Add
                                     </button>
-                                </div>
                             </div>
+                        </div>
 
-                            <div>
+                        <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Main Image</label>
                                 <div class="flex items-center space-x-4">
                                     <input 
@@ -1847,8 +1847,8 @@
                                         <img src={modalData.main_image || "/placeholder.svg"} alt="Main Image" class="h-16 w-16 object-cover rounded-lg border border-gray-200" />
                                     {/if}
                                 </div>
-                            </div>
-                        {/if}
+                        </div>
+                    {/if}
                     </form>
                 </div>
 

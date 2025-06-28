@@ -6,6 +6,15 @@
     export let items;
     export let order_id;
     let orderItems = items;
+    console.log(orderItems);
+
+    const mrp = orderItems.reduce((total, item) => {
+        return total + (item.mrp * item.quantity);
+    }, 0);
+
+    const price = orderItems.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+    }, 0);  
 
 
     import OrderItemReview from "./OrderItemReview.svelte";
@@ -73,18 +82,23 @@
                             <a href={`/product/${item.product_slug}`} class="text-sm font-medium hover:text-blue-600 transition-colors truncate">
                                 {item.product_listing_name}
                             </a>
+                            <!-- Status badge beside name on mobile -->
+                            <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm sm:hidden">
+                                <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
+                                <span class="hidden sm:inline">{statusConfig[item.status].label}</span>
+                            </div>
                         </div>
                         <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
                             <p>Quantity: <span class="font-medium">{item.quantity}</span></p>
                             <div class="flex items-center flex-wrap gap-x-2 gap-y-1">
-                                {#if item.discount_amount > 0}
-                                    <p class="line-through text-gray-400">₹{item.price.toFixed(2)}</p>
-                                    <p class="font-semibold text-gray-900">₹{((item.price * item.quantity - item.discount_amount) / item.quantity).toFixed(2)}</p>
-                                    <span class="text-green-600 text-xs">
-                                        ({Math.round((item.discount_amount / (item.price * item.quantity)) * 100)}% off)
+                                {#if item.mrp && item.mrp > item.price}
+                                    <span class="text-xs text-gray-500 line-through">₹{item.mrp.toFixed(2)}</span>
+                                {/if}
+                                <span class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</span>
+                                {#if item.mrp && item.mrp > item.price}
+                                    <span class="text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded">
+                                        {Math.round(((item.mrp - item.price) / item.mrp) * 100)}% OFF
                                     </span>
-                                {:else}
-                                    <p class="font-semibold text-gray-900">₹{item.price.toFixed(2)}</p>
                                 {/if}
                             </div>
                         </div>
@@ -93,24 +107,28 @@
                                 Saved: ₹{item.discount_amount.toFixed(2)}
                             </div>
                         {/if}
+                        <!-- Add Review below details on all screens -->
+                        <div class="mt-2">
+                            {#if item?.review_added}
+                                <OrderItemReview order_item_id={item.id} />
+                            {:else}
+                                <a 
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors w-full sm:w-auto"
+                                    href={"/profile/add-review/" + order_id}
+                                >
+                                    <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />
+                                    Add Review
+                                </a>
+                            {/if}
+                        </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-auto flex flex-col items-end justify-end gap-2">
+                <!-- Remove right column on mobile, keep only on desktop -->
+                <div class="hidden sm:flex w-full sm:w-auto flex-col items-end justify-end gap-2">
                     <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm mb-2 sm:mb-0">
                         <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
                         <span class="hidden md:inline">{statusConfig[item.status].label}</span>
                     </div>
-                    {#if item?.review_added}
-                        <OrderItemReview order_item_id={item.id} />
-                    {:else}
-                        <a 
-                            class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                            href={"/profile/add-review/" + order_id}
-                        >
-                            <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />
-                            Add Review
-                        </a>
-                    {/if}
                 </div>
             </div>
         </div>
