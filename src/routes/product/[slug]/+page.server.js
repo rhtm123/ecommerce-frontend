@@ -6,7 +6,7 @@ export async function load({ params }) {
     
     try {
         const product_listing = await productApi.getProduct(params.slug);
-        
+
         if (!product_listing) {
             throw error(404, 'Product not found');
         }
