@@ -7,7 +7,7 @@
     const dispatch = createEventDispatcher();
     
     export let product_listing;
-    console.log(product_listing)
+    // console.log(product_listing)
     import { onMount } from "svelte";
 
     let reviews = [];
@@ -64,6 +64,7 @@
 </script>
 
 <div class="space-y-4">
+    
     {#each reviews as review (review.id)}
         <div class="border rounded-lg p-3 md:p-4 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
             <div class="flex items-start space-x-4">
@@ -136,7 +137,7 @@
     {/if}
 
     {#if (next && !loading)}
-        <button class="btn btn-sm w-full md:w-auto my-3 md:my-4" on:click={() => dispatch('loadMore')}>
+        <button class="btn btn-sm w-full md:w-auto my-3 md:my-4" on:click={() => loadMore()}>
             Load More
         </button>
     {/if}

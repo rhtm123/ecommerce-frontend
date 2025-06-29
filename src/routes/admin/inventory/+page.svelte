@@ -30,7 +30,7 @@
         let url = `${PUBLIC_API_URL}/product/product-listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
         console.log(url);
         let data = await myFetch(url);
-        product_listings = data.results;
+        product_listings = (data.results || []).filter(p => p && p.slug);
         next = data.next;
         count = data.count;
         loading = false;
@@ -92,51 +92,41 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
+                          {#if product_listings && product_listings.length > 0}
                             {#each product_listings as product (product.id)}
+                              {#if product && product.slug}
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
-                                                {#if product.main_image}
-                                                    <img src={product.main_image} class="h-full w-full object-cover rounded-md">
-                                                {:else}
-                                                    <span class="text-xs">Product Image</span>
-                                                {/if}
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">{product.name}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">₹ {product.price.toFixed(2)}</td>
-
-                                    <td class="px-6 py-4 text-sm text-gray-900">{product.approved}</td>
-
-
-                                    <!-- <td class="px-6 py-4">
-                                        {#if product.status === 'In Stock'}
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                In Stock
-                                            </span>
-                                        {:else if product.status === 'Low Stock'}
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Low Stock
-                                            </span>
+                                  <td class="px-6 py-4">
+                                    <a href={`/admin/inventory/${product.slug}`} class="flex items-center">
+                                      <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
+                                        {#if product.main_image}
+                                          <img src={product.main_image} class="h-full w-full object-cover rounded-md" />
                                         {:else}
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                Out of Stock
-                                            </span>
+                                          <span class="text-xs">Product Image</span>
                                         {/if}
-                                    </td> -->
-                                    <td class="px-6 py-4 text-sm font-medium">
-                                        <a href={`/admin/inventory/add-product?product_id=${product.product_id}`}>
-                                            <button class="text-blue-600 hover:text-blue-900">Edit</button>
-                                        </a>
-                                        <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>
-                                    </td>
+                                      </div>
+                                      <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{product.name}</div>
+                                      </div>
+                                    </a>
+                                  </td>
+                                  <td class="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
+                                  <td class="px-6 py-4 text-sm text-gray-900">₹ {product.price?.toFixed(2) ?? '0.00'}</td>
+                                  <td class="px-6 py-4 text-sm text-gray-900">{product.approved ? 'Yes' : 'No'}</td>
+                                  <td class="px-6 py-4 text-sm font-medium">
+                                    <a href={`/admin/inventory/add-product?product_id=${product.product_id}`}>
+                                      <button class="text-blue-600 hover:text-blue-900">Edit</button>
+                                    </a>
+                                    <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                  </td>
                                 </tr>
+                              {/if}
                             {/each}
+                          {:else}
+                            <tr>
+                              <td colspan="5" class="text-center text-gray-400 py-8">No products found.</td>
+                            </tr>
+                          {/if}
 
                             {#if loading}
                                 <div class="p-4">

@@ -35,47 +35,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="canonical" href="https://naigaonmarket.com/shop/{currentCategory?.slug}" />
 
-  <!-- Structured Data for Category Page -->
-  <!-- <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": "{currentCategory?.name} - Naigaon Market",
-      "description": "Shop {currentCategory?.name} at best prices in Naigaon with fast delivery",
-      "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://naigaonmarket.com"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Shop",
-            "item": "https://naigaonmarket.com/shop"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "{currentCategory?.name}",
-            "item": "https://naigaonmarket.com/shop/{currentCategory?.slug}"
-          }
-        ]
-      },
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "INR",
-        "availability": "https://schema.org/InStock"
-      }
-    }
-  </script> -->
 </svelte:head>
 
 <!-- Template -->
-<div class="mx-4 mt-2 md:mx-8 lg:mx-16">
+<div class="mx-4 md:mx-8 lg:mx-16">
 
   <div class="text-sm breadcrumbs text-gray-600">
     <ul>

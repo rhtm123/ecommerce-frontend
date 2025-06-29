@@ -2,8 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { fade, slide } from 'svelte/transition';
-  import { addToCart } from '../../../lib/stores/cart.js';
-  import Reviews from '$lib/components/product/Reviews.svelte';
+  import { addToCart, cart } from '../../../lib/stores/cart.js';
   import  Icon  from '@iconify/svelte';
   import { myFetch } from '$lib/utils/myFetch.js';
   import { PUBLIC_API_URL } from '$env/static/public';
@@ -11,20 +10,26 @@
   import Slider from '$lib/components/Slider.svelte';
   import { user } from '$lib/stores/auth.js';
   import { goto } from '$app/navigation';
-  import Product from '$lib/components/product/Product.svelte';
-  import ProductOffers from '$lib/components/product/ProductOffers.svelte';
+
 
   export let data;
-  const { product_listing, category } = data;
+
+  // $: console.log('Data changed:', data);
+
+  let product_listing;
+  let category;
+
+  $: if (data) {
+        ({ product_listing, category } = data);
+  }
   
   
   let activeTab = 'DETAIL';
-  let quantity = 1;
   
   // console.log(product_listing.return_exchange_policy.conditions);
   
   // Selected image state (default to main image)
-  let selectedImage = product_listing.main_image;
+  $: selectedImage = product_listing?.main_image;
 
 
   
@@ -50,26 +55,41 @@
     return Math.round(((mrp - price) / mrp) * 100);
   }
   
+  // function handleAddToCart() {
+  //   for (let i = 0; i < quantity; i++) {
+  //     addToCart(product_listing);
+  //   }
+  // }
+
+  $: cartItem = $cart.find(item => item.id === product_listing.id);
+  $: quantity = cartItem ? cartItem.quantity : 0;
+  $: showQtyControls = quantity>0?true:false;
+
+
+
   function handleAddToCart() {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product_listing);
-    }
+    addToCart(product_listing);
+    quantity = 1;
   }
 
-  let relatedProducts = [];
-  let loadingRelatedProducts = true;
-  async function getRelatedProducts() {
-    try{
-    let url = `${PUBLIC_API_URL}/product/product-listings/related/${product_listing.id}/`
-    let data = await myFetch(url);
-    relatedProducts = data.results;
-    console.log(relatedProducts);
-    } catch(e){
-
-    }finally{
-      loadingRelatedProducts = false
+  function handleIncrement() {
+    if (quantity < 10) {
+      cart.update(items => items.map(item => item.id === product_listing.id ? { ...item, quantity: item.quantity + 1 } : item));
     }
   }
+  
+  function handleDecrement() {
+
+    if (quantity > 1) {
+      cart.update(items => items.map(item => item.id === product_listing.id ? { ...item, quantity: item.quantity - 1 } : item));
+    }
+
+  }
+  
+  function handleRemove() {
+    cart.update(items => items.filter(item => item.id !== product_listing.id));
+  }
+
 
   async function getProductListingImages(){
     let url = `${PUBLIC_API_URL}/product/product-listing-images/?product_listing_id=${product_listing.id}`
@@ -115,59 +135,32 @@
     }
   }
 
-  onMount(async () => {
-    // Subscribe to user store
-    const unsubscribe = user.subscribe(value => {
-      if (value) {
-        currentUser = value;
-        userId = value.user_id;
-        // Set role based on entity field
-        userRole = value.entity ? 'seller' : 'buyer';
-        console.log("User data:", { userId, userRole, entity: value.entity });
-        checkPurchaseHistory();
-      } else {
-        currentUser = null;
-        userId = null;
-        userRole = null;
-        hasPurchased = false;
-      }
-    });
+  let RelatedProducts;
+  let Reviews;
+  let Variants;
+  let AvailabilityCheck;
+  let ProductOffers;
+  // let Qna;
 
-    // Get product listing images
-    await getProductListingImages();
 
-    await getRelatedProducts();
+  onMount( () => {
+    
+    getProductListingImages();
 
-    // Cleanup subscription on component destroy
-    return () => {
-      unsubscribe();
-    };
+    RelatedProducts = import('$lib/components/product/RelatedProducts.svelte');
+    Reviews = import('$lib/components/product/Reviews.svelte');
+    Variants = import('$lib/components/product/Variants.svelte');
+    AvailabilityCheck = import('$lib/components/product/AvailabilityCheck.svelte');
+    ProductOffers = import('$lib/components/product/ProductOffers.svelte');
+
+
+
+    // Qna = import('$lib/components/product/Qna.svelte');
+
+
   });
 
-  let pincode = '';
-  let pincodeResult = '';
-  let pinData = null;
-
-  async function checkPincodeAvailability() {
-    if (!pincode) return; // Don't do anything if pincode is empty
-    
-    if (pincode.length === 6) {
-      const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
-      const data = await response.json();
-      const foundPinData = data.results.find(pin => pin.pin_code === pincode);
-      
-      pinData = foundPinData;
-      
-      if (foundPinData) {
-        pincodeResult = `Delivery is available in ${foundPinData.city}, ${foundPinData.state}. COD is ${foundPinData.cod_available ? 'available' : 'not available'}.`;
-      } else {
-        pincodeResult = 'Delivery is not available for this pincode.';
-      }
-    } else if (pincode.length > 0) {
-      pincodeResult = 'Please enter a valid 6-digit pincode.';
-      pinData = null;
-    }
-  }
+ 
 
   let showModal = false;
   let returnExchangeConditions = '';
@@ -175,174 +168,21 @@
   function openModal(conditions) {
     returnExchangeConditions = conditions;
     showModal = true; // Open the modal
-    console.log("Modal opened with conditions:", conditions); // Debugging line
+    // console.log("Modal opened with conditions:", conditions); // Debugging line
   }
 
   function closeModal() {
     showModal = false; // Close the modal
-    console.log("Modal closed"); // Debugging line
-  }
-
-  let reviews = [];
-  let reviewsLoading = false;
-  let reviewsNext = null;
-  let reviewsLoaded = false;
-
-  async function fetchReviews() {
-    if (reviewsLoaded) return;
-    reviewsLoading = true;
-    try {
-      let url = `${PUBLIC_API_URL}/review/reviews/?product_listing_id=${product_listing.id}&ordering=-id`;
-      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
-      reviews = data.results;
-      reviewsNext = data.next;
-      reviewsLoaded = true;
-    } catch (e) {
-      console.error("Error fetching reviews:", e);
-    } finally {
-      reviewsLoading = false;
-    }
-  }
-
-  // Watch activeTab changes
-  $: if (activeTab === 'REVIEWS' && !reviewsLoaded) {
-    fetchReviews();
+    // console.log("Modal closed"); // Debugging line
   }
 
 
-  // Add these to your existing variables
-  let questions = [];
-  let questionsLoading = false;
-  let questionsNext = null;
-  let questionsLoaded = false;
-  let newQuestion = '';
-  let newAnswer = {};
-  let userRole = null;
-  let userId = null;
-  let hasPurchased = false;
-  let currentUser = null;
-
-  // Fetch questions
-  async function fetchQuestions() {
-    if (questionsLoaded) return;
-    questionsLoading = true;
-    try {
-      let url = `${PUBLIC_API_URL}/qna/questions/?product_listing_id=${product_listing.id}&ordering=-id&answers_required=true`;
-      let data = await myFetch(url, 'GET', {}, currentUser?.access_token);
-      questions = data.results;
-      questionsNext = data.next;
-      questionsLoaded = true;
-      console.log("questions",questions);
-    } catch (e) {
-      console.error("Error fetching questions:", e);
-    } finally {
-      questionsLoading = false;
-    }
-  }
-
-  // Check if user has purchased the product
-  async function checkPurchaseHistory() {
-    if (!userId) return;
-    try {
-      // First get user's orders
-      const ordersResponse = await myFetch(
-        `${PUBLIC_API_URL}/order/orders?user_id=${userId}`,
-        'GET',
-        {},
-        currentUser?.access_token
-      );
-      
-      // Get all order IDs
-      const orderIds = ordersResponse.results.map(order => order.id);
-      
-      // If there are orders, check order items
-      if (orderIds.length > 0) {
-        const orderItemsResponse = await myFetch(
-          `${PUBLIC_API_URL}/order/order-items/?page=1&page_size=100&need_reviews=true`,
-          'GET',
-          {},
-          currentUser?.access_token
-        );
-        
-        // Check if any order item matches the current product
-        hasPurchased = orderItemsResponse.results.some(item => 
-          orderIds.includes(item.order_id) && 
-          item.product_listing.id === product_listing.id &&
-          ['delivered', 'ready_for_delivery'].includes(item.status)
-        );
-      }
-    } catch (e) {
-      console.error("Error checking purchase history:", e);
-    }
-  }
-
-  // Submit new question
-  async function submitQuestion() {
-    if (!userId) {
-      goto('/login');
-      return;
-    }
-    if (!newQuestion.trim()) return;
-
-    try {
-      const response = await myFetch(
-        `${PUBLIC_API_URL}/qna/questions/`, 
-        'POST',
-        {
-          question_text: newQuestion,
-          user_id: userId,
-          product_listing_id: product_listing.id
-        },
-        currentUser?.access_token
-      );
-      
-      if (response) {
-        newQuestion = '';
-        questionsLoaded = false;
-        fetchQuestions();
-      }
-    } catch (e) {
-      console.error("Error submitting question:", e);
-    }
-  }
-
-  // Submit new answer
-  async function submitAnswer(questionId) {
-    if (!userId) {
-      goto('/login');
-      return;
-    }
-    if (!newAnswer[questionId]?.trim()) return;
-
-    try {
-      const response = await myFetch(
-        `${PUBLIC_API_URL}/qna/answers/`,
-        'POST',
-        {
-          answer_text: newAnswer[questionId],
-          user_id: userId,
-          question_id: questionId
-        },
-        currentUser?.access_token
-      );
-      console.log("response",response);
-      
-      if (response) {
-        newAnswer[questionId] = '';
-        questionsLoaded = false;
-        fetchQuestions();
-      }
-    } catch (e) {
-      console.error("Error submitting answer:", e);
-    }
-  }
-
-  // Watch activeTab changes
-  $: if (activeTab === 'QNA' && !questionsLoaded) {
-    fetchQuestions();
-  }
 
   let isExpanded = false;
+
+
+
+  
 </script>
 
 <svelte:head>
@@ -415,7 +255,7 @@
       </div>
 
       <!-- Magnifier Lens -->
-      <div 
+      <!-- <div 
         class="hidden md:block absolute w-[200px] h-[200px] border-2 border-gray-200 rounded-lg pointer-events-none bg-white opacity-0 transition-opacity duration-200 hover:opacity-100"
         style="display: none;"
       >
@@ -427,20 +267,20 @@
             class="w-full h-full object-contain origin-top-left"
           />
         </div>
-      </div>
+      </div> -->
 
 
-      {#if product_listing?.isBestSeller}
+      <!-- {#if product_listing?.isBestSeller}
         <span class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 text-sm rounded">
           BEST SELLER
         </span>
-      {/if}
+      {/if} -->
     </div>
 
     <!-- Product Info -->
     <div class="space-y-4">
       <!-- Product Title and Assured Badge -->
-      <h1 class="text-3xl font-bold flex items-center gap-2">
+      <h1 class="text-4xl font-bold flex items-center gap-2">
         {product_listing.name}
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">
           <svg class="w-3 h-3 md:w-4 md:h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
@@ -450,44 +290,29 @@
         </span>
       </h1>
 
-      <!-- Add mobile sticky header
-  <div class="md:hidden ">
-    <h1 class="text-xl font-semibold truncate">{product_listing.name}</h1>
-    <div class="flex items-center gap-2 mt-2">
-      <div class="flex items-center">
-        {#each Array(5) as _, i}
-          <Icon 
-            icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
-                 (i < product_listing.rating ? "ic:baseline-star-half" : "ic:baseline-star-outline")}
-            class="w-4 h-4 text-yellow-400"
-          />
-        {/each}
-      </div>
-    </div>
-  </div> -->
+    
       
       <!-- Price Section -->
-      <div class="flex flex-col items-center md:items-start gap-2">
-        <!-- Update Price section for mobile -->
-        <div class="mobile-price-stack md:flex md:items-center gap-2">
-          <p class="text-2xl md:text-3xl font-bold text-primary">
-            {formatPrice(product_listing.price)}
-          </p>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-500 line-through text-lg md:text-xl">
+      
+      <div class="flex flex-col md:flex-row md:items-center md:gap-6">
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-3">
+            <p class="text-2xl font-bold text-gray-900">
+              {formatPrice(product_listing.price)}
+            </p>
+
+            <span class="text-gray-500 line-through text-lg">
               {formatPrice(product_listing.mrp)}
             </span>
+
             {#if calculateDiscount(product_listing.mrp, product_listing.price)}
-              <span class="text-green-600 text-lg md:text-xl font-semibold">
-                Save {calculateDiscount(product_listing.mrp, product_listing.price)}%!
+              <span class="text-green-600 font-semibold text-lg">
+                {calculateDiscount(product_listing.mrp, product_listing.price)}% OFF
               </span>
             {/if}
+            
           </div>
-        </div>
-        
-        <!-- Rating Section -->
-        <div class="flex items-center gap-2">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
             {#each Array(5) as _, i}
               <Icon 
                 icon={i < Math.floor(product_listing.rating) ? "ic:baseline-star" : 
@@ -502,112 +327,117 @@
         </div>
       </div>
 
-      <!-- Product Offers Section - Moved here -->
-      <ProductOffers {product_listing} />
 
-      <!-- Product Guarantees -->
-      <div class="flex md:items-center md:justify-between border-t border-b py-4 my-4">
-        <div class="mobile-scroll-container flex gap-6 md:gap-4 w-full md:w-auto">
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            {#if product_listing.return_exchange_policy !=null && (product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available) }
-            <button class="" on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
-              <Icon 
-                icon="mdi:refresh-circle" 
-                class="w-6 h-6 md:w-8 md:h-8 text-secondary cursor-pointer" 
-              />
-            </button>
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">
-              {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policy.exchange_available}
-              {product_listing.return_exchange_policy.exchange_days} days Return<br/> & Exchange
-              {:else if product_listing.return_exchange_policy.return_available}
-              {product_listing.return_exchange_policy.return_days} days Return
-              {:else if product_listing.return_exchange_policy.exchange_available}
-              {product_listing.return_exchange_policy.exchange_days} days Exchange
-              {/if}
-            </span>
-            {/if}
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:cash-multiple" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Pay on<br/>Delivery</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:truck-delivery" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Free<br/>Delivery</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:shield-check" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Top<br/>Brand</span>
-          </div>
-          
-          <div class="flex flex-col items-center gap-2 flex-shrink-0">
-            <Icon icon="mdi:package-variant" class="w-6 h-6 md:w-8 md:h-8 text-secondary" />
-            <span class="text-[10px] md:text-xs text-center whitespace-nowrap">Naigaon Market<br/>Delivered</span>
-          </div>
-        </div>
+      <!-- Variants and Offers -->
+  <div class="space-y-4">
+    {#if Variants}
+      {#await Variants then { default: Variants }}
+        <Variants product_listing={product_listing} />
+      {/await}
+    {/if}
+
+    {#if ProductOffers}
+      {#await ProductOffers then { default: ProductOffers }}
+        <ProductOffers product_listing={product_listing} />
+      {/await}
+    {/if}
+  </div>
+
+
+  <!-- Product Guarantees -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200">
+    {#if product_listing.return_exchange_policy !=null && (product_listing.return_exchange_policy.return_available || product_listing.return_exchange_policy.exchange_available)}
+      <div class="flex flex-col items-center gap-2">
+        <button on:click={() => openModal(product_listing.return_exchange_policy.conditions)}>
+          <Icon icon="mdi:refresh-circle" class="w-8 h-8 text-blue-600" />
+        </button>
+        <span class="text-xs text-gray-600 text-center">
+          {#if product_listing.return_exchange_policy.return_available && product_listing.return_exchange_policyexchange_available}
+            {product_listing.return_exchange_policy.exchange_days} days Return & Exchange
+          {:else if product_listing.return_exchange_policy.return_available}
+            {product_listing.return_exchange_policy.return_days} days Return
+          {:else if product_listing.return_exchange_policy.exchange_available}
+            {product_listing.return_exchange_policy.exchange_days} days Exchange
+          {/if}
+        </span>
       </div>
-      <!-- Product Description -->
-      <!-- <p class="text-gray-600">{product_listing.description}</p> -->
+    {/if}
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:cash-multiple" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Pay on Delivery</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:truck-delivery" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Free Delivery</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <Icon icon="mdi:shield-check" class="w-8 h-8 text-blue-600" />
+      <span class="text-xs text-gray-600 text-center">Top Brand</span>
+    </div>
 
-      <!-- Color Selection (if applicable) -->
-      {#if product_listing.color}
-        <div class="space-y-2">
-          <h3 class="font-medium">COLOR</h3>
-          <div class="flex gap-2">
-            <button 
-              class="w-8 h-8 rounded-full border-2 transition-all duration-200"
-              style="background-color: {product_listing.color}"
-            ></button>
-          </div>
-        </div>
-      {/if}
+  </div>
 
-      <!-- Quantity and Add to Cart -->
-      {#if product_listing.stock && product_listing.stock > 0}
-        <div class="flex items-center gap-4">
-          <div class="flex items-center border rounded-lg">
-            <button 
-              class="px-4 py-2 hover:bg-base-50"
-              on:click={() => updateQuantity(-1)}
-            >-</button>
-            <input 
-              type="number" 
-              bind:value={quantity}
-              disabled
-              class="w-16 text-center bg-inherit border-x"
-              min="1"
-              max="10"
-            />
-            <button 
-              class="px-4 py-2 hover:bg-base-50"
-              on:click={() => updateQuantity(1)}
-            >+</button>
-          </div>
-          <button class="border bg-primary text-white rounded-lg px-4 py-2" on:click={handleAddToCart}>ADD TO CART</button>
-        </div>
-      {:else}
-        <div class="text-red-500 font-medium text-lg">Out of Stock</div>
+      
+
+  {#if product_listing.stock && product_listing.stock > 0}
+  <div class="flex items-center gap-4">
+    {#if showQtyControls}
+      <div class="inline-flex items-center border border-gray-300 rounded-full p-1.5 bg-white shadow-sm">
+        <button
+          class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          on:click={quantity > 1 ? handleDecrement : handleRemove}
+          aria-label={quantity === 1 ? 'Remove item from cart' : 'Decrease quantity'}
+        >
+          {#if quantity === 1}
+            <Icon icon="mdi:delete-outline" class="text-red-500 h-6 w-6" />
+          {:else}
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          {/if}
+        </button>
+        <span class="font-bold text-gray-900 min-w-[2.5rem] text-center text-lg">{quantity}</span>
+        <button
+          class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          on:click={handleIncrement}
+          disabled={quantity >= 10}
+          aria-label="Increase quantity"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </button>
+      </div>
+    {:else}
+      <button
+        class="relative w-full md:w-auto bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-500 hover:to-green-500 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:scale-95 overflow-hidden"
+        on:click={handleAddToCart}
+      >
+        <span class="relative z-10">Add to Cart</span>
+        <span class="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300"></span>
+        <span class="absolute inset-0 animate-pulse bg-white opacity-5 rounded-full"></span>
+      </button>
+    {/if}
+  </div>
+
+      {#if AvailabilityCheck}
+          {#await AvailabilityCheck then { default: AvailabilityCheck }}
+            <AvailabilityCheck product_listing={product_listing} />
+          {/await}
       {/if}
+        
+{:else}
+  <div class="text-red-600 font-semibold text-lg animate-pulse">Out of Stock</div>
+{/if}
+
+
 
 
       <!-- Additional Product Info -->
-      <div class="space-y-1 pt-4 border-t">
-        <div class="flex gap-2">
-          <span class="font-medium">SKU:</span>
-          <span class="text-gray-600">NM_{product_listing.id}</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="font-medium">CATEGORY:</span>
-          <span class="text-gray-600">{category?.name}</span>
-        </div>
-        
 
-        
-        <div class="flex gap-4">
-          <span class="font-medium">SHARE LINK:</span>
+      <div class="space-y-4 pt-4 border-t border-gray-200">
+        <div class="flex items-center gap-4">
+          <span class="font-medium text-gray-700">Share:</span>
           <div class="flex gap-2">
             <!-- Facebook Share -->
             <a 
@@ -634,49 +464,13 @@
               <Icon icon="ic:outline-whatsapp" class="w-5 h-5" />
             </a>
           </div>
+
+
         </div>
 
-        <!-- New Pin Code Check Section -->
-        <div class="flex flex-col gap-2">
-          <div class=" font-medium">Check Delivery Availability</div>
-          <div class="flex items-center gap-2">
-            <input 
-              type="text" 
-              placeholder="Enter Pincode" 
-              bind:value={pincode}
-              class="input input-bordered input-sm h-9 w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-              maxlength="6"
-            />
-            <button 
-              class="btn btn-primary btn-sm h-9 px-4"
-              on:click={checkPincodeAvailability}
-            >
-              Check
-            </button>
-          </div>
-          {#if pincode && pincodeResult}
-            <div class="flex items-start gap-2">
-              <Icon 
-                icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"} 
-                class="w-4 h-4 mt-0.5 {pinData ? 'text-green-500' : 'text-red-500'}"
-              />
-              <div class="flex flex-col">
-                {#if pinData}
-                  <p class="text-xs text-green-700">
-                    Delivery is available in <span class="font-medium">{pinData.city}, {pinData.state}</span>
-                  </p>
-                  <p class="text-xs {pinData.cod_available ? 'text-green-700' : 'text-red-600'}">
-                    COD is <span class="font-medium">{pinData.cod_available ? 'available' : 'not available'}</span>
-                  </p>
-                {:else}
-                  <p class="text-xs text-red-600">{pincodeResult}</p>
-                {/if}
-              </div>
-            </div>
-          {/if}
-        </div>
-
+        
       </div>
+      
     </div>
   </div>
 
@@ -697,15 +491,13 @@
         >
           INFO
         </button>
-        <button 
+        <!-- <button 
           class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'QNA' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'QNA'}
         >
           <span>Q&A</span>
-          {#if questions.length > 0}
-            <span class="ml-1">({questions.length})</span>
-          {/if}
-        </button>
+          
+        </button> -->
         <button 
           class="tab tab-lg inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:bg-primary/10 {activeTab === 'REVIEWS' ? 'tab-active bg-primary text-white' : ''}"
           on:click={() => activeTab = 'REVIEWS'}
@@ -736,37 +528,34 @@
           </div>
         </div>
       {:else if activeTab === 'INFO'}
+
+      
         <div class="max-w-3xl mx-auto" in:fade={{ duration: 300 }}>
           <div class="overflow-x-auto">
             <table class="table border-4 w-full">
               <tbody>
-                {#if product_listing.weight}
+                <!-- {#if product_listing.weight}
                   <tr class="border-t">
                     <td class="font-medium text-gray-600 w-1/3 border-l">WEIGHT</td>
                     <td class=" italic text-gray-500 border-l border-r">{product_listing.weight}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
-                {#if product_listing.dimensions}
+                <!-- {#if product_listing.dimensions}
                   <tr>
                     <td class="font-medium text-gray-600 w-1/3 border-l">DIMENSIONS</td>
                     <td class="italic text-gray-500 border-l border-r">{product_listing.dimensions}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
-                {#if product_listing.color}
+                <!-- {#if product_listing.color}
                   <tr>
                     <td class="font-medium text-gray-600 w-1/3 border-l">COLOR</td>
                     <td class="italic text-gray-500 border-l border-r">{product_listing.color}</td>
                   </tr>
-                {/if}
+                {/if} -->
                 
-                {#if product_listing.ageRange}
-                  <tr>
-                    <td class="font-medium text-gray-600 w-1/3 border-l">AGE</td>
-                    <td class="italic text-gray-500 border-l border-r">{product_listing.ageRange}</td>
-                  </tr>
-                {/if}
+         
                 
                 {#if product_listing.brand}
                   <tr>
@@ -774,186 +563,53 @@
                     <td class="italic text-gray-500 border-l border-r">{product_listing.brand.name}</td>
                   </tr>
                 {/if}
+
+                <tr>
+
+                  <td class="font-medium text-gray-600 w-1/3 border-l">SKU</td>
+                  <td class="italic text-gray-500 border-l border-r">NM_{product_listing.id}</td>
+
+                </tr>
+
+                <tr>
+
+                  <td class="font-medium text-gray-600 w-1/3 border-l">CATEGORY</td>
+                  <td class="italic text-gray-500 border-l border-r">{category?.name}</td>
+                  
+                </tr>
+
     
                 <!-- Dynamically render any additional properties -->
-                {#each Object.entries(product_listing.additionalInfo || {}) as [key, value]}
+                <!-- {#each Object.entries(product_listing.additionalInfo || {}) as [key, value]}
                   <tr class="border-b">
                     <td class="font-medium text-gray-600 w-1/3 border-l">{key}</td>
                     <td class="italic text-gray-500 border-l border-r">{value}</td>
                   </tr>
-                {/each}
+                {/each} -->
               </tbody>
             </table>
           </div>
         </div>
 
-        {:else if activeTab === 'QNA'}
-        <div class="max-w-3xl mx-auto space-y-6">
-          <!-- Question Input -->
-          <div class="bg-white rounded-lg shadow-sm border p-4">
-            <h3 class="text-lg font-medium mb-3">Ask a Question</h3>
-            <div class="flex gap-3">
-              <textarea
-                bind:value={newQuestion}
-                placeholder="Type your question here..."
-                class="textarea textarea-bordered w-full  resize-none text-sm focus:ring-2 focus:ring-primary/20"
-                disabled={questionsLoading}
-              ></textarea>
-              <button
-                on:click={submitQuestion}
-                class="btn btn-primary px-6 h-auto"
-                disabled={questionsLoading || !newQuestion.trim()}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-
-          <!-- Questions List -->
-          {#if questionsLoading}
-            <div class="flex justify-center py-6">
-              <span class="loading loading-spinner loading-md text-primary"></span>
-            </div>
-          {:else if questions.length === 0}
-            <div class="text-center py-8 text-gray-500">
-              No questions yet. Be the first to ask!
-            </div>
-          {:else}
-            <div class="space-y-4">
-              {#each questions as question}
-                <div class="bg-white rounded-lg shadow-sm border p-4">
-                  <!-- Question -->
-                  <div class="flex gap-3">
-                    <div class="avatar placeholder flex-shrink-0">
-                      <div class="bg-neutral-focus text-neutral-content rounded-full w-8 h-8">
-                        <span class="text-sm">{question.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                      </div>
-                    </div>
-                    <div class="flex-1 space-y-1">
-                      <div class="flex items-center gap-2">
-                        <span class="font-medium text-sm">
-                          {question.user?.first_name} {question.user?.last_name}
-                        </span>
-                        {#if question.user?.role === 'entity'}
-                          <span class="badge badge-warning badge-sm">Seller</span>
-                        {:else if hasPurchased}
-                          <span class="badge badge-success badge-sm">Verified Buyer</span>
-                        {/if}
-                      </div>
-                      <p class="text-gray-700">{question.question_text}</p>
-                      <p class="text-xs text-gray-500">
-                        Asked on {new Date(question.created).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Answers -->
-                  {#if question.answers?.length}
-                    <div class="ml-11 mt-3 space-y-3">
-                      <!-- Show first verified buyer answer or first answer -->
-                      {#if question.answers.length > 0}
-                        {@const verifiedBuyerAnswer = question.answers.find(a => a.user?.role !== 'entity')}
-                        {@const firstAnswer = verifiedBuyerAnswer || question.answers[0]}
-                        <div class="border-l-2 border-primary/20 pl-4 py-2">
-                          <div class="flex items-start gap-2">
-                            <div class="avatar placeholder flex-shrink-0">
-                              <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
-                                <span class="text-xs">{firstAnswer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                              </div>
-                            </div>
-                            <div class="flex-1 space-y-1">
-                              <div class="flex items-center gap-2">
-                                <span class="font-medium text-sm">{firstAnswer.user?.first_name} {firstAnswer.user?.last_name}</span>
-                                {#if firstAnswer.user?.role === 'entity'}
-                                  <span class="badge badge-warning badge-sm">Seller</span>
-                                {:else if hasPurchased}
-                                  <span class="badge badge-success badge-sm">Verified Buyer</span>
-                                {/if}
-                              </div>
-                              <p class="text-gray-600 text-sm">{firstAnswer.answer_text}</p>
-                              <p class="text-xs text-gray-500">
-                                Answered on {new Date(firstAnswer.created).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Show expand button if there are more answers -->
-                        {#if question.answers.length > 1}
-                          <details class="ml-4">
-                            <summary class="cursor-pointer text-sm text-primary hover:text-primary/80 mb-2">
-                              Show {question.answers.length - 1} more {question.answers.length - 1 === 1 ? 'reply' : 'replies'}
-                            </summary>
-                            {#each question.answers.filter(a => a !== firstAnswer) as answer}
-                              <div class="border-l-2 border-primary/20 pl-4 py-2">
-                                <div class="flex items-start gap-2">
-                                  <div class="avatar placeholder flex-shrink-0">
-                                    <div class="bg-primary/10 text-primary rounded-full w-6 h-6">
-                                      <span class="text-xs">{answer.user?.first_name?.[0]?.toUpperCase() || 'U'}</span>
-                                    </div>
-                                  </div>
-                                  <div class="flex-1 space-y-1">
-                                    <div class="flex items-center gap-2">
-                                      <span class="font-medium text-sm">{answer.user?.first_name} {answer.user?.last_name}</span>
-                                      {#if answer.user?.role === 'entity'}
-                                        <span class="badge badge-warning badge-sm">Seller</span>
-                                      {:else if hasPurchased}
-                                        <span class="badge badge-success badge-sm">Verified Buyer</span>
-                                      {/if}
-                                    </div>
-                                    <p class="text-gray-600 text-sm">{answer.answer_text}</p>
-                                    <p class="text-xs text-gray-500">
-                                      Answered on {new Date(answer.created).toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            {/each}
-                          </details>
-                        {/if}
-                      {/if}
-                    </div>
-                  {/if}
-
-                  <!-- Answer Input -->
-                  <div class="ml-11 mt-3">
-                    <div class="flex gap-2">
-                      <input
-                        type="text"
-                        bind:value={newAnswer[question.id]}
-                        placeholder="Write a reply..."
-                        class="input input-bordered input-sm w-full text-sm focus:ring-2 focus:ring-primary/20"
-                      />
-                      <button
-                        on:click={() => submitAnswer(question.id)}
-                        class="btn btn-sm btn-outline btn-primary"
-                        disabled={!newAnswer[question.id]?.trim()}
-                      >
-                        Reply
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
+      <!-- {:else if activeTab === 'QNA'}
+        
+        {#if Qna}
+              {#await Qna then { default: Qna }}
+                <Qna product_listing={product_listing} />
+              {/await}
+            {/if} -->
       {:else}
         <div in:fade>
           <div class="overflow-x-auto max-w-3xl mx-auto">
-            <Reviews 
-              {product_listing}
-              {reviews}
-              loading={reviewsLoading}
-              next={reviewsNext}
-              on:loadMore={async () => {
-                reviewsLoading = true;
-                const dataNew = await myFetch(reviewsNext, 'GET', {}, currentUser?.access_token);
-                reviews = [...reviews, ...dataNew.results];
-                reviewsNext = dataNew.next;
-                reviewsLoading = false;
-              }}
-            />
+            
+
+            {#if Reviews}
+              {#await Reviews then { default: Reviews }}
+                <Reviews product_listing={product_listing} />
+              {/await}
+            {/if}
+
+
           </div>
         </div>
       {/if}
@@ -961,28 +617,13 @@
   </div>
 
   <!-- Related Products Section -->
-  <div class="mx-4 md:mx-8 lg:mx-16 mt-12 mb-8">
-    <h2 class="text-2xl font-bold text-primary mb-6">Related Products</h2>
-    
-    {#if loadingRelatedProducts}
-      <div class="flex justify-center items-center py-8">
-        <div class="loading loading-spinner loading-sm"></div>
-      </div>
-    {:else if relatedProducts.length > 0}
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {#each relatedProducts as product (product.id)}
-          <Product product={product} />
-        {/each}
-      </div>
-    {:else}
-      <div class="text-center py-8 text-gray-500">
-        No related products found
-      </div>
-    {/if}
-  </div>
 
-  <!-- Add this after the product description section
-  <ProductOffers {product_listing} /> -->
+  {#if RelatedProducts}
+    {#await RelatedProducts then { default: RelatedProducts }}
+      <RelatedProducts product_listing={product_listing} />
+    {/await}
+  {/if}
+
 </div>
 
 
@@ -999,6 +640,8 @@
     </div>
   </div>
 {/if}
+
+
 
 <style>
   input[type="number"]::-webkit-inner-spin-button,

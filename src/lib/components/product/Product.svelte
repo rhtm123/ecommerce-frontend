@@ -2,7 +2,6 @@
   import { addToCart, cart } from '../../stores/cart';
   import { toggleWishlistItem, wishlistIds } from '../../stores/wishlist';
   import { addAlert } from '$lib/stores/alert';
-  import { onMount } from 'svelte';
   import Icon from '@iconify/svelte';
   
   export let product;
@@ -20,7 +19,8 @@
   $: if (inCart && cartQuantity !== quantity) quantity = cartQuantity;
 
   function handleWishlistClick(event) {
-    event.stopPropagation();
+    event.stopPropagation(); 
+    event.preventDefault();
     toggleWishlistItem(product);
   }
 
@@ -60,6 +60,7 @@
   <div class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-gray-50/30 pointer-events-none"></div>
   
   <!-- Product Image with Badges -->
+  <a href="/product/{product.slug}" class="block w-full h-full">
   <div class="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
     <!-- Discount Badge -->
     {#if discount}
@@ -72,11 +73,11 @@
 
     <!-- Wishlist Button -->
     <button
-      class="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 {isWishlisted ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-gray-600'}"
+      class="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 {isWishlisted ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-gray-600'}"
       on:click={handleWishlistClick}
       aria-label="Toggle wishlist"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     </button>
@@ -84,18 +85,18 @@
   
 
     <!-- Product Image -->
-    <a href="/product/{product.slug}" class="block w-full h-full">
       <img 
         src={product.main_image || product.category?.image || "/placeholder.svg?height=150&width=150"} 
         alt={product.name}
         class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
       />
-    </a>
+    
 
     <!-- Hover overlay -->
     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300"></div>
   </div>
+  </a>
 
   <!-- Product Info - Flex column to push content to bottom -->
   <div class="p-3 flex flex-col flex-1 relative z-10">

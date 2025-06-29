@@ -30,7 +30,7 @@
   </div>
   
 
-    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-6">
+    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-4">
       {#each categories as category}
         <button
           on:click={() => handleCategoryClick(category.slug)}

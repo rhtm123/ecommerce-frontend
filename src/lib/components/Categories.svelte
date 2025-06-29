@@ -1,150 +1,222 @@
 <script>
-    export let currentCategory;
-    import { onMount } from "svelte";
-    import { categoryApi } from "$lib/services/categoryApi";
-    import { goto } from "$app/navigation";
-
+    import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
+    import { categoryApi } from '$lib/services/categoryApi';
+  
+    // Props
+    export let currentCategory = null;
+  
+    // State
+    let allCategories = [];
     let parentsCategories = [];
-    let childrenCategories = [];
+    let childCategories = [];
     let categories = [];
-
-    const loadParentsChildrenCategories = async () => {
-        const data = await categoryApi.getParentsChildrenCategories(currentCategory.id);
-        parentsCategories = data.parents;
-        childrenCategories = data.children;
-    };
-
-    $: if (currentCategory) loadParentsChildrenCategories();
-
-    onMount(async () => {
-        if (!currentCategory) {
-            const data = await categoryApi.getMainCategories();
-            categories = data.results;
+    let parentCategory = null;
+    let displayCategories = [];
+  
+    // Find category by ID
+    function findCategoryById(id) {
+      return allCategories.find(cat => cat.id === id);
+    }
+  
+    // Update display based on current category
+    function updateCategoryContext(categoryId) {
+      const category = findCategoryById(categoryId);
+      if (!category) {
+        displayCategories = categories;
+        parentCategory = null;
+        childCategories = [];
+        return;
+      }
+      parentCategory = null;
+      if (category.level > 1) {
+        for (const cat of allCategories) {
+          if (cat.level === category.level - 1 && cat.children.some(child => child.id === categoryId)) {
+            parentCategory = cat;
+            break;
+          }
         }
+      }
+      childCategories = category.children || [];
+      if (childCategories.length > 0) {
+        displayCategories = childCategories;
+      } else if (parentCategory && parentCategory.children) {
+        displayCategories = parentCategory.children;
+      } else {
+        displayCategories = categories;
+      }
+    }
+  
+    // Build category hierarchy from flat list
+    function buildCategoryHierarchy(flatCategories) {
+      const categoryMap = new Map();
+      flatCategories.forEach(cat => {
+        categoryMap.set(cat.id, { ...cat, children: [] });
+      });
+  
+      const rootCategories = [];
+      let currentRoot = null;
+      let currentLevel2 = null;
+  
+      flatCategories.forEach(cat => {
+        const node = categoryMap.get(cat.id);
+        if (cat.level === 1) {
+          rootCategories.push(node);
+          currentRoot = node;
+          currentLevel2 = null;
+        } else if (cat.level === 2 && currentRoot) {
+          currentRoot.children.push(node);
+          currentLevel2 = node;
+        } else if (cat.level === 3 && currentLevel2) {
+          currentLevel2.children.push(node);
+        }
+      });
+  
+      rootCategories.forEach(root => {
+        const index = allCategories.findIndex(c => c.id === root.id);
+        if (index !== -1) {
+          allCategories[index].children = root.children;
+        }
+        root.children.forEach(child => {
+          const childIndex = allCategories.findIndex(c => c.id === child.id);
+          if (childIndex !== -1) {
+            allCategories[childIndex].children = child.children;
+          }
+        });
+      });
+  
+      return rootCategories;
+    }
+  
+    // Fetch parent and child categories for current category
+    async function loadParentsChildrenCategories() {
+      if (currentCategory?.id) {
+        try {
+          const data = await categoryApi.getParentsChildrenCategories(currentCategory.id);
+          parentsCategories = data.parents || [];
+          childCategories = data.children || [];
+        } catch (err) {
+          console.error('Error loading parent/child categories:', err);
+        }
+      }
+    }
+  
+    // Fetch all categories
+    async function fetchAllCategories() {
+      try {
+        const data = await categoryApi.getMainCategories();
+        const flatCategories = data.results || [];
+        allCategories = flatCategories.map(cat => ({
+          ...cat,
+          children: []
+        }));
+        categories = buildCategoryHierarchy(flatCategories);
+        if (currentCategory) {
+          updateCategoryContext(currentCategory.id);
+        } else {
+          displayCategories = categories;
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    }
+  
+    // Navigate to a category
+    function navigateToCategory(slug) {
+      goto(`/shop/${slug}`);
+    }
+  
+    // Handle back navigation
+    function handleBackClick() {
+      if (parentsCategories.length > 0) {
+        const parentSlug = parentsCategories[parentsCategories.length - 1].slug;
+        navigateToCategory(parentSlug);
+      } else {
+        goto('/shop');
+      }
+    }
+  
+    // Clear current category (go to all categories)
+    function clearCategory() {
+      goto('/shop');
+    }
+  
+    // Go to parent category
+    function goToParentCategory() {
+      if (parentCategory) {
+        navigateToCategory(parentCategory.slug);
+      }
+    }
+  
+    // Reactive updates
+    $: if (currentCategory && browser) {
+      loadParentsChildrenCategories();
+      updateCategoryContext(currentCategory.id);
+    }
+  
+    // Initial fetch
+    onMount(async () => {
+      await fetchAllCategories();
+      if (currentCategory?.id) {
+        updateCategoryContext(currentCategory.id);
+      }
     });
-
-    const navigateToCategory = (slug) => goto(`/shop/${slug}`);
-
-    const handleBackClick = () => {
-        const parentSlug = parentsCategories.length > 0 
-            ? parentsCategories[parentsCategories.length - 1].slug 
-            : null;
-        parentSlug ? navigateToCategory(parentSlug) : goto('/shop');
-    };
-</script>
-
-<div class="categories-container">
-    <h3 class="flex items-center gap-3 mb-2 text-lg font-bold">
+  </script>
+  
+  <div class="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+    <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+      <h2 class="font-bold text-gray-800 flex items-center gap-2">
         {#if currentCategory}
-            <button 
-                class="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                on:click={handleBackClick}
-            >
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 18l-6-6 6-6"/>
-                </svg>
-            </button>
+          <button 
+            class="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            on:click={parentCategory ? goToParentCategory : clearCategory}
+            aria-label="Back to parent category"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <span>{currentCategory.name}</span>
+        {:else}
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <span>All Categories</span>
         {/if}
-        Categories
-    </h3>
-
-    <div class="space-y-1">
-        {#each parentsCategories as category (category.id)}
-            <div class="category-item">
-                <button 
-                    class="category-button text-gray-600 hover:text-gray-900"
-                    on:click={() => navigateToCategory(category.slug)}
-                >
-                    <span>{category.name}</span>
-                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                </button>
-            </div>
-        {/each}
-
-        {#if currentCategory}
-            <div class="category-item">
-                <div class="current-category">
-                    {#if parentsCategories.length > 0}
-                        <span class="connector"></span>
-                    {/if}
-                    <span>{currentCategory.name}</span>
-                    {#if childrenCategories.length > 0}
-                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 18l6-6-6-6"/>
-                        </svg>
-                    {/if}
-                </div>
-            </div>
-        {/if}
-
-        {#each childrenCategories as category (category.id)}
-            <div class="category-item child">
-                <button 
-                    class="category-button group"
-                    on:click={() => navigateToCategory(category.slug)}
-                >
-                    <span class="connector"></span>
-                    <span class="relative z-10">{category.name}</span>
-                    <svg class="chevron relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                    <div class="absolute inset-0 rounded-lg bg-blue-50 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                </button>
-            </div>
-        {/each}
-
-        {#if !currentCategory}
-            {#each categories as category (category.id)}
-                <div class="category-item">
-                    <button 
-                        class="category-button group"
-                        on:click={() => navigateToCategory(category.slug)}
-                    >
-                        <span class="relative z-10">{category.name}</span>
-                        <svg class="chevron relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 18l6-6-6-6"/>
-                        </svg>
-                        <div class="absolute inset-0 rounded-lg bg-blue-50 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                    </button>
-                </div>
-            {/each}
-        {/if}
+      </h2>
     </div>
-</div>
-
-<style>
-    .categories-container {
-        @apply bg-white rounded-2xl p-4 shadow-sm;
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-2">
+        {#each displayCategories as category (category.id)}
+          <div class="relative">
+            <a 
+              href="/shop/{category.slug}"
+              class="w-full p-3 flex items-center gap-3 hover:bg-gray-50 rounded-lg transition-colors text-left {currentCategory?.id === category.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}"
+              on:click|preventDefault={() => navigateToCategory(category.slug)}
+            >
+              <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                <img 
+                  src={category.image || "/placeholder.svg?height=32&width=32"} 
+                  alt={category.name}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <span class="text-sm truncate">{category.name}</span>
+              {#if category.children?.length > 0}
+                <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              {/if}
+            </a>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    .h-full {
+      height: 100%;
     }
-
-    .category-item {
-        @apply relative;
-    }
-
-    .category-item.child {
-        @apply pl-5;
-    }
-
-    .category-button {
-        @apply w-full flex items-center py-1 rounded-lg transition-colors text-left relative;
-    }
-
-    .current-category {
-        @apply w-full py-1 px-2 bg-blue-50 rounded-lg flex items-center font-medium relative;
-    }
-
-    .chevron {
-        @apply w-4 h-4 ml-auto;
-    }
-
-    .connector {
-        @apply absolute -left-4 top-1/2 w-4 h-0.5 bg-blue-50;
-    }
-
-    .category-item.child .connector::before {
-        content: '';
-        @apply absolute left-0 top-0 w-0.5 h-3.5 bg-blue-50 -translate-y-full;
-    }
-</style>
+  </style>

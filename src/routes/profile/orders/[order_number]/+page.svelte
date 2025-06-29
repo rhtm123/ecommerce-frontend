@@ -29,6 +29,66 @@
 
   let statuses = ['order_placed', 'shipped', "ready_for_delivery", 'out_for_delivery', 'delivered'];
 
+  // Helper functions for order summary calculations
+  function getOrderItemsTotal(order) {
+    if (!order || !order.items_without_package) return 0;
+    return order.items_without_package.reduce((total, item) => {
+      return total + ((item.price || 0) * (item.quantity || 0));
+    }, 0);
+  }
+
+  function getOrderMrpTotal(order) {
+    if (!order || !order.items_without_package) return 0;
+    return order.items_without_package.reduce((total, item) => {
+      return total + ((item.mrp || 0) * (item.quantity || 0));
+    }, 0);
+  }
+
+  function getOrderTotalSavings(order) {
+    if (!order || !order.items_without_package) return 0;
+    return order.items_without_package.reduce((total, item) => {
+      const mrp = item.mrp || item.price;
+      return total + ((mrp - item.price) * item.quantity);
+    }, 0);
+  }
+
+  function getHandlingDiscount(order) {
+    return (getOrderItemsTotal(order) >= 200) ? 10 : 0;
+  }
+
+  function getDeliveryDiscount(order) {
+    return (getOrderItemsTotal(order) >= 200) ? 40 : 0;
+  }
+
+  function getOrderTotalDiscount(order) {
+    // Per-product savings
+    let productSavings = getOrderTotalSavings(order);
+    // Offer/coupon discounts
+    let discount = order.total_discount || 0;
+    // Delivery and handling savings if order qualifies
+    const itemsTotal = getOrderItemsTotal(order);
+    if (itemsTotal >= 200) {
+      discount += 40 + 10; // Delivery and handling are free, so add to savings
+    } else if (itemsTotal < 200 && order.total_discount > 0) {
+      discount += 10;
+    }
+    // Return the sum of all savings
+    return productSavings + discount;
+  }
+
+  function getOrderDeliveryCharge(order) {
+    const itemsTotal = getOrderItemsTotal(order);
+    return itemsTotal < 200 ? 40 : 0;
+  }
+
+  function getOrderGrandTotal(order) {
+    const itemsTotal = getOrderItemsTotal(order);
+    const deliveryCharge = getOrderDeliveryCharge(order);
+    const totalDiscount = getOrderTotalDiscount(order);
+    // Never allow negative grand total
+    return Math.max(0, itemsTotal + deliveryCharge - totalDiscount);
+  }
+
   function getWidth(status) { 
     let i = statuses.indexOf(status) + 1;
     let total = statuses.length;
@@ -361,13 +421,13 @@
   </div>
 </div>
 {:else}
-<div class="mx-auto max-w-4xl px-4 py-8">
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Items in Your Order</h1>
-    <div class="flex items-center gap-2">
+<div class="mx-auto max-w-4xl py-8">
+  <div class="mb-6">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Items in Your Order</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
       <p class="text-sm text-gray-600">Order #{data.order_number}</p>
-      <span class="badge {order.payment_status === 'completed' ? 'badge-success' : 'badge-warning'}">
-       Payment : {order.payment_status}
+      <span class="badge {order.payment_status === 'completed' ? 'badge-success' : 'badge-warning'} text-xs sm:text-sm">
+       Payment: {order.payment_status}
       </span>
     </div>
     
@@ -672,9 +732,12 @@
                     <span class="text-sm text-gray-600">
                       Quantity: <span class="font-medium text-gray-900">{package_item.quantity}</span>
                     </span>
-                    <span class="text-sm text-gray-600">
-                      Price/Item: <span class="font-medium text-gray-900">₹{package_item.price}</span>
-                    </span>
+                    <div class="flex items-center gap-2">
+                      {#if (package_item.mrp || 0) > (package_item.price || 0)}
+                        <span class="text-xs text-gray-500 line-through">₹{(package_item.mrp || 0).toFixed(2)}</span>
+                      {/if}
+                      <span class="font-semibold text-gray-900">₹{(package_item.price || 0).toFixed(2)}</span>
+                    </div>
                   </div>
                   {#if package_item.applied_offers && package_item.applied_offers.length > 0}
                     <div class="mt-2">
@@ -719,14 +782,14 @@
                   </div>
                 </div>
                 <div class="md:text-right">
-                  {#if package_item.discount_amount > 0}
-                    <p class="text-sm text-gray-500 line-through">₹{(package_item.price * package_item.quantity).toFixed(2)}</p>
+                  {#if (package_item.mrp || package_item.price || 0) > (package_item.price || 0)}
+                    <p class="text-sm text-gray-500 line-through">₹{(package_item.mrp || package_item.price || 0).toFixed(2)}</p>
                   {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    ₹{(((package_item.price * package_item.quantity) - package_item.discount_amount) ).toFixed(2)}
+                    ₹{(((package_item.mrp || package_item.price || 0) * package_item.quantity) - (package_item.discount_amount || 0)).toFixed(2)}
                   </p>
-                  {#if package_item.discount_amount > 0}
-                    <p class="text-sm text-green-600">Saved ₹{package_item.discount_amount}</p>
+                  {#if (package_item.discount_amount || 0) > 0}
+                    <p class="text-sm text-green-600">Saved ₹{(package_item.discount_amount || 0)}</p>
                   {/if}
                 </div>
               </div>
@@ -762,31 +825,20 @@
                       Quantity: <span class="font-medium text-gray-900">{item.quantity}</span>
                     </span>
                     <div class="flex items-center gap-2">
-                      {#if item.discount_amount > 0}
-                        <span class="text-sm text-gray-600">
-                          Price/Item: 
-                          <span class="line-through text-gray-400">₹{item.price}</span>
-                          <span class="font-medium text-gray-900">₹{((item.price * item.quantity - item.discount_amount) / item.quantity).toFixed(2)}</span>
-                        </span>
-                        <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                          {Math.round((item.discount_amount / (item.price * item.quantity)) * 100)}% off
-                        </span>
-                      {:else}
-                        <span class="text-sm text-gray-600">
-                          Price/Item: <span class="font-medium text-gray-900">₹{item.price}</span>
-                        </span>
+                      {#if (item.mrp || 0) > (item.price || 0)}
+                        <span class="text-xs text-gray-500 line-through">₹{(item.mrp || 0).toFixed(2)}</span>
                       {/if}
+                      <span class="font-semibold text-gray-900">₹{(item.price || 0).toFixed(2)}</span>
                     </div>
                   </div>
-                  {#if item.discount_amount > 0}
+                  {#if (item.discount_amount || 0) > 0}
                     <div class="mt-2 flex items-center gap-2 text-sm text-green-600">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
-                      <span>Product Offer: -₹{item.discount_amount}</span>
+                      <span>Product Offer: -₹{(item.discount_amount || 0)}</span>
                     </div>
                   {/if}
-                  
                   <!-- Status Badges -->
                   <div class="mt-2 flex flex-wrap gap-2">
                     {#if item.cancel_requested}
@@ -817,14 +869,14 @@
                   </div>
                 </div>
                 <div class="md:text-right">
-                  {#if item.discount_amount > 0}
-                    <p class="text-sm text-gray-500 line-through">₹{(item.price * item.quantity).toFixed(2)}</p>
+                  {#if (item.mrp || item.price || 0) > (item.price || 0)}
+                    <p class="text-sm text-gray-500 line-through">₹{(item.mrp || item.price || 0).toFixed(2)}</p>
                   {/if}
                   <p class="text-lg font-semibold text-gray-900">
-                    ₹{(((item.price * item.quantity) - item.discount_amount) ).toFixed(2)}
+                    ₹{(((item.price || 0) * item.quantity) - (item.discount_amount || 0)).toFixed(2)}
                   </p>
-                  {#if item.discount_amount > 0}
-                    <p class="text-sm text-green-600">Saved ₹{item.discount_amount}</p>
+                  {#if (item.discount_amount || 0) > 0}
+                    <p class="text-sm text-green-600">Saved ₹{(item.discount_amount || 0)}</p>
                   {/if}
                 </div>
               </div>
@@ -833,62 +885,91 @@
         </div>
       {/if}
 
-      <!-- Order Total -->
-    <div class="p-4 bg-gray-50 border-t">
-      <div class="flex flex-col gap-3">
-        <div class="flex justify-between items-center">
-          <span class="text-gray-600">Subtotal</span>
-          <span class="text-gray-900">₹{order.total_amount}</span>
-        </div>
-
-        {#if order.offer}
-          <div class="flex justify-between items-center text-green-600">
+      <!-- Order Total (REPLACE this section) -->
+      <div class="p-4 bg-gray-50 border-t">
+        <div class="flex flex-col gap-3">
+          <!-- Items Total -->
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Items total</span>
             <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0 0l-4-4m4 4l4-4M12 3v1" />
-              </svg>
-              <span>Offer Applied: {order.offer.name}</span>
-              <span class="badge badge-success badge-sm">{order.offer.get_discount_percent}% OFF</span>
-            </div>
-            <span>-₹{order.discount_amount_offer}</span>
-          </div>
-        {/if}
-
-        {#if order.coupon}
-          <div class="flex justify-between items-center text-green-600">
-            <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-              </svg>
-              <span>Coupon Applied: {order.coupon.code}</span>
-              {#if order.coupon.discount_type === 'percentage'}
-                <span class="badge badge-success badge-sm">{order.coupon.discount_value}% OFF</span>
-              {:else}
-                <span class="badge badge-success badge-sm">₹{order.coupon.discount_value} OFF</span>
+              {#if getOrderMrpTotal(order) > getOrderItemsTotal(order)}
+                <span class="text-gray-900 line-through">₹{getOrderMrpTotal(order)}</span>
               {/if}
+                <span class="text-gray-900">₹{getOrderItemsTotal(order)}</span>
             </div>
-            <span>-₹{order.discount_amount_coupon}</span>
           </div>
-        {/if}
-        <div class="divider my-0"></div>
-
-        
-        <div class="flex justify-between items-center font-bold text-lg">
-          <span>Final Amount</span>
-          <span class="text-gray-900">₹{order.total_amount - order.total_discount}</span>
-          
+          <!-- Delivery Charge -->
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600 flex items-center gap-1">
+              Delivery charge
+              <span class="relative group">
+                <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" stroke-width="2" />
+                  <text x="12" y="16" text-anchor="middle" font-size="12" fill="gray">i</text>
+                </svg>
+                <div class="absolute left-0 top-full mt-1 z-10 bg-white border border-gray-200 rounded shadow-lg p-2 text-xs text-gray-700 min-w-[180px] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150">
+                  🚚 FREE delivery on orders above ₹200! For orders below ₹200, we charge only ₹40 to cover our delivery partner costs.
+                </div>
+              </span>
+            </span>
+            <span>
+              {#if getOrderDeliveryCharge(order) > 0}
+                ₹{getOrderDeliveryCharge(order)}
+              {:else}
+                
+              <span class="text-sm text-gray-500 line-through">₹40</span>
+                <span class="text-green-600 font-medium">FREE</span>
+              {/if}
+            </span>
+          </div>
+          <!-- Handling Charge -->
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600 flex items-center gap-1">
+              Handling charge
+              <span class="relative group">
+                <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" stroke-width="2" />
+                  <text x="12" y="16" text-anchor="middle" font-size="12" fill="gray">i</text>
+                </svg>
+                <div class="absolute left-0 top-full mt-1 z-10 bg-white border border-gray-200 rounded shadow-lg p-2 text-xs text-gray-700 min-w-[180px] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150">
+                  🎁 We've waived the handling charges for you! This usually covers packaging, quality checks, and secure handling of your items.
+                </div>
+              </span>
+            </span>
+            <span>
+              <span class="text-sm text-gray-500 line-through">₹10</span>
+              <span class="font-medium text-green-600">FREE</span>
+            </span>
+          </div>
+          <!-- Total Discount -->
+          <div class="flex justify-between items-center text-green-600 font-medium mt-1">
+            <span>Total Discount</span>
+            <span>-₹{getOrderTotalDiscount(order)}</span>
+          </div>
+          <!-- Grand Total -->
+          <div class="flex justify-between items-center font-bold text-lg">
+            <span>Grand total</span>
+            <span class="font-bold">₹{order.total_amount-order.total_discount}</span>
+          </div>
+          {#if getOrderMrpTotal(order) > 0 && getOrderTotalSavings(order) > 0}
+            <div class="flex justify-between items-center mt-2 px-4 py-2 rounded-lg" style="background: #e8f1fd;">
+              <span class="flex items-center gap-2 text-blue-700 font-semibold">
+                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z"/>
+                </svg>
+                Your total savings
+                <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">
+                  {Math.round((getOrderTotalSavings(order) / getOrderMrpTotal(order)) * 100)}% OFF
+                </span>
+              </span>
+              <span class="text-blue-700 font-bold text-lg">
+                ₹{getOrderTotalSavings(order)}
+              </span>
+            </div>
+          {/if}
         </div>
-        {#if order.total_discount > 0}
-          <div class="flex justify-between items-center text-green-600 font-medium">
-            <span>Total Savings</span>
-            <span>-₹{order.total_discount}</span>
-          </div>
-        {/if}
-
-       
       </div>
     </div>
-  </div>
 
     <h1 class="text-2xl mb-4">Track Your Items</h1>
 

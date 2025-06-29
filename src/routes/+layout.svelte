@@ -21,6 +21,7 @@
   // Add this to your existing layout file
   
   $: isAdmin = $page.url.pathname.includes("admin");
+  $: isSearch = $page.url.pathname.startsWith('/search');
 
   let Footer, AlertContainer,OrderNotificationContainer;
 
@@ -79,7 +80,7 @@
     <TestBanner />
   {/if} -->
 
-  {#if !isAdmin}
+  {#if !isAdmin && !isSearch}
     <Navigation />
   {/if}
   

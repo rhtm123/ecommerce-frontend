@@ -1,8 +1,9 @@
-// src/routes/product/[id]/+page.server.js
+// src/routes/product/[slug]/+page.server.js
 import { error } from '@sveltejs/kit';
 import { productApi } from '$lib/services/productApi';
 
 export async function load({ params }) {
+    
     try {
         const product_listing = await productApi.getProduct(params.slug);
         
@@ -11,7 +12,7 @@ export async function load({ params }) {
         }
 
         return {
-            product_listing,
+            product_listing: product_listing,
             category: product_listing.category,
         };
     } catch (err) {

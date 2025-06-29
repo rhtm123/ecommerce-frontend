@@ -1,14 +1,14 @@
 <script>
   import { onMount } from 'svelte';
   import { fade, slide } from 'svelte/transition';
-  import { productApi } from '$lib/services/productApi';
-  import Product from '$lib/components/product/Product.svelte';
+  import { serviceApi } from '$lib/services/serviceApi';
+  import Service from '$lib/components/service/Service.svelte';
 
   export let currentCategory;
-  export let products = [];
+  export let services = [];
   export let filters = {};
   export let params = {};
-  export let loadProducts;
+  export let loadServices;
   export let loading = false;
 
   let showSortModal = false;
@@ -16,11 +16,11 @@
   let selectedSort = 'popularity';
   let selectedPriceRange = null;
   let selectedBrands = [];
-  let productsCount = 0;
-  let appliedFilters = { ...params }; // Initialize with existing params
+  let servicesCount = 0;
+  let appliedFilters = { ...params };
 
-  $: if (products) {
-    productsCount = products.length;
+  $: if (services) {
+    servicesCount = services.length;
   }
 
   const sortOptions = [
@@ -30,66 +30,39 @@
     { id: 'newest', label: 'Newest First' }
   ];
 
-  // Initialize price ranges based on the API data
-  // $: priceRanges = filters.price_range ? [
-  //   { id: `${filters.price_range.min_price}-10000`, label: 'Under ₹10,000' },
-  //   { id: '10000-20000', label: '₹10,000 - ₹20,000' },
-  //   { id: '20000-30000', label: '₹20,000 - ₹30,000' },
-  //   { id: `30000-${filters.price_range.max_price}`, label: 'Above ₹30,000' }
-  // ] : [];
-
-  // Dynamic Price Range 
-
   let priceRanges;
 
-  function getPriceRanges(){
-
+  function getPriceRanges() {
     if (!filters.price_range) {
       return [];
     }
-
     const minPrice = Number(filters.price_range?.min_price)
     const maxPrice = Number(filters.price_range?.max_price);
-
-    // Validate numbers
     if (isNaN(minPrice) || isNaN(maxPrice) || minPrice >= maxPrice) {
       return [];
     }
-
-    // Calculate appropriate range step
     const rangeDiff = maxPrice - minPrice;
-    const step = Math.ceil(rangeDiff / 4); // Creates approximately 4-5 ranges
+    const step = Math.ceil(rangeDiff / 4);
     const ranges = [];
-
-    // Generate ranges
     for (let i = minPrice; i < maxPrice; i += step) {
-      console.log("i", i, i + step);
       const rangeEnd = Math.min(i + step, maxPrice);
       const label = i === minPrice 
         ? `Under ₹${rangeEnd.toLocaleString('en-IN')}`
         : i + step >= maxPrice
           ? `Above ₹${i.toLocaleString('en-IN')}`
           : `₹${i.toLocaleString('en-IN')} - ₹${rangeEnd.toLocaleString('en-IN')}`;
-
       ranges.push({
         id: `${i}-${rangeEnd}`,
         label
       });
     }
-
-
-
     return ranges;
   }
 
-
   $: if (filters.price_range) { 
     priceRanges = getPriceRanges();
-
   }
-  
 
-  // Initialize filters from URL params on mount
   onMount(() => {
     if (params.brand_ids) {
       selectedBrands = params.brand_ids.split(',');
@@ -118,7 +91,7 @@
       ...appliedFilters,
       ordering
     };
-    updateAndLoadProducts();
+    updateAndLoadServices();
     showSortModal = false;
   }
 
@@ -155,7 +128,6 @@
     } else {
       selectedBrands = [...selectedBrands, brandIdStr];
     }
-    
     if (selectedBrands.length > 0) {
       appliedFilters = {
         ...appliedFilters,
@@ -166,27 +138,22 @@
     }
   }
 
-  function updateAndLoadProducts() {
-    // Combine base params with applied filters
+  function updateAndLoadServices() {
     const updatedParams = {
       ...params,
       ...appliedFilters,
       category_id: currentCategory?.id
     };
-
-    // Remove any undefined or null values
     Object.keys(updatedParams).forEach(key => {
       if (updatedParams[key] === undefined || updatedParams[key] === null) {
         delete updatedParams[key];
       }
     });
-
-    // Call parent component's loadProducts with updated params
-    loadProducts(updatedParams);
+    loadServices(updatedParams);
   }
 
   function applyFilters() {
-    updateAndLoadProducts();
+    updateAndLoadServices();
     showFilterModal = false;
   }
 
@@ -196,24 +163,13 @@
     appliedFilters = {
       category_id: currentCategory?.id
     };
-    
-    loadProducts(appliedFilters);
+    loadServices(appliedFilters);
     showFilterModal = false;
   }
 </script>
 
-<!-- Mobile Shop Header -->
+<!-- Mobile Services Header -->
 <div class="md:hidden">
-  <!-- Category Title -->
-  <!-- <div class="flex items-center p-4 border-b">
-    <button class="mr-4" on:click={() => history.back()}>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <h1 class="text-lg font-medium">{currentCategory?.name || 'All Products'}</h1>
-  </div> -->
-
   <!-- Sort & Filter Buttons -->
   <div class="grid grid-cols-2 border-b">
     <button 
@@ -285,7 +241,6 @@
 
         <!-- Filter Content -->
         <div class="flex-1 overflow-y-auto">
-
           <!-- Price Ranges -->
           {#if priceRanges.length > 0}
             <div class="border-b">
@@ -310,7 +265,7 @@
           {#if filters.brands}
             <div class="border-b">
               <div class="p-4">
-                <h3 class="font-medium mb-4">Brand</h3>
+                <h3 class="font-medium mb-4">Service Providers</h3>
                 {#each filters.brands as brand}
                   <label class="flex items-center gap-3 mb-3">
                     <input
@@ -341,50 +296,25 @@
   {/if}
 </div>
 
-<!-- After your hero/info section -->
+<!-- Services Grid -->
 {#if loading}
   <div class="flex justify-center items-center py-12">
     <span class="loading loading-spinner loading-lg text-primary"></span>
   </div>
 {:else}
-  {#if products && products.length > 0}
+  {#if services && services.length > 0}
     <div class="grid grid-cols-1 gap-4 mt-4">
-      {#each products as product (product.id)}
-        <Product {product} />
+      {#each services as service (service.id)}
+        <Service {service} />
       {/each}
     </div>
   {:else}
-    <div class="text-center text-gray-500 mt-8">No products found.</div>
+    <div class="text-center text-gray-500 mt-8">No services found.</div>
   {/if}
 {/if}
 
 <style>
-  /* Prevent body scroll when modals are open */
-  /* :global(body) {
-    overflow: hidden;
-  } */
-
-  /* Smooth transitions */
   .fixed {
     transition: all 0.3s ease-in-out;
   }
-
-  /* Custom scrollbar for filter content */
-  /* .overflow-y-auto {
-    scrollbar-width: thin;
-    scrollbar-color: #CBD5E0 #F7FAFC;
-  }
-
-  .overflow-y-auto::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .overflow-y-auto::-webkit-scrollbar-track {
-    background: #F7FAFC;
-  }
-
-  .overflow-y-auto::-webkit-scrollbar-thumb {
-    background-color: #CBD5E0;
-    border-radius: 3px;
-  } */
 </style> 

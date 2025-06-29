@@ -28,7 +28,7 @@
       <div class="absolute bottom-0 left-0 w-full h-px bg-gray-200 z-0"></div>
     </div>
 
-      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-6">
+      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 md:gap-4">
         {#each brands as brand}
           <button
             on:click={() => handleBrandClick(brand.id)}
