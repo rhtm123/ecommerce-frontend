@@ -14,13 +14,12 @@
 
   export let data;
 
-  // $: console.log('Data changed:', data);
-
   let product_listing;
   let category;
 
   $: if (data) {
         ({ product_listing, category } = data);
+        console.log(product_listing, category);
   }
   
   
@@ -188,7 +187,7 @@
 <svelte:head>
   <title>Buy {product_listing.name} Online in Naigaon | Best Price & Fast Delivery</title>
   <meta name="description" content="Shop {product_listing.name} at the best price in Naigaon, and more. Fast delivery, secure payments & top-quality products!">
-  <meta name="keywords" content="{product_listing.name}, buy {product_listing.name} online, {category?.name} in Naigaon, {product_listing?.brand.name} {product_listing.name}, best {product_listing.name} price, fast delivery Naigaon">
+  <meta name="keywords" content="{product_listing.name}, buy {product_listing.name} online, {category?.name} in Naigaon, {product_listing?.brand?.name} {product_listing.name}, best {product_listing.name} price, fast delivery in Naigaon">
   <meta property="og:title" content="Buy {product_listing.name} Online in Naigaon | Best Price & Fast Delivery">
   <meta property="og:description" content="Get {product_listing.name} at the best price in Naigaon and more. Order now for quick delivery!">
   <meta property="og:type" content="website" />
