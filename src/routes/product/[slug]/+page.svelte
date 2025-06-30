@@ -19,7 +19,6 @@
 
   $: if (data) {
         ({ product_listing, category } = data);
-        console.log(product_listing, category);
   }
   
   

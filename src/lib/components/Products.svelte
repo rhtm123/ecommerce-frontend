@@ -117,8 +117,8 @@
         count: brand.count
       }));
       selectedPriceRange = [
-        parseFloat(filters?.price_range?.min_price ?? 0),
-        parseFloat(filters?.price_range?.max_price ?? 100)
+        parseFloat(filters?.price_range?.min_price ?? ""),
+        parseFloat(filters?.price_range?.max_price ?? "")
       ];
     } catch (err) {
       error = 'Failed to load filters';
