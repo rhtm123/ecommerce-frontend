@@ -28,7 +28,7 @@
   let viewMode = 'grid';
   let totalProducts = 0;
 
-  let parentsCategories = [];
+  let parentsCategories = { parents: [] };
   let allCategories = [];
   let loadingCategories = true;
 
@@ -43,6 +43,12 @@
     category_id: currentCategory?.id,
     brand_ids: $selectedBrands.join(','),
   };
+
+  let immediateParentCategory = null;
+
+  $: immediateParentCategory = (parentsCategories?.parents && parentsCategories.parents.length > 0)
+    ? parentsCategories.parents[parentsCategories.parents.length - 1]
+    : null;
 
   onMount(() => {
     isMobile = window.innerWidth < 768;
@@ -76,18 +82,22 @@
       if (currentCategory?.id) {
         let url = `${PUBLIC_API_URL}/product/categories/parents-children/${currentCategory.id}/`;
         let data = await myFetch(url);
-        parentsCategories = data.parent;
+        parentsCategories = data;
+        console.log("parentsCategories",data);
 
         if (data.children.length === 0) {
           let urlsib = `${PUBLIC_API_URL}/product/categories/siblings/${currentCategory.id}/`;
           let datasib = await myFetch(urlsib);
           allCategories = datasib;
+          console.log("allCategories",allCategories);
         } else {
           allCategories = data.children;
+          console.log("allCategories 2",allCategories);
         }
       } else {
         let data = await myFetch(`${PUBLIC_API_URL}/product/categories/?level=1&estore_id=${PUBLIC_ESTORE_ID}`);
         allCategories = data.results;
+        console.log("allCategories 3",allCategories);
       }
     } catch (err) {
        console.error('Failed to fetch categories:', err);
@@ -107,8 +117,8 @@
         count: brand.count
       }));
       selectedPriceRange = [
-        parseFloat(filters?.price_range?.min_price ?? 0),
-        parseFloat(filters?.price_range?.max_price ?? 100)
+        parseFloat(filters?.price_range?.min_price ?? ""),
+        parseFloat(filters?.price_range?.max_price ?? "")
       ];
     } catch (err) {
       error = 'Failed to load filters';
@@ -209,9 +219,22 @@
   }
 </script>
 
-
-
-
+<!-- Breadcrumb Navigation (only one instance, above main content) -->
+<nav class="text-sm text-gray-600 flex items-center gap-1 mb-2 mt-4" aria-label="Breadcrumb">
+  <a href="/" class="hover:underline">Home</a>
+  <span>&gt;</span>
+  <a href="/shop" class="hover:underline">Shop</a>
+  {#if parentsCategories?.parents}
+    {#each parentsCategories.parents as parent}
+      <span>&gt;</span>
+      <a href={`/shop/${parent.slug}`} class="hover:underline">{parent.name}</a>
+    {/each}
+  {/if}
+  {#if currentCategory}
+    <span>&gt;</span>
+    <span class="font-semibold">{currentCategory.name}</span>
+  {/if}
+</nav>
 
 <!-- Main container -->
 <div class="mt-4">
@@ -251,53 +274,60 @@
           {category.name}
         </a>
       {/each}
-
-        
       </div>
     </div>
 
     <!-- {/*-- Desktop Title --*/} -->
-    
-
     <div class="flex flex-col md:flex-row h-full">
       <!-- {/*-- Desktop Category Sidebar --*/} -->
       <div class="hidden md:block w-64 bg-white border-r border-gray-200 flex flex-col">
         <div class="flex-1 overflow-y-auto">
-
-
-          <div class="p-2">
-
-            {#if loadingCategories}
-                <div class="flex justify-center py-10">
-                  <div class="loading loading-spinner loading-md text-blue-500"></div>
-                </div>
+          <!-- Header above categories -->
+          <div class="p-4 pb-2 border-b border-gray-200">
+            {#if currentCategory}
+              <div class="flex items-center gap-2">
+                {#if immediateParentCategory}
+                  <a href={`/shop/${immediateParentCategory.slug}`} class="text-blue-600 hover:underline flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                
+                  </a>
+                {:else}
+                  <a href="/shop" class="text-blue-600 hover:underline flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                   
+                  </a>
+                {/if}
+                <span class="font-semibold text-lg">{currentCategory.name}</span>
+              </div>
             {:else}
-                {#each allCategories as category (category.id)}
-                  <div class="relative">
-                    <a 
-                      href="/shop/{category.slug}"
-                      class="w-full p-3 flex items-center gap-3 hover:bg-gray-50 rounded-lg transition-colors text-left {currentCategory?.id === category.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}"
-                    >
-
-                      <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
-                        <img 
-                          src={category.image || "/placeholder.svg?height=32&width=32"} 
-                          alt={category.name}
-                          class="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span class="text-sm flex-1">{category.name}</span>
-                      <!-- {#if category.children && category.children.length > 0}
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                      {/if} -->
-                    </a>
-                  </div>
-                {/each}
-
+              <span class="font-semibold text-lg">All Categories</span>
             {/if}
-
+          </div>
+          <!-- End header above categories -->
+          <div class="p-2">
+            {#if loadingCategories}
+              <div class="flex justify-center py-10">
+                <div class="loading loading-spinner loading-md text-blue-500"></div>
+              </div>
+            {:else}
+              {#each allCategories as category (category.id)}
+                <div class="relative">
+                  <a 
+                    href="/shop/{category.slug}"
+                    class="w-full p-3 flex items-center gap-3 hover:bg-gray-50 rounded-lg transition-colors text-left {currentCategory?.id === category.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'}"
+                  >
+                    <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                      <img 
+                        src={category.image || "/placeholder.svg?height=32&width=32"} 
+                        alt={category.name}
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span class="text-sm flex-1">{category.name}</span>
+                  </a>
+                </div>
+              {/each}
+            {/if}
           </div>
         </div>
       </div>
@@ -306,13 +336,10 @@
       <div class="flex-1 flex flex-col">
         <!-- {/*-- Desktop Top Bar --*/} -->
         <div class="hidden md:flex px-4 py-3 border-b border-gray-200 bg-white justify-between items-center">
-
-
+          <!-- Remove category name from here, only show product count -->
           <h1 class="font-medium opacity-80 hidden md:block ">
-            {currentCategory?.name} {totalProducts} Products
+            {totalProducts} Products
           </h1>
-
-
           <div class="flex items-center gap-3">
             <select 
               class="select select-sm select-bordered bg-white text-sm min-w-0 w-auto"
