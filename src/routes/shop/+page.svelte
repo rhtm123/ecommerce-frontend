@@ -29,12 +29,12 @@ import Products from "$lib/components/Products.svelte";
 
 <div class="mx-4 md:mx-8 lg:mx-16">
   
-  <div class="breadcrumbs text-sm">
+  <!-- <div class="breadcrumbs text-sm">
     <ul>
       <li><a href="/">Home</a></li>
       <li>Shop</li>
     </ul>
-  </div>
+  </div> -->
 
   <Products />
 

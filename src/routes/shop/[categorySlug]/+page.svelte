@@ -40,13 +40,13 @@
 <!-- Template -->
 <div class="mx-4 md:mx-8 lg:mx-16">
 
-  <div class="text-sm breadcrumbs text-gray-600">
+  <!-- <div class="text-sm breadcrumbs text-gray-600">
     <ul>
       <li><a href="/">Home</a></li>
       <li><a href="/shop">Shop</a></li>
       <li>{currentCategory?.name}</li>
     </ul>
-  </div>
+  </div> -->
   <!-- Header Section -->
 
   <Products currentCategory={currentCategory} />
