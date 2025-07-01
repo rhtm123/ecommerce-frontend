@@ -114,7 +114,7 @@
                             {:else}
                                 <a 
                                     class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors w-full sm:w-auto"
-                                    href={"/profile/add-review/" + order_id}
+                                    href={"/profile/add-review/" + item.id}
                                 >
                                     <Icon icon="material-symbols:rate-review-outline" class="w-4 h-4" />
                                     Add Review
