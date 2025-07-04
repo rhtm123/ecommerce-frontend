@@ -5,6 +5,9 @@
     import { PUBLIC_API_URL } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
   import { onDestroy } from "svelte";
+  import Icon from '@iconify/svelte';
+  import AlertContainer from '$lib/components/AlertContainer.svelte';
+  import { alerts } from '$lib/stores/alert';
 
     let authUser;
     const unsubscribe = user.subscribe(value => {
@@ -20,6 +23,10 @@
     let product_listings = []
     let next;
     let count = 0;
+
+    let showBulkUploadModal = false;
+    let bulkFile = null;
+    let uploading = false;
 
     $: if (authUser){
         fetchProductListings();
@@ -46,6 +53,29 @@
         loading = false
     }
 
+    function openBulkUploadModal() { showBulkUploadModal = true; }
+    function closeBulkUploadModal() { showBulkUploadModal = false; bulkFile = null; }
+    async function handleBulkUpload() {
+      if (!bulkFile) return;
+      uploading = true;
+      const formData = new FormData();
+      formData.append('file', bulkFile);
+      await fetch(`${PUBLIC_API_URL}/product/upload-products/`, {
+        method: 'POST',
+        body: formData,
+        headers: { Authorization: `Bearer ${authUser?.access_token}` }
+      });
+      uploading = false;
+      closeBulkUploadModal();
+      // Show success alert
+      alerts.update(alertsArr => [
+        ...alertsArr,
+        { id: Date.now(), message: 'Products uploaded successfully!', type: 'success', duration: 3000 }
+      ]);
+      // Fetch product listings again
+      fetchProductListings();
+    }
+
     
     
 
@@ -67,15 +97,16 @@
             <div class="max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
-                    <a href="/admin/inventory/add-product">
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add Product
-                    </button>
-                    </a>
-
+                    <div class="flex gap-2">
+                        <a href="/admin/inventory/add-product">
+                            <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mr-4" on:click={openAddProductModal}>
+                                <Icon icon="mdi:plus" class="w-5 h-5 mr-2" /> Add Product
+                            </button>
+                        </a>
+                        <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors" on:click={openBulkUploadModal}>
+                            <Icon icon="mdi:cloud-upload" class="w-5 h-5 mr-2" /> Bulk Upload
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -156,3 +187,32 @@
             </div>
 
 <!-- Keep the global style tag -->
+
+{#if showBulkUploadModal}
+  <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" on:click={() => closeBulkUploadModal()}>
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative" on:click|stopPropagation>
+      {#if uploading}
+        <div class="absolute inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-10 rounded-2xl">
+          <span class="loading loading-spinner loading-lg text-green-600 mb-2"></span>
+          <span class="text-green-700 font-semibold">Uploading...</span>
+        </div>
+      {/if}
+      <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 transition-colors" on:click={closeBulkUploadModal} aria-label="Close" disabled={uploading}>
+        <Icon icon="mdi:close" class="w-7 h-7" />
+      </button>
+      <div class="flex flex-col items-center gap-6">
+        <Icon icon="mdi:upload" class="w-14 h-14 text-green-600 mb-2" />
+        <h2 class="text-2xl font-bold mb-2 text-gray-900">Bulk Upload Products</h2>
+        <input type="file" accept=".xlsx,.xls" on:change={e => bulkFile = e.target.files[0]} class="mb-4 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" disabled={uploading} />
+        <button class="w-full py-3 px-6 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold text-lg shadow transition-all focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" on:click={handleBulkUpload} disabled={!bulkFile || uploading}>
+          <span class="flex items-center justify-center gap-2">
+            <Icon icon="mdi:cloud-upload" class="w-6 h-6" />
+            Upload
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<AlertContainer />

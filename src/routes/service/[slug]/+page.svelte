@@ -86,7 +86,7 @@
   
   async function getRelatedServices() {
     try {
-      let url = `${PUBLIC_API_URL}/product/product-listings/?is_service=true&category_id=${service.category?.id}&page_size=8`;
+      let url = `${PUBLIC_API_URL}/product/product-listings/?is_service=true&approved=true&category_id=${service.category?.id}&page_size=8`;
       let data = await myFetch(url);
       relatedServices = data.results.filter(s => s.id !== service.id);
     } catch(e) {
