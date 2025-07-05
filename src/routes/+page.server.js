@@ -21,7 +21,7 @@ export async function load() {
 
 
   try{
-    let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&ordering=-id`;
+    let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&approved=true&ordering=-id`;
     let data1 = await myFetch(url);
     recentReviews = data1.results; // Ensure this matches the API response structure
   
@@ -30,7 +30,7 @@ export async function load() {
   }
 
 
-  let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity";
+  let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity&approved=true";
     // console.log(url);
     try {
       let data = await myFetch(url1);
@@ -49,7 +49,7 @@ export async function load() {
 
       
       try {
-        let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id";
+        let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id&approved=true";
         // console.log(url);
         let data = await myFetch(url2);
         // console.log(data);
