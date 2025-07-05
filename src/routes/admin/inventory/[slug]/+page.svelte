@@ -17,10 +17,125 @@
     let galleryImages = [];
     let isEditing = false;
     let editFields = {};
+    let editDetailsFields = {};
+    let editFeatures = [];
+    let editReturnPolicyId = null;
+    let editDescription = '';
+    let editCategoryId = null;
+    let editBrandId = null;
+    let editVariantId = null;
+    let editMainImageFile = null;
+    let editGalleryImageFiles = [];
+    let editBoxItems = '';
+    let editProduct = null;
+    let editProductDetails = null;
+    let editProductFeatures = [];
+    let editProductDescription = '';
+    let editProductCategoryId = null;
+    let editProductBrandId = null;
+    let editProductVariantId = null;
+    let editProductReturnPolicyId = null;
+    let editProductMainImageFile = null;
+    let editProductGalleryImageFiles = [];
+    let editProductBoxItems = '';
+    let editProductName = '';
+    let editProductMRP = '';
+    let editProductPrice = '';
+    let editProductStock = '';
+    let editProductBuyLimit = '';
+    let editProductApproved = false;
+    let editProductId = null;
+    let editProductSlug = '';
+    let editProductCreated = '';
+    let editProductUpdated = '';
+    let editProductRating = '';
+    let editProductReviewCount = '';
+    let editProductPopularity = '';
+    let editProductMainImage = '';
+    let editProductGalleryImages = [];
+    let editProductFeaturesGeneral = [];
+    let editProductReturnExchangePolicy = null;
+    let editProductCategory = null;
+    let editProductBrand = null;
+    let editProductVariant = null;
+    let editProductSeller = null;
+    let editProductBoxContents = '';
+    let editProductAnalytics = null;
+    let editProductPerformance = null;
+    let editProductPerformanceChart = null;
+    let editProductPerformanceOverview = null;
+    let editProductPerformanceStats = null;
+    let editProductPerformanceViews = null;
+    let editProductPerformanceOrders = null;
+    let editProductPerformanceRating = null;
+    let editProductPerformancePopularity = null;
+    let editProductPerformanceLastUpdated = null;
+    let editProductPerformanceAnalytics = null;
+    let editProductPerformanceAnalyticsChart = null;
+    let editProductPerformanceAnalyticsOverview = null;
+    let editProductPerformanceAnalyticsStats = null;
+    let editProductPerformanceAnalyticsViews = null;
+    let editProductPerformanceAnalyticsOrders = null;
+    let editProductPerformanceAnalyticsRating = null;
+    let editProductPerformanceAnalyticsPopularity = null;
+    let editProductPerformanceAnalyticsLastUpdated = null;
+    let editProductPerformanceAnalyticsPerformance = null;
+    let editProductPerformanceAnalyticsPerformanceChart = null;
+    let editProductPerformanceAnalyticsPerformanceOverview = null;
+    let editProductPerformanceAnalyticsPerformanceStats = null;
+    let editProductPerformanceAnalyticsPerformanceViews = null;
+    let editProductPerformanceAnalyticsPerformanceOrders = null;
+    let editProductPerformanceAnalyticsPerformanceRating = null;
+    let editProductPerformanceAnalyticsPerformancePopularity = null;
+    let editProductPerformanceAnalyticsPerformanceLastUpdated = null;
+    let editProductPerformanceAnalyticsPerformanceAnalytics = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsChart = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsOverview = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsStats = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsViews = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsOrders = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsRating = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPopularity = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsLastUpdated = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformance = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceChart = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceOverview = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceStats = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceViews = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceOrders = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceRating = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformancePopularity = null;
+    let editProductPerformanceAnalyticsPerformanceAnalyticsPerformanceLastUpdated = null;
     let loading = false;
     let activeTab = 'overview';
+    let mainImagePreview = null;
+    
+    let selectedCategoryId = null;
+    let selectedBrandId = null;
+    let selectedVariantId = null;
+    let selectedSeller = null;
+    let selectedReturnPolicyId = null;
+    let selectedFeaturesGeneral = '';
+    let selectedDescription = '';
+    
+    let categories = [];
+    let brands = [];
+    let variants = [];
+    let entities = [];
+    let featureTemplates = [];
+    let features = [];
+    let newFeature = { feature_template_id: '', value: '' };
     
     onMount(async () => {
+        // Fetch all required lists
+        [categories, brands, entities, featureTemplates] = await Promise.all([
+            myFetch(`${PUBLIC_API_URL}/product/categories/?page=1&page_size=100`).then(r => r.results || []),
+            myFetch(`${PUBLIC_API_URL}/user/entities/?page=1&page_size=100&entity_type=brand`).then(r => r.results || []),
+            myFetch(`${PUBLIC_API_URL}/user/entities/?page=1&page_size=100`).then(r => r.results || []),
+            myFetch(`${PUBLIC_API_URL}/product/feature-templates/?page=1&page_size=100`).then(r => r.results || []),
+        ]);
+        // Optionally fetch variants if needed
+        // variants = ...
         await fetchProduct();
     });
     
@@ -112,7 +227,28 @@
     function getStatusText(approved) {
         return approved ? 'Approved' : 'Pending Approval';
     }
-    </script>
+    
+    function handleMainImageFileChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+            editMainImageFile = file;
+            mainImagePreview = URL.createObjectURL(file);
+        }
+    }
+
+    function addFeature() {
+        if (!newFeature.feature_template_id || !newFeature.value.trim()) {
+            addAlert('Feature template and value are required.', 'error');
+            return;
+        }
+        features = [...features, { ...newFeature }];
+        newFeature = { feature_template_id: '', value: '' };
+    }
+
+    function removeFeature(index) {
+        features = features.filter((_, i) => i !== index);
+    }
+</script>
     
     {#if loading}
         <div class="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -340,14 +476,9 @@
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Approval Status</label>
                                             {#if isEditing}
-                                                <div class="flex items-center">
-                                                    <input 
-                                                        type="checkbox" 
-                                                        bind:checked={editFields.approved}
-                                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                    />
-                                                    <label class="ml-2 text-sm text-gray-900">Approved for sale</label>
-                                                </div>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {getStatusColor(product.approved)}">
+                                                    {getStatusText(product.approved)}
+                                                </span>
                                             {:else}
                                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {getStatusColor(product.approved)}">
                                                     {getStatusText(product.approved)}
@@ -392,11 +523,16 @@
                                 </div>
                                 <div class="px-6 py-6">
                                     <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                        <img 
-                                            src={product.main_image || '/placeholder.svg?height=300&width=300'} 
-                                            alt={product.name}
-                                            class="w-full h-full object-cover"
-                                        />
+                                        {#if isEditing}
+                                            <input type="file" accept="image/*" onchange={handleMainImageFileChange} />
+                                            <img src={mainImagePreview || product.main_image || '/placeholder.svg?height=400&width=400'} alt={product.name} class="w-full h-full object-cover" />
+                                        {:else}
+                                            <img 
+                                                src={product.main_image || '/placeholder.svg?height=400&width=400'} 
+                                                alt={product.name}
+                                                class="w-full h-full object-cover"
+                                            />
+                                        {/if}
                                     </div>
                                 </div>
                             </div>
@@ -449,39 +585,96 @@
                             <div class="px-6 py-6 space-y-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                    <div class="flex items-center">
-                                        <img 
-                                            src={product.category?.image || '/placeholder.svg?height=40&width=40'} 
-                                            alt={product.category?.name}
-                                            class="w-10 h-10 rounded-lg object-cover mr-3"
-                                        />
-                                        <div>
-                                            <p class="font-medium text-gray-900">{product.category?.name || 'N/A'}</p>
-                                            <p class="text-sm text-gray-500">{product.category?.description || ''}</p>
+                                    {#if isEditing}
+                                        <select 
+                                            bind:value={selectedCategoryId}
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="">Select a category</option>
+                                            {#each categories as category}
+                                                <option value={category.id}>{category.name}</option>
+                                            {/each}
+                                        </select>
+                                    {:else}
+                                        <div class="flex items-center">
+                                            <img 
+                                                src={product.category?.image || '/placeholder.svg?height=40&width=40'} 
+                                                alt={product.category?.name}
+                                                class="w-10 h-10 rounded-lg object-cover mr-3"
+                                            />
+                                            <div>
+                                                <p class="font-medium text-gray-900">{product.category?.name || 'N/A'}</p>
+                                                <p class="text-sm text-gray-500">{product.category?.description || ''}</p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    {/if}
                                 </div>
     
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
-                                    <p class="font-medium text-gray-900">{product.brand?.name || 'N/A'}</p>
+                                    {#if isEditing}
+                                        <select 
+                                            bind:value={selectedBrandId}
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="">Select a brand</option>
+                                            {#each brands as brand}
+                                                <option value={brand.id}>{brand.name}</option>
+                                            {/each}
+                                        </select>
+                                    {:else}
+                                        <p class="font-medium text-gray-900">{product.brand?.name || 'N/A'}</p>
+                                    {/if}
                                 </div>
     
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
-                                    <p class="font-medium text-gray-900">{product.variant_name || 'No variant'}</p>
+                                    {#if isEditing}
+                                        <select 
+                                            bind:value={selectedVariantId}
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="">Select a variant</option>
+                                            {#each product.variants as variant}
+                                                <option value={variant.id}>{variant.name}</option>
+                                            {/each}
+                                        </select>
+                                    {:else}
+                                        <p class="font-medium text-gray-900">{product.variant_name || 'No variant'}</p>
+                                    {/if}
                                 </div>
     
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Seller</label>
-                                    <p class="font-medium text-gray-900">{product.seller?.name || 'N/A'}</p>
+                                    {#if isEditing}
+                                        <select 
+                                            bind:value={selectedSeller}
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="">Select a seller</option>
+                                            {#each entities as entity}
+                                                <option value={entity.id}>{entity.name}</option>
+                                            {/each}
+                                        </select>
+                                    {:else}
+                                        <p class="font-medium text-gray-900">{product.seller?.name || 'N/A'}</p>
+                                    {/if}
                                 </div>
     
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Product Description</label>
-                                    <div class="prose prose-sm max-w-none">
-                                        {@html product.product?.description || '<p class="text-gray-500">No description available</p>'}
-                                    </div>
+                                    {#if isEditing}
+                                        <textarea 
+                                            bind:value={selectedDescription}
+                                            rows="4"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                            placeholder="Enter product description..."
+                                        ></textarea>
+                                    {:else}
+                                        <div class="prose prose-sm max-w-none">
+                                            {@html product.product?.description || '<p class="text-gray-500">No description available</p>'}
+                                        </div>
+                                    {/if}
                                 </div>
                             </div>
                         </div>
@@ -499,9 +692,28 @@
                                     </h2>
                                 </div>
                                 <div class="px-6 py-6">
-                                    {#if product.features?.general && product.features.general.length > 0}
+                                    {#if isEditing}
+                                        <div>
+                                            <select bind:value={newFeature.feature_template_id} class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select a feature template</option>
+                                                {#each featureTemplates as ft}
+                                                    <option value={ft.id}>{ft.name}</option>
+                                                {/each}
+                                            </select>
+                                        </div>
+                                        <input bind:value={newFeature.value} class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter feature value..." />
+                                        <button onclick={addFeature} class="mt-2 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Add Feature</button>
+                                        <ul class="mt-2">
+                                            {#each features as feature, i}
+                                                <li class="flex items-center justify-between">
+                                                    {feature.name} - {feature.value}
+                                                    <button onclick={() => removeFeature(i)} class="text-red-500 hover:text-red-600">Remove</button>
+                                                </li>
+                                            {/each}
+                                        </ul>
+                                    {:else}
                                         <div class="space-y-3">
-                                            {#each product.features.general as feature}
+                                            {#each product.features?.general as feature}
                                                 <div class="flex items-start">
                                                     <svg class="w-4 h-4 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -513,14 +725,12 @@
                                                 </div>
                                             {/each}
                                         </div>
-                                    {:else}
-                                        <p class="text-gray-500 text-sm">No features specified</p>
                                     {/if}
                                 </div>
                             </div>
     
                             <!-- Return Policy -->
-                            {#if product.return_exchange_policy}
+                            {#if isEditing}
                                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                                     <div class="px-6 py-4 border-b border-gray-200">
                                         <h2 class="text-lg font-semibold text-gray-900 flex items-center">
@@ -532,32 +742,32 @@
                                     </div>
                                     <div class="px-6 py-6 space-y-4">
                                         <div>
-                                            <h3 class="font-medium text-gray-900 mb-2">{product.return_exchange_policy.name}</h3>
+                                            <h3 class="font-medium text-gray-900 mb-2">{editReturnExchangePolicy?.name}</h3>
                                             <div class="grid grid-cols-2 gap-4 text-sm">
                                                 <div>
                                                     <span class="text-gray-500">Return Available:</span>
-                                                    <span class="ml-2 font-medium {product.return_exchange_policy.return_available ? 'text-green-600' : 'text-red-600'}">
-                                                        {product.return_exchange_policy.return_available ? 'Yes' : 'No'}
+                                                    <span class="ml-2 font-medium {editReturnExchangePolicy?.return_available ? 'text-green-600' : 'text-red-600'}">
+                                                        {editReturnExchangePolicy?.return_available ? 'Yes' : 'No'}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span class="text-gray-500">Return Days:</span>
-                                                    <span class="ml-2 font-medium text-gray-900">{product.return_exchange_policy.return_days} days</span>
+                                                    <span class="ml-2 font-medium text-gray-900">{editReturnExchangePolicy?.return_days} days</span>
                                                 </div>
                                                 <div>
                                                     <span class="text-gray-500">Exchange Available:</span>
-                                                    <span class="ml-2 font-medium {product.return_exchange_policy.exchange_available ? 'text-green-600' : 'text-red-600'}">
-                                                        {product.return_exchange_policy.exchange_available ? 'Yes' : 'No'}
+                                                    <span class="ml-2 font-medium {editReturnExchangePolicy?.exchange_available ? 'text-green-600' : 'text-red-600'}">
+                                                        {editReturnExchangePolicy?.exchange_available ? 'Yes' : 'No'}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span class="text-gray-500">Exchange Days:</span>
-                                                    <span class="ml-2 font-medium text-gray-900">{product.return_exchange_policy.exchange_days} days</span>
+                                                    <span class="ml-2 font-medium text-gray-900">{editReturnExchangePolicy?.exchange_days} days</span>
                                                 </div>
                                             </div>
                                             <div class="mt-4">
                                                 <span class="text-gray-500 text-sm">Conditions:</span>
-                                                <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{product.return_exchange_policy.conditions}</p>
+                                                <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{editReturnExchangePolicy?.conditions}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -580,16 +790,29 @@
                                 </h2>
                             </div>
                             <div class="px-6 py-6">
-                                <div class="max-w-md mx-auto">
-                                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
-                                        <img 
-                                            src={product.main_image || '/placeholder.svg?height=400&width=400'} 
-                                            alt={product.name}
-                                            class="w-full h-full object-cover"
-                                        />
+                                {#if isEditing}
+                                    <div class="max-w-md mx-auto">
+                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
+                                            <img 
+                                                src={editMainImageFile || product.main_image || '/placeholder.svg?height=400&width=400'} 
+                                                alt={product.name}
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <p class="text-sm text-gray-500 text-center mt-2">Main product image</p>
                                     </div>
-                                    <p class="text-sm text-gray-500 text-center mt-2">Main product image</p>
-                                </div>
+                                {:else}
+                                    <div class="max-w-md mx-auto">
+                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                            <img 
+                                                src={product.main_image || '/placeholder.svg?height=400&width=400'} 
+                                                alt={product.name}
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <p class="text-sm text-gray-500 text-center mt-2">Main product image</p>
+                                    </div>
+                                {/if}
                             </div>
                         </div>
     
