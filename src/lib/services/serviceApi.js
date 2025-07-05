@@ -35,7 +35,7 @@ class ServiceAPI {
 
       const searchParams = new URLSearchParams(queryParams);
 
-      const response = await fetch(`${this.baseURL}/product/product-listings/?${searchParams}`)
+      const response = await fetch(`${this.baseURL}/product/product-listings/?approved=true&${searchParams}`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -169,7 +169,7 @@ class ServiceAPI {
 
       const searchParams = new URLSearchParams(queryParams);
 
-      const response = await fetch(`${this.baseURL}/product/sidebar-filters/?${searchParams}`);
+      const response = await fetch(`${this.baseURL}/product/sidebar-filters/?approved=true&${searchParams}`);
       if (!response.ok) throw new Error('Failed to fetch filters');
       return response.json();
     } catch (error) {

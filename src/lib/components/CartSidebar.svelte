@@ -100,22 +100,11 @@
 
   $: outOfStockCount = $cart.filter(item => item.stock <= 0).length;
 
-  
-  onMount(() => {
-      if (isOpen) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
-    
-  });
-
-
-  onDestroy(() => {
-    if (typeof document !== 'undefined'){
-      document.body.style.overflow = "";
-    }    
-  });
+  $: {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+  }
 </script>
 
 

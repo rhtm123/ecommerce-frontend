@@ -30,6 +30,7 @@
     let url = `${PUBLIC_API_URL}/order/order-items/${orderItemId}/`;
     try {
       let data = await myFetch(url);
+      console.log(data)
       orderItem = data;
       verified = data.order.user_id === authUser.user_id;
     } catch (e) {
@@ -151,9 +152,9 @@
       <div class="max-w-2xl mx-auto p-6 my-8 bg-white rounded-xl shadow-lg">
         <!-- Rest of the form content remains the same -->
         <div class="mb-8 flex items-start gap-4 border-b pb-6">
-          {#if orderItem?.product_listing?.main_image}
+          {#if orderItem?.product_main_image}
             <img
-              src={orderItem.product_listing.main_image}
+              src={orderItem.product_main_image}
               alt={orderItem.product_listing.name}
               class="w-20 h-20 object-cover rounded-lg"
             />

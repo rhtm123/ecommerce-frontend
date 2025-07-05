@@ -52,7 +52,7 @@
         main_image: null
     });
     let variants = $state([]);
-    let newVariant = $state({ name: '', attributes: [] }); // Changed to array for table
+    let newVariant = $state({ "name": '', attributes: [] }); // Changed to array for table
     let categories = $state([]);
     let brands = $state([]);
     let entities = $state([]);
@@ -74,7 +74,7 @@
 
     // Feature and attribute form states
     let newFeature = $state({ feature_template_id: null, value: '' });
-    let newAttribute = $state({ name: '', value: '', real_value: '' });
+    let newAttribute = $state({ "name": '', "value": '', "real_value": '' });
 
     let pendingGalleryImages = $state([]);
     let galleryImages = $state([]);
@@ -113,18 +113,25 @@
         try {
             const productRes = await myFetch(`${PUBLIC_API_URL}/product/products/${id}/`, 'GET', null, authUser.access_token);
             const listingRes = await myFetch(`${PUBLIC_API_URL}/product/product-listings/?product_id=${id}`, 'GET', null, authUser.access_token);
-            
+            console.log(productRes)
+            console.log(listingRes)
+            // Use first listing for editable fields if available
+            const firstListing = listingRes.results && listingRes.results.length > 0 ? listingRes.results[0] : {};
             product = {
                 ...productRes,
-                category_id: productRes.category?.id || null,
-                brand_id: productRes.brand?.id || null,
-                tax_category_id: productRes.tax_category?.id || null
+                category_id: firstListing.category?.id || productRes.category?.id || null,
+                brand_id: firstListing.brand?.id || productRes.brand?.id || null,
+                tax_category_id: firstListing.tax_category?.id || productRes.tax_category?.id || null,
+                base_price: productRes.base_price || '',
+                country_of_origin: productRes.country_of_origin || 'India',
+                is_service: productRes.is_service || false,
+                about: productRes.about || '',
+                important_info: productRes.important_info || '',
             };
-            console.log(product)
             editorContent = productRes.description || '<p></p>';
             productListings = listingRes.results.map(listing => ({
                 ...listing,
-                features: listing.features?.general || [] // Convert features to array
+                features: listing.features?.general || []
             }));
             variants = productRes.variants || [];
             step = productListings.length > 0 ? 2 : 1;
@@ -304,7 +311,7 @@
             return;
         }
         newVariant.attributes = [...newVariant.attributes, { ...newAttribute }];
-        newAttribute = { name: '', value: '', real_value: '' };
+        newAttribute = { "name": '', "value": '', "real_value": '' };
     }
 
     function removeAttribute(index) {
@@ -338,14 +345,31 @@
 
     function editProduct() {
         modalType = 'product';
-        modalData = { ...product };
+        // Use product and first listing for modal prefill
+        const firstListing = productListings && productListings.length > 0 ? productListings[0] : {};
+        modalData = {
+            ...product,
+            category_id: firstListing.category?.id || product.category_id || null,
+            brand_id: firstListing.brand?.id || product.brand_id || null,
+            tax_category_id: firstListing.tax_category?.id || product.tax_category_id || null,
+            base_price: product.base_price || '',
+            country_of_origin: product.country_of_origin || 'India',
+            is_service: product.is_service || false,
+            about: product.about || '',
+            important_info: product.important_info || '',
+        };
         modalEditorContent = product.description || '<p></p>';
         showModal = true;
     }
 
     function editListing(listing) {
         modalType = 'listing';
-        modalData = { ...listing, features: listing.features || [] };
+        // Defensive: if attributes is a dict, convert to array
+        let attrs = listing.attributes;
+        if (attrs && !Array.isArray(attrs)) {
+            attrs = Object.entries(attrs).map(([name, value]) => ({ name, value, real_value: value }));
+        }
+        modalData = { ...listing, features: listing.features || [], attributes: attrs || [] };
         showModal = true;
     }
 
@@ -369,15 +393,28 @@
             return;
         }
         try {
-            const response = await myFetch(`${PUBLIC_API_URL}/product/variants/`, 'POST', {
+            // Send attributes as a list of objects, and log the payload for debugging
+            const payload = {
                 product_id: product.id,
                 name: newVariant.name,
-                attributes: newVariant.attributes.reduce((acc, attr) => {
-                    acc[attr.name] = attr.value;
-                    return acc;
-                }, {})
-            }, authUser.access_token);
-            variants = [...variants, response];
+                attributes: newVariant.attributes
+            };
+            console.log('Sending variant payload:', JSON.stringify(payload));
+            const response = await fetch(`${PUBLIC_API_URL}/product/variants/`, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authUser.access_token}`
+                }
+            });
+            if (!response.ok) {
+                const err = await response.text();
+                console.error('Backend error:', err);
+                throw new Error('Failed to add variant');
+            }
+            const data = await response.json();
+            variants = [...variants, data];
             newVariant = { name: '', attributes: [] };
             addAlert('Variant added successfully!', 'success');
         } catch (error) {
@@ -864,13 +901,15 @@
                                                     <tr>
                                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attribute</th>
                                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Real Value</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="bg-white divide-y divide-gray-200">
-                                                    {#each Object.entries(variant.attributes) as [name, value]}
+                                                    {#each variant.attributes as attr}
                                                         <tr>
-                                                            <td class="px-4 py-2 text-sm font-medium text-gray-900">{name}</td>
-                                                            <td class="px-4 py-2 text-sm text-gray-500">{value}</td>
+                                                            <td class="px-4 py-2 text-sm font-medium text-gray-900">{attr.name}</td>
+                                                            <td class="px-4 py-2 text-sm text-gray-900">{attr.value}</td>
+                                                            <td class="px-4 py-2 text-sm text-gray-900">{attr.real_value}</td>
                                                         </tr>
                                                     {/each}
                                                 </tbody>
@@ -1612,7 +1651,7 @@
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                            </div>
+                        </div>
                                         <input 
                                             type="number" 
                                             bind:value={modalData.price}
@@ -1632,7 +1671,7 @@
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500 sm:text-sm">₹</span>
-                            </div>
+                        </div>
                                         <input 
                                             type="number" 
                                             bind:value={modalData.mrp}
@@ -1793,12 +1832,12 @@
                                                             >
                                                                 Remove
                                                             </button>
-                                                </td>
-                                            </tr>
-                                        {/each}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
                                 {/if}
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
