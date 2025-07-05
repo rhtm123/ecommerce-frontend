@@ -59,57 +59,6 @@ class ServiceAPI {
   }
   
 
-  async getServiceBySlug(slug) {
-    try {
-      // First get the service listing by slug
-      const listingResponse = await fetch(`${this.baseURL}/product/product-listings/?is_service=true&search=${slug}`)
-
-      if (!listingResponse.ok) {
-        throw new Error(`HTTP error! status: ${listingResponse.status}`)
-      }
-
-      const listingData = await listingResponse.json()
-      const service = listingData.results.find((s) => s.slug === slug)
-
-      if (!service) {
-        throw new Error("Service not found")
-      }
-
-      // Then get the detailed service information
-      const detailResponse = await fetch(`${this.baseURL}/product/products/${service.product_id}/`)
-
-      if (!detailResponse.ok) {
-        throw new Error(`HTTP error! status: ${detailResponse.status}`)
-      }
-
-      const detailData = await detailResponse.json()
-
-      // Combine listing and detail data
-      return {
-        ...service,
-        ...detailData,
-        // Keep important listing fields
-        id: service.id,
-        slug: service.slug,
-        price: service.price,
-        mrp: service.mrp,
-        stock: service.stock,
-        rating: service.rating,
-        review_count: service.review_count,
-        buy_limit: service.buy_limit,
-        main_image: service.main_image,
-        thumbnail: service.thumbnail,
-        brand: service.brand,
-        category: service.category,
-        approved: service.approved,
-        seller_id: service.seller_id,
-      }
-    } catch (error) {
-      console.error("Error fetching service by slug:", error)
-      throw error
-    }
-  }
-
   async getServiceById(productId) {
     try {
       const response = await fetch(`${this.baseURL}/product/products/${productId}/`)

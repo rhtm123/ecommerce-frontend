@@ -61,6 +61,11 @@
   
   <!-- Product Image with Badges -->
   <a href="/product/{product.slug}" class="block w-full h-full">
+
+    <!-- Variant & Size Badge -->
+
+
+
   <div class="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
     <!-- Discount Badge -->
     {#if discount}
@@ -91,6 +96,22 @@
         class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
       />
+
+      {#if product.variant?.name || product.unit_size}
+      <div class="absolute bottom-2 left-2 z-10">
+        <div class="bg-white/80 backdrop-blur-sm text-gray-800 text-[10px] font-medium px-2 py-0.5 rounded shadow-sm">
+          {#if product?.variant_name}
+            {product.variant_name}
+          {/if}
+          {#if product.unit_size && product.size_unit}
+            <span class="ml-1 text-gray-600">
+
+              {Number(product.unit_size) % 1 === 0 ? parseInt(product.unit_size) : product.unit_size}{product.size_unit} {product.units_per_pack>1?`x${product.units_per_pack}`:''}
+            </span>
+          {/if}
+        </div>
+      </div>
+      {/if}
     
 
     <!-- Hover overlay -->
@@ -107,17 +128,19 @@
       </h3>
     </a>
 
+   
+
     <!-- Bottom section - Brand, Rating, Price, and Add Button -->
     <div class="mt-auto space-y-2">
       <!-- Brand and Rating on same line -->
       <div class="flex items-center justify-between">
         <!-- Brand -->
         <div class="flex-1 min-w-0">
-          {#if product.brand?.name}
-            <p class="text-xs text-gray-500 truncate">{product.brand.name}</p>
-          {:else}
-            <div class="h-4"></div>
-          {/if}
+            <p class="text-xs text-gray-500 truncate">
+              
+              {product.brand?.name}
+          
+            </p>
         </div>
         
         <!-- Rating -->
