@@ -145,7 +145,7 @@
                                   <td class="px-6 py-4 text-sm text-gray-900">₹ {product.price?.toFixed(2) ?? '0.00'}</td>
                                   <td class="px-6 py-4 text-sm text-gray-900">{product.approved ? 'Yes' : 'No'}</td>
                                   <td class="px-6 py-4 text-sm font-medium">
-                                    <a href={`/admin/inventory/add-product?product_id=${product.product_id}`}>
+                                    <a href={`/admin/inventory/add-product?product_id=${product.product_id}&edit_step=1`}>
                                       <button class="text-blue-600 hover:text-blue-900">Edit</button>
                                     </a>
                                     <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>

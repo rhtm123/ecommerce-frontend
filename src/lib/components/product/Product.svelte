@@ -5,6 +5,7 @@
   import Icon from '@iconify/svelte';
   
   export let product;
+  // console.log(product)
   $: isWishlisted = $wishlistIds.has(product.id);
 
   // Cart quantity logic

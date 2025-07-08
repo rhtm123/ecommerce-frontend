@@ -7,9 +7,7 @@
     import { goto } from '$app/navigation';
     
     export let data;
-    console.log('Svelte page data:', data);
     const slug = data.slug;
-    console.log('Svelte page slug:', slug);
     let authUser;
     user.subscribe(value => authUser = value);
     
