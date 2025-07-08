@@ -76,15 +76,7 @@
       fetchProductListings();
     }
 
-    
-    
-
-    // Inventory data
-    // let products = [
-    //     { id: 1, name: "Premium T-Shirt", sku: "TSHIRT-001", stock: 150, price: 29.99, status: "In Stock", image: "" },
-    //     { id: 2, name: "Wireless Headphones", sku: "HEADPH-002", stock: 23, price: 149.99, status: "Low Stock" },
-    //     { id: 3, name: "Stainless Steel Bottle", sku: "BOTTLE-003", stock: 0, price: 39.99, status: "Out of Stock" },
-    // ];
+  
 
     const logout = () => {
         // Add your logout logic here
@@ -99,7 +91,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
                     <div class="flex gap-2">
                         <a href="/admin/inventory/add-product">
-                            <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mr-4" on:click={openAddProductModal}>
+                            <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mr-4">
                                 <Icon icon="mdi:plus" class="w-5 h-5 mr-2" /> Add Product
                             </button>
                         </a>
