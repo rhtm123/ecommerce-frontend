@@ -39,7 +39,7 @@
   </div>
 {:else}
 
-    {#if authUser?.entity.entity_type=="seller"}
+    {#if authUser?.entity?.entity_type=="seller"}
 
         <div class="min-h-screen bg-gray-50">
 

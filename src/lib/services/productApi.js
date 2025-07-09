@@ -54,4 +54,25 @@ export const productApi = {
       if (!response.ok) throw new Error('Failed to fetch filters');
       return response.json();
     },
+  
+    // Get product listing by ID
+    getProductListingById: async (id) => {
+      const response = await fetch(`${API_BASE_URL}/product/product-listings/${id}/`);
+      if (!response.ok) throw new Error('Failed to fetch product listing');
+      return response.json();
+    },
+  
+    // Update variant
+    updateVariant: async (variantId, payload, token) => {
+      const response = await fetch(`${API_BASE_URL}/product/variants/${variantId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error('Failed to update variant');
+      return response.json();
+    },
   };
