@@ -17,6 +17,7 @@
 	let element;
 	let editor;
 	const editorState = writable(null); // Make editor reactive
+	let lastContent = content;
 
 	onMount(() => {
 		editor = new Editor({
@@ -42,6 +43,11 @@
 	onDestroy(() => {
 		if (editor) editor.destroy();
 	});
+
+	$: if (editor && content !== lastContent) {
+		editor.commands.setContent(content || '<p></p>');
+		lastContent = content;
+	}
 </script>
 
 

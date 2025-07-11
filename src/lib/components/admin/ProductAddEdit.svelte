@@ -70,6 +70,8 @@
     let editMode = $state(false);
     let productId = null;
     let isProductDropdownOpen = $state(false);
+    let isInlineEditing = $state(false);
+    let inlineEditProduct = {};
 
     // Modal state
     let showModal = $state(false);
@@ -144,7 +146,7 @@
             variants = productRes.variants || [];
             // Only set step if it hasn't already been set by the URL (edit_step)
             if (typeof step === 'undefined' || step === null) {
-                step = productListings.length > 0 ? 2 : 1;
+            step = productListings.length > 0 ? 2 : 1;
             }
             isProductDropdownOpen = true;
         } catch (error) {
@@ -202,26 +204,31 @@
 
     function validateListingForm(data) {
         errors = {};
-        if (!data.price || data.price <= 0) errors.price = 'Price must be a positive number.';
-        if (!data.stock || data.stock < 0) errors.stock = 'Stock must be a non-negative number.';
-        if (!data.buy_limit || data.buy_limit < 1) errors.buy_limit = 'Buy limit must be at least 1.';
+        const price = parseFloat(data.price);
+        const stock = parseInt(data.stock);
+        const buy_limit = parseInt(data.buy_limit);
+
+        if (isNaN(price) || price <= 0) errors.price = 'Price must be a positive number.';
+        if (isNaN(stock) || stock < 0) errors.stock = 'Stock must be a non-negative number.';
+        if (isNaN(buy_limit) || buy_limit < 1) errors.buy_limit = 'Buy limit must be at least 1.';
         return Object.keys(errors).length === 0;
     }
 
-    async function submitProductListing(event) {
+    async function submitProductListing(event, listingArg) {
         event.preventDefault();
-        if (!validateListingForm(currentListing)) return;
+        const listing = listingArg || currentListing;
+        if (!validateListingForm(listing)) return;
         isSubmitting = true;
         try {
             // Ensure seller_id is set before submission
-            currentListing.seller_id = authUser?.entity?.id || currentListing.seller_id;
+            listing.seller_id = authUser?.entity?.id || listing.seller_id;
             let formData;
-            let useFormData = currentListing.main_image instanceof File;
+            let useFormData = listing.main_image instanceof File;
             if (useFormData) {
                 formData = new FormData();
-                for (const key in currentListing) {
+                for (const key in listing) {
                     if (key === 'id') continue; // Do not send 'id' in FormData
-                    let value = currentListing[key];
+                    let value = listing[key];
                     // Skip FK fields if value is 0 or ''
                     if ([
                         'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
@@ -256,29 +263,29 @@
             const {
                 main_image, // remove from spread
                 ...restListing
-            } = currentListing;
+            } = listing;
             const jsonData = {
                 ...restListing,
-                product_id: parseInt(currentListing.product_id || product.id),
-                price: currentListing.price ? parseFloat(currentListing.price) : undefined,
-                mrp: currentListing.mrp ? parseFloat(currentListing.mrp) : undefined,
-                stock: currentListing.stock ? parseInt(currentListing.stock) : undefined,
-                buy_limit: currentListing.buy_limit ? parseInt(currentListing.buy_limit) : undefined,
-                seller_id: currentListing.seller_id,
+                product_id: parseInt(listing.product_id || product.id),
+                price: listing.price ? parseFloat(listing.price) : undefined,
+                mrp: listing.mrp ? parseFloat(listing.mrp) : undefined,
+                stock: listing.stock ? parseInt(listing.stock) : undefined,
+                buy_limit: listing.buy_limit ? parseInt(listing.buy_limit) : undefined,
+                seller_id: listing.seller_id,
                 estore_id: PUBLIC_ESTORE_ID,
-                variant_id: currentListing.variant_id ? parseInt(currentListing.variant_id) : undefined,
-                manufacturer_id: currentListing.manufacturer_id ? parseInt(currentListing.manufacturer_id) : undefined,
-                packer_id: currentListing.packer_id ? parseInt(currentListing.packer_id) : undefined,
-                importer_id: currentListing.importer_id ? parseInt(currentListing.importer_id) : undefined,
-                return_exchange_policy_id: currentListing.return_exchange_policy_id ? parseInt(currentListing.return_exchange_policy_id) : undefined,
-                tax_category_id: currentListing.tax_category_id ? parseInt(currentListing.tax_category_id) : undefined,
-                features: { general: currentListing.features }
+                variant_id: listing.variant_id ? parseInt(listing.variant_id) : undefined,
+                manufacturer_id: listing.manufacturer_id ? parseInt(listing.manufacturer_id) : undefined,
+                packer_id: listing.packer_id ? parseInt(listing.packer_id) : undefined,
+                importer_id: listing.importer_id ? parseInt(listing.importer_id) : undefined,
+                return_exchange_policy_id: listing.return_exchange_policy_id ? parseInt(listing.return_exchange_policy_id) : undefined,
+                tax_category_id: listing.tax_category_id ? parseInt(listing.tax_category_id) : undefined,
+                features: { general: listing.features }
             };
             if (typeof main_image === 'string' && main_image.trim() !== '') {
                 jsonData.main_image = main_image;
             }
-            const method = currentListing.id ? 'PUT' : 'POST';
-            const url = currentListing.id ? `${PUBLIC_API_URL}/product/product-listings/${currentListing.id}/` : `${PUBLIC_API_URL}/product/product-listings/`;
+            const method = listing.id ? 'PUT' : 'POST';
+            const url = listing.id ? `${PUBLIC_API_URL}/product/product-listings/${listing.id}/` : `${PUBLIC_API_URL}/product/product-listings/`;
             let response;
             // Use FormData for both POST and PUT if main_image is a File
             if (useFormData) {
@@ -305,7 +312,7 @@
                 if (pendingGalleryImages.length > 0) {
                     await uploadPendingGalleryImages(data.id);
                 }
-                if (currentListing.id) {
+                if (listing.id) {
                     productListings = productListings.map(l => l.id === data.id ? { ...data, features: data.features?.general || [] } : l);
                     // After update, show the updated listing in the form (including new main_image)
                     currentListing = {
@@ -701,9 +708,10 @@
         currentListing.features = currentListing.features.filter((_, i) => i !== index);
     }
 
-    async function handleSubmitListing() {
-        // Use the existing submitProductListing logic here
-        await submitProductListing({ preventDefault: () => {} });
+    async function handleSubmitListing(event) {
+        // Use modalListing if present, otherwise fallback to currentListing
+        const listing = event?.detail?.currentListing || currentListing;
+        await submitProductListing({ preventDefault: () => {} }, listing);
     }
 
     function handleDeleteListing(event) {
@@ -736,6 +744,70 @@
             addAlert('Failed to update variant.', 'error');
         }
     }
+
+    function startInlineEdit() {
+        isInlineEditing = true;
+        // Always coerce to string
+        inlineEditProduct = { ...product };
+        
+        inlineEditProduct.description = typeof product.description === 'string' ? product.description : (product.description?.toString?.() || '');
+    }
+
+    function cancelInlineEdit() {
+        isInlineEditing = false;
+        inlineEditProduct = {};
+    }
+
+    async function saveInlineEdit() {
+        if (!validateProductForm(inlineEditProduct)) return;
+        isSubmitting = true;
+        try {
+            // Ensure description is a string (HTML) before sending
+            let desc = inlineEditProduct.description;
+            if (typeof desc !== 'string') {
+                // If Tiptap emits an object, try to extract HTML string
+                if (desc && typeof desc.getHTML === 'function') {
+                    desc = desc.getHTML();
+                } else if (desc && desc.html) {
+                    desc = desc.html;
+                } else {
+                    desc = '';
+                }
+            }
+            const formData = { ...inlineEditProduct, description: desc };
+            const url = `${PUBLIC_API_URL}/product/products/${product.id}/`;
+            const response = await myFetch(url, 'PUT', formData, authUser.access_token);
+            if (response) {
+                product = { ...product, ...response };
+                addAlert('Product updated successfully!', 'success');
+                isInlineEditing = false;
+            }
+        } catch (error) {
+            addAlert('Failed to update product: ' + (error.detail || error), 'error');
+        } finally {
+            isSubmitting = false;
+        }
+    }
+
+    function handleInlineInputChange(e, field) {
+        inlineEditProduct[field] = e.target.value;
+    }
+    function handleInlineSelectChange(e, field) {
+        inlineEditProduct[field] = e.target.value ? parseInt(e.target.value) : null;
+    }
+    function handleInlineCheckboxChange(e, field) {
+        inlineEditProduct[field] = e.target.checked;
+    }
+    function handleInlineTiptapChange(event) {
+        // event is a CustomEvent, value is in event.detail
+        console.log('TiptapEditor emitted:', event, typeof event);
+        inlineEditProduct.description = typeof event.detail === 'string' ? event.detail : '';
+    }
+
+    function switchTab(tab) {
+        if (tab === 1) step = 1;
+        else step = 2;
+    }
 </script>
 
 <!-- Main Container -->
@@ -753,22 +825,20 @@
                     </p>
                 </div>
                 
-                <!-- Progress Steps -->
-                <div class="hidden sm:flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full {step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold text-sm">
-                            1
+                <!-- Progress Steps as Tabs -->
+                <div class="flex items-center space-x-4 mb-8">
+                    <button type="button" on:click={() => switchTab(1)} class="flex items-center px-4 py-2 rounded-lg font-semibold text-sm focus:outline-none transition-colors duration-150
+                        {step === 1 ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-blue-50'}">
+                        <span class="w-6 h-6 flex items-center justify-center rounded-full mr-2 {step === 1 ? 'bg-white text-blue-600' : 'bg-blue-100 text-blue-600'}">1</span>
+                        Product
+                    </button>
+                    <div class="w-8 h-0.5 {step === 2 ? 'bg-blue-600' : 'bg-gray-200'}"></div>
+                    <button type="button" on:click={() => switchTab(2)} class="flex items-center px-4 py-2 rounded-lg font-semibold text-sm focus:outline-none transition-colors duration-150
+                        {step === 2 ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-blue-50'}">
+                        <span class="w-6 h-6 flex items-center justify-center rounded-full mr-2 {step === 2 ? 'bg-white text-blue-600' : 'bg-blue-100 text-blue-600'}">2</span>
+                        Listings
+                    </button>
                         </div>
-                        <span class="ml-2 text-sm font-medium {step >= 1 ? 'text-blue-600' : 'text-gray-500'}">Product</span>
-                    </div>
-                    <div class="w-8 h-0.5 {step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}"></div>
-                    <div class="flex items-center">
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full {step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold text-sm">
-                            2
-                        </div>
-                        <span class="ml-2 text-sm font-medium {step >= 2 ? 'text-blue-600' : 'text-gray-500'}">Listings</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -792,81 +862,140 @@
             <div class="space-y-8">
                 <!-- Product Summary Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 cursor-pointer" onclick={toggleProductDropdown}>
-                        <div class="flex items-center justify-between">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                             <div>
                                 <h2 class="text-lg font-semibold text-gray-900">{product.name}</h2>
                                 <p class="text-sm text-gray-500">Product Details</p>
                 </div>
                             <div class="flex items-center space-x-3">
-                                <button 
-                                    onclick={editProduct}
-                                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
+                            {#if !isInlineEditing}
+                                <button on:click={startInlineEdit} class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                     Edit
                                 </button>
-                                <svg class="w-5 h-5 text-gray-400 transform transition-transform {isProductDropdownOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                            {/if}
                             </div>
                         </div>
-                    </div>
-                    
-                {#if isProductDropdownOpen}
                         <div class="px-6 py-4 bg-gray-50">
+                        {#if isInlineEditing}
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+                                    <select class="w-full px-3 py-2 border rounded" bind:value={inlineEditProduct.category_id} on:change={e => handleInlineSelectChange(e, 'category_id')}>
+                                        <option value="">Select a category</option>
+                                        {#each categories as c}
+                                            <option value={c.id}>{c.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Brand</label>
+                                    <select class="w-full px-3 py-2 border rounded" bind:value={inlineEditProduct.brand_id} on:change={e => handleInlineSelectChange(e, 'brand_id')}>
+                                        <option value="">Select a brand</option>
+                                        {#each brands as b}
+                                            <option value={b.id}>{b.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Country</label>
+                                    <input class="w-full px-3 py-2 border rounded" type="text" bind:value={inlineEditProduct.country_of_origin} on:input={e => handleInlineInputChange(e, 'country_of_origin')} />
+                        </div>
+                        <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Unit Size</label>
+                                    <input class="w-full px-3 py-2 border rounded" type="number" step="0.01" bind:value={inlineEditProduct.unit_size} on:input={e => handleInlineInputChange(e, 'unit_size')} />
+                        </div>
+                        <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Size Unit</label>
+                                    <input class="w-full px-3 py-2 border rounded" type="text" bind:value={inlineEditProduct.size_unit} on:input={e => handleInlineInputChange(e, 'size_unit')} />
+                        </div>
+                        <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                                    <select class="w-full px-3 py-2 border rounded" bind:value={inlineEditProduct.is_service} on:change={e => handleInlineSelectChange(e, 'is_service')}>
+                                        <option value={false}>Product</option>
+                                        <option value={true}>Service</option>
+                            </select>
+                        </div>
+                    </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">About</label>
+                                    <textarea class="w-full px-3 py-2 border rounded" rows="2" bind:value={inlineEditProduct.about} on:input={e => handleInlineInputChange(e, 'about')}></textarea>
+                    </div>
+                    <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Tax Category</label>
+                                    <select class="w-full px-3 py-2 border rounded" bind:value={inlineEditProduct.tax_category_id} on:change={e => handleInlineSelectChange(e, 'tax_category_id')}>
+                                        <option value="">Select tax category</option>
+                                        {#each taxCategories as t}
+                                            <option value={t.id}>{t.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+                    </div>
+                            <div class="mt-4">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                                <div class="border rounded-lg overflow-hidden">
+                                    <TiptapEditor content={typeof inlineEditProduct.description === 'string' ? inlineEditProduct.description : ''} on:change={event => handleInlineTiptapChange(event)} />
+                    </div>
+                </div>
+                            <div class="flex space-x-3 mt-6 justify-end">
+                                <button on:click={saveInlineEdit} class="inline-flex items-center px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Saving...' : 'Save'}
+                                                            </button>
+                                <button on:click={cancelInlineEdit} class="inline-flex items-center px-5 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">Cancel</button>
+                    </div>
+                                            {:else}
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                            <div>
                                     <span class="font-medium text-gray-700">Category:</span>
                                     <span class="ml-2 text-gray-900">{categories.find(c => c.id === product.category_id)?.name || 'N/A'}</span>
-                                </div>
-                                <div>
+                            </div>
+                            <div>
                                     <span class="font-medium text-gray-700">Brand:</span>
                                     <span class="ml-2 text-gray-900">{brands.find(b => b.id === product.brand_id)?.name || 'N/A'}</span>
-                                </div>
-                                <div>
+                            </div>
+                            <div>
                                     <span class="font-medium text-gray-700">Country:</span>
                                     <span class="ml-2 text-gray-900">{product.country_of_origin}</span>
-                                </div>
-                                <div>
+                            </div>
+                            <div>
                                     <span class="font-medium text-gray-700">Unit Size:</span>
                                     <span class="ml-2 text-gray-900">{product.unit_size}</span>
-                                </div>
-                                <div>
+                            </div>
+                            <div>
                                     <span class="font-medium text-gray-700">Size Unit:</span>
                                     <span class="ml-2 text-gray-900">{product.size_unit}</span>
-                                </div>
-                                <div>
+                            </div>
+                        <div>
                                     <span class="font-medium text-gray-700">Type:</span>
                                     <span class="ml-2 text-gray-900">{product.is_service ? 'Service' : 'Product'}</span>
-                                </div>
-                            </div>
+                        </div>
+                        </div>
                             <div class="flex">
-
-                            {#if product.about}
-                                <div class="mt-4 flex">
-                                    <span class="font-medium text-gray-700">About:</span>
-                                    <p class="mt-1 text-gray-900">{product.about}</p>
-                                </div>
-                            {/if}
-                            {#if product.tax_category}
-                                <div class="mt-4 flex">
-                                    <span class="font-medium text-gray-700">Tax Category:</span>
-                                    <p class="mt-1 text-gray-900">{product.tax_category.name}</p>
-                                </div>
-                            {/if}
-                            {#if product.description}
-                                <div class="mt-4 flex">
-                                    <span class="font-medium text-gray-700">Description:</span>
-                                    <p class="mt-1 text-gray-900"> {@html product.description || '<p class="text-gray-500">No description available</p>'}</p>
-                                </div>
-                            {/if}
+                                {#if product.about}
+                                    <div class="mt-4 flex">
+                                        <span class="font-medium text-gray-700">About:</span>
+                                        <p class="mt-1 text-gray-900">{product.about}</p>
+                        </div>
+                                {/if}
+                                {#if product.tax_category}
+                                    <div class="mt-4 flex">
+                                        <span class="font-medium text-gray-700">Tax Category:</span>
+                                        <p class="mt-1 text-gray-900">{product.tax_category.name}</p>
                             </div>
-                    </div>
-                {/if}
-            </div>
+                                    {/if}
+                                {#if product.description}
+                                    <div class="mt-4 flex">
+                                        <span class="font-medium text-gray-700">Description:</span>
+                                        <p class="mt-1 text-gray-900"> {@html product.description || '<p class="text-gray-500">No description available</p>'}</p>
+                                </div>
+                                    {/if}
+                            </div>
+                                    {/if}
+                            </div>
+                            </div>
 
                 <!-- Variants Section -->
                 <VariantManager
@@ -894,6 +1023,7 @@
                     {isSubmitting}
                     {pendingGalleryImages}
                     {galleryImages}
+                    productId={product.id}
                     on:change={handleListingChange}
                     on:submitListing={handleSubmitListing}
                     on:editListing={e => handleEditListing(e.detail.listing)}
@@ -904,6 +1034,6 @@
                     on:resetListingForm={handleResetListingForm}
                                             />
                         </div>
-                                            {/if}
-                                        </div>
+                    {/if}
+                </div>
 </div>

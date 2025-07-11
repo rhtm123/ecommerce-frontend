@@ -23,7 +23,11 @@
   export let errors = {};
 
   const dispatch = createEventDispatcher();
-  let editorContent = product.description || '<p></p>';
+  let editorContent = typeof product.description === 'string' ? product.description : '<p></p>';
+
+  $: if (product.description !== editorContent) {
+    editorContent = typeof product.description === 'string' ? product.description : '<p></p>';
+  }
 
   function handleEditorChange(event) {
     editorContent = event.detail;
