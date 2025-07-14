@@ -63,6 +63,7 @@
     let returnExchangePolicies = [];
     let taxCategories = [];
     let featureTemplates = [];
+    let featureGroups = [];
     let errors = {};
     let isSubmitting = false;
     let editorContent = '<p></p>';
@@ -87,13 +88,14 @@
     // Fetch initial data
     onMount(async () => {
         try {
-            const [catRes, brandRes, entityRes, policyRes, taxRes, featureRes] = await Promise.all([
+            const [catRes, brandRes, entityRes, policyRes, taxRes, featureRes, groupRes] = await Promise.all([
                 myFetch(`${PUBLIC_API_URL}/product/categories/?page=1&page_size=100`),
                 myFetch(`${PUBLIC_API_URL}/user/entities/?page=1&page_size=100&entity_type=brand`),
                 myFetch(`${PUBLIC_API_URL}/user/entities/?page=1&page_size=100`),
                 myFetch(`${PUBLIC_API_URL}/product/return-exchange-policies/?page=1&page_size=100`),
                 myFetch(`${PUBLIC_API_URL}/taxation/tax-categories/?page=1&page_size=100`),
-                myFetch(`${PUBLIC_API_URL}/product/feature-templates/?page=1&page_size=100`)
+                myFetch(`${PUBLIC_API_URL}/product/feature-templates/?page=1&page_size=100`),
+                myFetch(`${PUBLIC_API_URL}/product/feature-groups/?page=1&page_size=100`)
             ]);
 
             categories = catRes.results;
@@ -102,6 +104,7 @@
             returnExchangePolicies = policyRes.results;
             taxCategories = taxRes.results;
             featureTemplates = featureRes.results;
+            featureGroups = groupRes.results;
 
             const urlParams = new URLSearchParams(window.location.search);
             productId = urlParams.get('product_id');
@@ -146,7 +149,10 @@
             editorContent = productRes.description || '<p></p>';
             productListings = listingRes.results.map(listing => ({
                 ...listing,
-                features: listing.features?.general || []
+                // Flatten all feature groups into a single array for UI
+                features: listing.features
+                    ? Object.values(listing.features).flat()
+                    : []
             }));
 
             variants = productRes.variants || [];
@@ -237,53 +243,37 @@
             // Ensure seller_id is set before submission
             listing.seller_id = authUser?.entity?.id || listing.seller_id;
 
-            let formData;
-            let useFormData = listing.main_image instanceof File;
-
-            if (useFormData) {
-                formData = new FormData();
-                for (const key in listing) {
-                    if (key === 'id') continue; // Do not send 'id' in FormData
-                    let value = listing[key];
-
-                    // Skip FK fields if value is 0 or ''
-                    if ([
-                        'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
-                        'return_exchange_policy_id', 'tax_category_id', 'estore_id'
-                    ].includes(key) && (value === 0 || value === '')) {
-                        continue;
-                    }
-
-                    if (value !== null && value !== undefined && value !== "") {
-                        if ([
-                            'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
-                            'return_exchange_policy_id', 'tax_category_id', 'estore_id',
-                            'product_id', 'seller_id', 'stock', 'buy_limit', 'price', 'mrp'
-                        ].includes(key)) {
-                            if (!isNaN(Number(value))) {
-                                formData.append(key, Number(value));
-                            }
-                        } else if (key === 'main_image' && value instanceof File) {
-                            formData.append('main_image', value);
-                        } else if (key === 'features') {
-                            formData.append('features', JSON.stringify({ general: value }));
-                        } else {
-                            formData.append(key, value);
-                        }
-                    }
-                }
-
-                // Debug: log FormData keys and values before submit
-                for (let pair of formData.entries()) {
-                    console.log('FormData before submit:', pair[0], pair[1]);
-                }
-            }
-
-            // Build JSON payload, only include main_image if it is a non-empty string (URL)
+            // --- NEW LOGIC: Use JSON for all fields except main_image ---
+            // 1. Update all fields except main_image via PUT (JSON)
             const {
                 main_image, // remove from spread
                 ...restListing
             } = listing;
+
+            // Build features object grouped by feature group name
+            let featuresObj = {};
+            if (Array.isArray(listing.features)) {
+                for (const f of listing.features) {
+                    // Find the feature group name from featureTemplates and featureGroups
+                    let groupName = null;
+                    if (f.feature_group_id) {
+                        const fg = featureTemplates.find(ft => ft.id == f.feature_template_id);
+                        if (fg) {
+                            // Find the group name from featureGroups
+                            const group = featureGroups?.find(g => g.id == f.feature_group_id);
+                            if (group) groupName = group.name;
+                        }
+                    }
+                    // fallback: if not found, use 'General'
+                    if (!groupName) groupName = 'General';
+                    if (!featuresObj[groupName]) featuresObj[groupName] = [];
+                    featuresObj[groupName].push({
+                        feature_template_id: f.feature_template_id,
+                        value: f.value
+                        // Do NOT include feature_group_id
+                    });
+                }
+            }
 
             const jsonData = {
                 ...restListing,
@@ -300,65 +290,110 @@
                 importer_id: listing.importer_id ? parseInt(listing.importer_id) : undefined,
                 return_exchange_policy_id: listing.return_exchange_policy_id ? parseInt(listing.return_exchange_policy_id) : undefined,
                 tax_category_id: listing.tax_category_id ? parseInt(listing.tax_category_id) : undefined,
-                features: { general: listing.features }
+                features: featuresObj
             };
 
-            if (typeof main_image === 'string' && main_image.trim() !== '') {
-                jsonData.main_image = main_image;
-            }
-
-            const method = listing.id ? 'PUT' : 'POST';
-            const url = listing.id ? `${PUBLIC_API_URL}/product/product-listings/${listing.id}/` : `${PUBLIC_API_URL}/product/product-listings/`;
-
-            let response;
-
-            // Use FormData for both POST and PUT if main_image is a File
-            if (useFormData) {
-                response = await fetch(url, {
-                    method,
-                    body: formData,
-                    headers: {
-                        Authorization: `Bearer ${authUser.access_token}`
-                    }
-                });
-            } else {
-                response = await fetch(url, {
-                    method,
+            let response, data;
+            if (listing.id) {
+                // Update listing (JSON) - DO NOT include main_image
+                console.log('PUT payload:', jsonData);
+                response = await fetch(`${PUBLIC_API_URL}/product/product-listings/${listing.id}/`, {
+                    method: 'PUT',
                     body: JSON.stringify(jsonData),
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authUser.access_token}`
                     }
                 });
-            }
-
-            if (response.ok) {
-                const data = await response.json();
-
-                // Always upload new gallery images if any are selected
-                if (pendingGalleryImages.length > 0) {
-                    await uploadPendingGalleryImages(data.id);
+                if (!response.ok) {
+                    const errText = await response.text();
+                    console.error('PUT error response:', errText);
+                    throw new Error(errText);
                 }
-
-                if (listing.id) {
-                    productListings = productListings.map(l => l.id === data.id ? { ...data, features: data.features?.general || [] } : l);
-                    // After update, show the updated listing in the form (including new main_image)
-                    currentListing = {
-                        ...data,
-                        features: data.features?.general || []
-                    };
-                } else {
-                    productListings = [...productListings, { ...data, features: data.features?.general || [] }];
-                    resetListingForm();
-                }
-
-                addAlert('Product listing saved successfully!', 'success');
+                data = await response.json();
+                console.log('PUT response data:', data);
             } else {
-                addAlert('Failed to submit listing', 'error');
+                // Create listing (FormData, keep as is for new listing)
+                let formData = new FormData();
+                for (const key in listing) {
+                    if (key === 'id') continue;
+                    let value = listing[key];
+                    if ([
+                        'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
+                        'return_exchange_policy_id', 'tax_category_id', 'estore_id'
+                    ].includes(key) && (value === 0 || value === '')) {
+                        continue;
+                    }
+                    if (value !== null && value !== undefined && value !== "") {
+                        if ([
+                            'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
+                            'return_exchange_policy_id', 'tax_category_id', 'estore_id',
+                            'product_id', 'seller_id', 'stock', 'buy_limit', 'price', 'mrp'
+                        ].includes(key)) {
+                            if (!isNaN(Number(value))) {
+                                formData.append(key, Number(value));
+                            }
+                        } else if (key === 'main_image' && value instanceof File) {
+                            formData.append('main_image', value);
+                        } else if (key === 'features') {
+                            formData.append('features', JSON.stringify(featuresObj));
+                        } else {
+                            formData.append(key, value);
+                        }
+                    }
+                }
+                response = await fetch(`${PUBLIC_API_URL}/product/product-listings/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        Authorization: `Bearer ${authUser.access_token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to create listing');
+                data = await response.json();
             }
+
+            // 2. If main_image is a File and listing.id exists, upload it via the new endpoint
+            if (listing.id && main_image instanceof File) {
+                const imageForm = new FormData();
+                imageForm.append('main_image', main_image);
+                const imgRes = await fetch(`${PUBLIC_API_URL}/product/product-listings/${listing.id}/update-image/`, {
+                    method: 'POST',
+                    body: imageForm,
+                    headers: {
+                        Authorization: `Bearer ${authUser.access_token}`
+                    }
+                });
+                if (imgRes.ok) {
+                    const imgData = await imgRes.json();
+                    data.main_image = imgData.main_image;
+                } else {
+                    addAlert('Failed to update main image', 'error');
+                }
+            }
+
+            // Always upload new gallery images if any are selected
+            if (pendingGalleryImages.length > 0) {
+                await uploadPendingGalleryImages(data.id);
+            }
+
+            if (listing.id) {
+                productListings = productListings.map(l => l.id === data.id ? { ...data, features: data.features?.general || [] } : l);
+                currentListing = {
+                    ...data,
+                    features: data.features?.general || []
+                };
+            } else {
+                productListings = [...productListings, { ...data, features: data.features?.general || [] }];
+                resetListingForm();
+            }
+
+            addAlert('Product listing saved successfully!', 'success');
+            showModal = false;
         } catch (error) {
-            console.error('Error submitting listing:', error);
-            addAlert('Failed to submit listing: ' + (error.detail || error), 'error');
+            let errText = error.message || error.detail || error;
+            console.error('Failed to submit listing:', errText);
+            addAlert('Failed to submit listing: ' + errText, 'error');
         } finally {
             isSubmitting = false;
         }
@@ -476,10 +511,8 @@
                 stock: data.stock || '',
                 buy_limit: data.buy_limit || 10,
                 box_items: data.box_items || '',
-                features: (data.features?.general || []).map(f => ({
-                    feature_template_id: f.feature_template_id,
-                    value: f.value
-                })),
+                // Flatten all feature groups into a single array for UI
+                features: data.features ? Object.values(data.features).flat() : [],
                 approved: data.approved || false,
                 featured: data.featured || false,
                 variant_id: data.variant?.id || '',
@@ -770,73 +803,146 @@
         try {
             // Ensure seller_id is set before submission
             listing.seller_id = authUser?.entity?.id || listing.seller_id;
-            // Always use FormData for POST/PUT to /product-listings/
-            const formData = new FormData();
-            for (const key in listing) {
-                if (key === 'id') continue; // Do not send 'id' in FormData
-                let value = listing[key];
-                // Skip FK fields if value is 0 or ''
-                if ([
-                    'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
-                    'return_exchange_policy_id', 'tax_category_id', 'estore_id'
-                ].includes(key) && (value === 0 || value === '')) {
-                    continue;
+
+            // Build features object grouped by feature group name
+            let featuresObj = {};
+            if (Array.isArray(listing.features)) {
+                for (const f of listing.features) {
+                    let groupName = null;
+                    if (f.feature_group_id) {
+                        const fg = featureTemplates.find(ft => ft.id == f.feature_template_id);
+                        if (fg) {
+                            const group = featureGroups?.find(g => g.id == f.feature_group_id);
+                            if (group) groupName = group.name;
+                        }
+                    }
+                    if (!groupName) groupName = 'General';
+                    if (!featuresObj[groupName]) featuresObj[groupName] = [];
+                    featuresObj[groupName].push({
+                        feature_template_id: f.feature_template_id,
+                        value: f.value
+                    });
                 }
-                if (value !== null && value !== undefined && value !== "") {
+            }
+
+            let response, data;
+            if (listing.id) {
+                // Update listing (JSON) - DO NOT include main_image
+                const jsonData = {
+                    ...listing,
+                    product_id: parseInt(listing.product_id || product.id),
+                    price: listing.price ? parseFloat(listing.price) : undefined,
+                    mrp: listing.mrp ? parseFloat(listing.mrp) : undefined,
+                    stock: listing.stock ? parseInt(listing.stock) : undefined,
+                    buy_limit: listing.buy_limit ? parseInt(listing.buy_limit) : undefined,
+                    seller_id: listing.seller_id,
+                    estore_id: PUBLIC_ESTORE_ID,
+                    variant_id: listing.variant_id ? parseInt(listing.variant_id) : undefined,
+                    manufacturer_id: listing.manufacturer_id ? parseInt(listing.manufacturer_id) : undefined,
+                    packer_id: listing.packer_id ? parseInt(listing.packer_id) : undefined,
+                    importer_id: listing.importer_id ? parseInt(listing.importer_id) : undefined,
+                    return_exchange_policy_id: listing.return_exchange_policy_id ? parseInt(listing.return_exchange_policy_id) : undefined,
+                    tax_category_id: listing.tax_category_id ? parseInt(listing.tax_category_id) : undefined,
+                    features: featuresObj
+                };
+                response = await fetch(`${PUBLIC_API_URL}/product/product-listings/${listing.id}/`, {
+                    method: 'PUT',
+                    body: JSON.stringify(jsonData),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authUser.access_token}`
+                    }
+                });
+                if (!response.ok) {
+                    let errText;
+                    try { errText = await response.text(); } catch { errText = 'Unknown error'; }
+                    console.error('Failed to submit listing:', errText);
+                    addAlert('Failed to submit listing: ' + errText, 'error');
+                    return;
+                }
+                data = await response.json();
+            } else {
+                // Create listing (FormData, keep as is for new listing)
+                const formData = new FormData();
+                for (const key in listing) {
+                    if (key === 'id') continue;
+                    let value = listing[key];
                     if ([
                         'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
-                        'return_exchange_policy_id', 'tax_category_id', 'estore_id',
-                        'product_id', 'seller_id', 'stock', 'buy_limit', 'price', 'mrp'
-                    ].includes(key)) {
-                        if (!isNaN(Number(value))) {
-                            formData.append(key, Number(value));
+                        'return_exchange_policy_id', 'tax_category_id', 'estore_id'
+                    ].includes(key) && (value === 0 || value === '')) {
+                        continue;
+                    }
+                    if (value !== null && value !== undefined && value !== "") {
+                        if ([
+                            'variant_id', 'manufacturer_id', 'packer_id', 'importer_id',
+                            'return_exchange_policy_id', 'tax_category_id', 'estore_id',
+                            'product_id', 'seller_id', 'stock', 'buy_limit', 'price', 'mrp'
+                        ].includes(key)) {
+                            if (!isNaN(Number(value))) {
+                                formData.append(key, Number(value));
+                            }
+                        } else if (key === 'main_image' && value instanceof File) {
+                            formData.append('main_image', value);
+                        } else if (key === 'features') {
+                            formData.append('features', JSON.stringify(featuresObj));
+                        } else {
+                            formData.append(key, value);
                         }
-                    } else if (key === 'main_image' && value instanceof File) {
-                        formData.append('main_image', value);
-                    } else if (key === 'features') {
-                        formData.append('features', JSON.stringify({ general: value }));
-                    } else {
-                        formData.append(key, value);
                     }
                 }
+                response = await fetch(`${PUBLIC_API_URL}/product/product-listings/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        Authorization: `Bearer ${authUser.access_token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to create listing');
+                data = await response.json();
             }
-            // Debug: log FormData keys and values before submit
-            for (let pair of formData.entries()) {
-                console.log('FormData before submit:', pair[0], pair[1]);
-            }
-            const method = listing.id ? 'PUT' : 'POST';
-            const url = listing.id ? `${PUBLIC_API_URL}/product/product-listings/${listing.id}/` : `${PUBLIC_API_URL}/product/product-listings/`;
-            let response = await fetch(url, {
-                method,
-                body: formData,
-                headers: {
-                    Authorization: `Bearer ${authUser.access_token}`
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // Always upload new gallery images if any are selected
-                if (pendingGalleryImages.length > 0) {
-                    await uploadPendingGalleryImages(data.id);
-                }
-                if (listing.id) {
-                    productListings = productListings.map(l => l.id === data.id ? { ...data, features: data.features?.general || [] } : l);
-                    currentListing = { ...data, features: data.features?.general || [] };
+
+            // 2. If main_image is a File and listing.id exists, upload it via the new endpoint
+            if (listing.id && listing.main_image instanceof File) {
+                const imageForm = new FormData();
+                imageForm.append('main_image', listing.main_image);
+                const imgRes = await fetch(`${PUBLIC_API_URL}/product/product-listings/${listing.id}/update-image/`, {
+                    method: 'POST',
+                    body: imageForm,
+                    headers: {
+                        Authorization: `Bearer ${authUser.access_token}`
+                    }
+                });
+                if (imgRes.ok) {
+                    const imgData = await imgRes.json();
+                    data.main_image = imgData.main_image;
                 } else {
-                    productListings = [...productListings, { ...data, features: data.features?.general || [] }];
-                    resetListingForm();
+                    addAlert('Failed to update main image', 'error');
                 }
-                addAlert('Product listing saved successfully!', 'success');
-                showModal = false;
-            } else {
-                let errText;
-                try { errText = await response.text(); } catch { errText = 'Unknown error'; }
-                console.error('Failed to submit listing:', errText);
-                addAlert('Failed to submit listing: ' + errText, 'error');
             }
+
+            // Always upload new gallery images if any are selected
+            if (pendingGalleryImages.length > 0) {
+                await uploadPendingGalleryImages(data.id);
+            }
+
+            if (listing.id) {
+                productListings = productListings.map(l => l.id === data.id ? { ...data, features: data.features?.general || [] } : l);
+                currentListing = {
+                    ...data,
+                    features: data.features?.general || []
+                };
+            } else {
+                productListings = [...productListings, { ...data, features: data.features?.general || [] }];
+                resetListingForm();
+            }
+
+            addAlert('Product listing saved successfully!', 'success');
+            showModal = false;
         } catch (error) {
-            console.error('Error submitting listing:', error);
-            addAlert('Failed to submit listing: ' + (error.detail || error), 'error');
+            let errText = error.message || error.detail || error;
+            console.error('Failed to submit listing:', errText);
+            addAlert('Failed to submit listing: ' + errText, 'error');
         } finally {
             isSubmitting = false;
         }
@@ -1234,6 +1340,7 @@
                         {returnExchangePolicies}
                         {taxCategories}
                         {featureTemplates}
+                        {featureGroups}
                         {errors}
                         {isSubmitting}
                         {pendingGalleryImages}

@@ -14,12 +14,13 @@
   export let isSubmitting = false;
   export let pendingGalleryImages = [];
   export let galleryImages = [];
-  export let newFeature = { feature_template_id: null, value: '' };
+  export let newFeature = { feature_template_id: null, value: '', feature_group_id: null };
   export let productId = null;
   export let showModal = false; // Now controlled by parent
 
   let modalMode = 'add'; // 'add' or 'edit'
   let modalGalleryImages = [];
+  let featureGroups = [];
 
   const dispatch = createEventDispatcher();
 
@@ -50,12 +51,38 @@
     dispatch('change', { currentListing });
   }
 
+  // Fetch feature groups dynamically based on selected category
+  async function fetchFeatureGroups(categoryId) {
+    if (!categoryId) {
+      featureGroups = [];
+      return;
+    }
+    try {
+      const res = await myFetch(`${PUBLIC_API_URL}/product/feature-groups/?category_id=${categoryId}&page=1&page_size=100`);
+      featureGroups = res.results || [];
+    } catch (e) {
+      featureGroups = [];
+    }
+  }
+
+  // Watch for category change and fetch feature groups
+  $: if (currentListing && currentListing.category_id) {
+    fetchFeatureGroups(currentListing.category_id);
+    // Reset feature group selection when category changes
+    newFeature.feature_group_id = null;
+    newFeature.feature_template_id = null;
+  }
+
   function handleAddFeature() {
-    if (!newFeature.feature_template_id || !newFeature.value.trim()) return;
+    if (!newFeature.feature_template_id || !newFeature.value.trim() || !newFeature.feature_group_id) return;
     if (!currentListing.features) currentListing.features = [];
-    currentListing.features = [...currentListing.features, { ...newFeature }];
+    currentListing.features = [...currentListing.features, {
+      feature_template_id: newFeature.feature_template_id,
+      value: newFeature.value
+      // Do NOT include feature_group_id here
+    }];
     dispatch('change', { currentListing });
-    newFeature = { feature_template_id: null, value: '' };
+    newFeature = { feature_template_id: null, value: '', feature_group_id: null };
   }
 
   function handleRemoveFeature(index) {
@@ -107,6 +134,19 @@
       const res = await fetch(`${PUBLIC_API_URL}/product/product-listings/${listing.id}/`);
       if (res.ok) {
         const data = await res.json();
+        // Flatten all feature groups into a single array and set feature_group_id
+        let featuresArr = [];
+        if (data.features) {
+          for (const [groupName, features] of Object.entries(data.features)) {
+            for (const f of features) {
+              featuresArr.push({
+                ...f,
+                feature_group_id: featureGroups.find(fg => fg.name === groupName)?.id || null,
+                feature_group_name: groupName
+              });
+            }
+          }
+        }
         currentListing = {
           id: data.id,
           product_id: data.product?.id || data.product_id || null,
@@ -116,10 +156,7 @@
           stock: data.stock || '',
           buy_limit: data.buy_limit || 10,
           box_items: data.box_items || '',
-          features: (data.features?.general || []).map(f => ({
-            feature_template_id: f.feature_template_id,
-            value: f.value
-          })),
+          features: featuresArr,
           approved: data.approved || false,
           featured: data.featured || false,
           variant_id: data.variant?.id || '',
@@ -130,9 +167,13 @@
           return_exchange_policy_id: data.return_exchange_policy?.id || '',
           tax_category_id: data.tax_category?.id || '',
           estore_id: data.estore_id || '',
-          main_image: data.main_image || null
+          main_image: data.main_image || null,
+          category_id: data.category?.id || data.category_id || ''
         };
-
+        // Fetch feature groups for this category
+        await fetchFeatureGroups(currentListing.category_id);
+        newFeature.feature_group_id = null;
+        newFeature.feature_template_id = null;
         // Fetch gallery images for this listing
         const galleryRes = await fetch(`${PUBLIC_API_URL}/product/product-listing-images/?product_listing_id=${data.id}`);
         if (galleryRes.ok) {
@@ -141,13 +182,15 @@
         } else {
           modalGalleryImages = [];
         }
-
         showModal = true;
       } else {
         // fallback to previous logic if API fails
         currentListing = JSON.parse(JSON.stringify(listing));
         modalGalleryImages = [];
         showModal = true;
+        await fetchFeatureGroups(currentListing.category_id);
+        newFeature.feature_group_id = null;
+        newFeature.feature_template_id = null;
       }
     } else {
       // Blank template for new listing
@@ -171,10 +214,14 @@
         return_exchange_policy_id: '',
         tax_category_id: '',
         estore_id: '',
-        main_image: null
+        main_image: null,
+        category_id: ''
       };
       modalGalleryImages = [];
       showModal = true;
+      await fetchFeatureGroups(currentListing.category_id);
+      newFeature.feature_group_id = null;
+      newFeature.feature_template_id = null;
     }
   }
 
@@ -706,6 +753,19 @@
               </h4>
               <div class="flex items-end space-x-4 mb-6">
                 <div class="flex-1">
+                  <label for="feature-group" class="block text-sm font-medium text-gray-700 mb-2">Feature Group</label>
+                  <select
+                    bind:value={newFeature.feature_group_id}
+                    id="feature-group"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    <option value="">Select Feature Group</option>
+                    {#each featureGroups as fg}
+                      <option value={fg.id}>{fg.name}</option>
+                    {/each}
+                  </select>
+                </div>
+                <div class="flex-1">
                   <label for="feature-template" class="block text-sm font-medium text-gray-700 mb-2">Feature</label>
                   <select 
                     bind:value={newFeature.feature_template_id} 
@@ -713,7 +773,7 @@
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
                     <option value="">Select Feature</option>
-                    {#each featureTemplates as ft}
+                    {#each featureTemplates.filter(ft => ft.feature_group_id == newFeature.feature_group_id) as ft}
                       <option value={ft.id}>{ft.name}</option>
                     {/each}
                   </select>
@@ -744,6 +804,7 @@
                   <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                       <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature Group</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
@@ -752,6 +813,9 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                       {#each currentListing.features as feature, i}
                         <tr class="hover:bg-gray-50">
+                          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {featureGroups.find(fg => fg.id == feature.feature_group_id)?.name || feature.feature_group_name || feature.feature_group_id}
+                          </td>
                           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {featureTemplates.find(ft => ft.id == feature.feature_template_id)?.name || feature.feature_template_id}
                           </td>
@@ -909,3 +973,4 @@
     {/if}
   </div>
 </div>
+ 
