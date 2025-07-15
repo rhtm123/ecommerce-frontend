@@ -3,9 +3,9 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
-  import { productApi } from '$lib/services/productApi';
-  import { serviceApi } from '$lib/services/serviceApi';
-  import { categoryApi } from '$lib/services/categoryApi';
+
+  import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from '$env/static/public';
+
   import Product from '$lib/components/product/Product.svelte';
   import Service from '$lib/components/service/Service.svelte';
   import Icon from '@iconify/svelte';
@@ -18,6 +18,7 @@
 
   // Search State
   let searchQuery = '';
+
   let isSearching = false;
   let searchResults = {
     categories: [],
@@ -26,9 +27,42 @@
     totalProducts: 0,
     totalServices: 0
   };
+
   let searchHistory = [];
   let searchTimeout;
   let searchInput;
+
+  let suggestions = {
+      products: [],
+      categories: [],
+      brands: []
+    };
+
+  async function fetchSuggestions(query) {
+  if (!query.trim()) {
+    suggestions = { products: [], categories: [], brands: [] };
+    return;
+  }
+
+  try {
+    const [productRes, catRes, brandRes] = await Promise.all([
+      fetch(PUBLIC_API_URL + `/search/autocomplete/products?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
+      fetch(PUBLIC_API_URL +`/search/autocomplete/categories?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
+      fetch(PUBLIC_API_URL+ `/search/autocomplete/brands?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json())
+    ]);
+
+    suggestions = {
+      products: productRes || [],
+      categories: catRes || [],
+      brands: brandRes || []
+    };
+
+    console.log("Suggestions",suggestions);
+  } catch (err) {
+    console.error("Autocomplete failed:", err);
+    suggestions = { products: [], categories: [], brands: [] };
+  }
+}
 
   onMount(() => {
     loadSearchHistory();
@@ -85,35 +119,29 @@
       return;
     }
     isSearching = true;
+
+    const [productRes, catRes] = await Promise.all([
+      fetch(PUBLIC_API_URL + `/search/products?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
+      fetch(PUBLIC_API_URL +`/search/categories?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
+      // fetch(PUBLIC_API_URL+ `/search/brands?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json())
+    ]);
+
+
+
+
     try {
-      // Search categories
-      const categoriesPromise = categoryApi.getMainCategories().then(data => {
-        return data.results.filter(cat => 
-          cat.name.toLowerCase().includes(query.toLowerCase())
-        );
-      });
-      // Search products
-      const productsPromise = productApi.getProducts({
-        search: query,
-        page_size: 20
-      });
-      // Search services
-      const servicesPromise = serviceApi.getServices({
-        search: query,
-        page_size: 20
-      });
-      const [categories, productsData, servicesData] = await Promise.all([
-        categoriesPromise,
-        productsPromise,
-        servicesPromise
-      ]);
+      
+    
       searchResults = {
-        categories: categories || [],
-        products: productsData.results || [],
-        services: servicesData.results || [],
-        totalProducts: productsData.count || 0,
-        totalServices: servicesData.count || 0
+        categories: catRes.hits || [],
+        products: productRes.hits || [],
+        services:  [],
+        totalProducts: productRes.hits.length || 0,
+        totalServices: 0
       };
+
+      console.log("search Results",searchResults);
+
       saveToHistory(query);
       // Update URL
       const url = new URL(window.location);
@@ -136,11 +164,18 @@
   function handleSearchInput(e) {
     searchQuery = e.target.value;
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => performSearch(searchQuery), 300);
+    searchTimeout = setTimeout(() => {
+      fetchSuggestions(searchQuery);
+      // performSearch(searchQuery);
+    }, 300);
   }
 
   function handleSearchSubmit(e) {
     e.preventDefault();
+
+    suggestions = { products: [], categories: [], brands: [] };
+
+    
     if (searchQuery.trim()) {
       performSearch(searchQuery);
     }
@@ -165,6 +200,13 @@
   function handleCart() {
     isCartOpen = true;
   }
+
+  async function handleSuggestionClick(query) {
+    searchQuery = query;
+    suggestions = { products: [], categories: [], brands: [] }; // clear suggestions
+    performSearch(query); // perform actual search
+  }
+
   let totalResults = () => searchResults.totalProducts + searchResults.totalServices + searchResults.categories.length;
 </script>
 
@@ -178,17 +220,45 @@
     <a href="/" class="hidden md:flex flex-shrink-0 items-center">
       <img src="/img/naigaonmarketlogo1.png" alt="Naigaon Market" class="h-10" />
     </a>
-    <!-- Search Bar -->
-    <input
-      bind:this={searchInput}
-      type="text"
-      class="flex-1 w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-lg"
-      placeholder="Search products and services..."
-      value={searchQuery}
-      oninput={handleSearchInput}
-      autocomplete="off"
-      onkeydown={(e) => { if (e.key === 'Enter') { handleSearchSubmit(e); } }}
-    />
+    
+    <!-- Search Bar and Suggestions (wrapped in relative container) -->
+<div class="relative flex-1 w-full">
+  <input
+    bind:this={searchInput}
+    type="text"
+    class="w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-lg"
+    placeholder="Search products and services..."
+    value={searchQuery}
+    oninput={handleSearchInput}
+    autocomplete="off"
+    onkeydown={(e) => { if (e.key === 'Enter') { handleSearchSubmit(e); } }}
+  />
+
+  {#if suggestions.products.length || suggestions.categories.length || suggestions.brands.length}
+    <div class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 shadow-lg rounded-lg z-50 max-h-72 overflow-y-auto">
+      <ul class="divide-y divide-gray-100">
+        {#each suggestions.products as product}
+          <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick={() => handleSuggestionClick(product)}>
+            🔍 {product}
+          </li>
+        {/each}
+        {#each suggestions.categories as category}
+          <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick={() => handleSuggestionClick(category)}>
+            📂 {category}
+          </li>
+        {/each}
+        {#each suggestions.brands as brand}
+          <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick={() => handleSuggestionClick(brand)}>
+            🏷️ {brand}
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
+</div>
+
+
+
     <!-- Cart Icon (hidden on mobile) -->
     <button onclick={handleCart} class="hidden md:flex p-2 hover:bg-gray-100 rounded-full flex transition-colors relative" aria-label="Cart">
       <Icon icon="mdi:cart-outline" class="w-6 h-6 text-gray-600" />
@@ -197,6 +267,10 @@
         <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{cartCount}</span>
       {/if}
     </button>
+
+    
+
+
   </div>
 </div>
 
@@ -345,12 +419,12 @@
           >
             Browse Products
           </a>
-          <a 
+          <!-- <a 
             href="/services"
             class="bg-white hover:bg-gray-50 text-blue-600 border border-blue-600 px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Browse Services
-          </a>
+          </a> -->
         </div>
       </div>
     {/if}
@@ -375,11 +449,3 @@
 </div>
 
 <CartSidebar bind:isOpen={isCartOpen} />
-
-<style>
-  .sticky {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-  }
-</style> 
