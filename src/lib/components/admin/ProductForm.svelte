@@ -23,7 +23,11 @@
   export let errors = {};
 
   const dispatch = createEventDispatcher();
-  let editorContent = product.description || '<p></p>';
+  let editorContent = typeof product.description === 'string' ? product.description : '<p></p>';
+
+  $: if (product.description !== editorContent) {
+    editorContent = typeof product.description === 'string' ? product.description : '<p></p>';
+  }
 
   function handleEditorChange(event) {
     editorContent = event.detail;
@@ -42,10 +46,21 @@
   }
 </script>
 
-<form on:submit={submitForm} class="space-y-8">
+<form on:submit={submitForm} class="space-y-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-1 flex items-center">
+      <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      Product Details
+    </h1>
+    <p class="text-gray-600">Fill in the product information below</p>
+  </div>
+
   <!-- Basic Information -->
-  <div>
-    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+  <div class="bg-blue-50 rounded-xl p-6 mb-8">
+    <h2 class="text-lg font-semibold text-blue-900 mb-6 flex items-center">
       <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
@@ -183,26 +198,24 @@
         <p class="mt-1 text-xs text-gray-500">Unit of measurement for the product (e.g., ml, g, pcs).</p>
       </div>
       <!-- Is Service -->
-      <div class="flex items-center">
-        <div class="flex items-center h-5">
-          <input 
-            type="checkbox" 
-            bind:checked={product.is_service} 
-            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            on:change={handleInputChange}
-          />
-        </div>
-        <div class="ml-3">
-          <label class="text-sm font-medium text-gray-700">This is a service</label>
-          <p class="text-xs text-gray-500">Check if this product is a service rather than a physical item. Services do not require shipping.</p>
-        </div>
+      <div class="flex items-center md:col-span-2">
+        <input 
+          type="checkbox" 
+          bind:checked={product.is_service} 
+          class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          on:change={handleInputChange}
+          id="is-service-checkbox"
+        />
+        <label for="is-service-checkbox" class="ml-3 text-sm font-medium text-gray-700">This is a service</label>
+        <span class="ml-2 text-xs text-gray-500">(Check if this product is a service rather than a physical item. Services do not require shipping.)</span>
       </div>
     </div>
   </div>
+
   <!-- Product Details -->
-  <div>
-    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-      <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="bg-green-50 rounded-xl p-6 mb-8">
+    <h2 class="text-lg font-semibold text-green-900 mb-6 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
       </svg>
       Product Details
@@ -244,12 +257,13 @@
       </div>
     </div>
   </div>
+
   <!-- Submit Button -->
   <div class="flex justify-end pt-6 border-t border-gray-200">
     <button 
       type="submit"
       disabled={isSubmitting} 
-      class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      class="inline-flex items-center px-8 py-3 border border-transparent text-base font-semibold rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
       {#if isSubmitting}
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">

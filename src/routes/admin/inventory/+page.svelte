@@ -20,7 +20,7 @@
 
     let loading = false;
 
-    let product_listings = []
+    let products = [];
     let next;
     let count = 0;
 
@@ -29,28 +29,52 @@
     let uploading = false;
 
     $: if (authUser){
-        fetchProductListings();
+        fetchProducts();
     }
 
-    async function fetchProductListings(){
-        loading = true
-        let url = `${PUBLIC_API_URL}/product/product-listings/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
-        console.log(url);
-        let data = await myFetch(url);
-        product_listings = (data.results || []).filter(p => p && p.slug);
-        next = data.next;
-        count = data.count;
+    async function fetchProducts(){
+        loading = true;
+        let url = `${PUBLIC_API_URL}/product/products/?page=1&page_size=10&seller_id=${authUser?.entity.id}`;
+        try {
+            let data = await myFetch(url);
+            products = data.results || [];
+            next = data.next;
+            count = data.count;
+        } catch (e) {
+            products = [];
+            next = null;
+            count = 0;
+        }
         loading = false;
     }
 
     async function loadMore() {
         loading = true;
-            // console.log("Hello Bhai")
-        const dataNew = await myFetch(next);
-        console.log(dataNew);
-        product_listings = [...product_listings,...dataNew.results];
-        next = dataNew.next;
-        loading = false
+        try {
+            const dataNew = await myFetch(next);
+            products = [...products, ...(dataNew.results || [])];
+            next = dataNew.next;
+        } catch (e) {
+            // handle error
+        }
+        loading = false;
+    }
+
+    async function deleteProduct(productId) {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+        try {
+            await myFetch(`${PUBLIC_API_URL}/product/products/${productId}/`, 'DELETE');
+            alerts.update(alertsArr => [
+                ...alertsArr,
+                { id: Date.now(), message: 'Product deleted successfully!', type: 'success', duration: 3000 }
+            ]);
+            fetchProducts();
+        } catch (e) {
+            alerts.update(alertsArr => [
+                ...alertsArr,
+                { id: Date.now(), message: 'Failed to delete product.', type: 'error', duration: 3000 }
+            ]);
+        }
     }
 
     function openBulkUploadModal() { showBulkUploadModal = true; }
@@ -73,7 +97,7 @@
         { id: Date.now(), message: 'Products uploaded successfully!', type: 'success', duration: 3000 }
       ]);
       // Fetch product listings again
-      fetchProductListings();
+      fetchProducts();
     }
 
   
@@ -105,49 +129,38 @@
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                                <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th> -->
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
-
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Brand</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Size</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size Unit</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                          {#if product_listings && product_listings.length > 0}
-                            {#each product_listings as product (product.id)}
-                              {#if product && product.slug}
-                                <tr class="hover:bg-gray-50">
-                                  <td class="px-6 py-4">
-                                    <a href={`/admin/inventory/${product.slug}`} class="flex items-center">
-                                      <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
-                                        {#if product.main_image}
-                                          <img src={product.main_image} class="h-full w-full object-cover rounded-md" />
-                                        {:else}
-                                          <span class="text-xs">Product Image</span>
-                                        {/if}
-                                      </div>
-                                      <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{product.name}</div>
-                                      </div>
-                                    </a>
-                                  </td>
-                                  <td class="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
-                                  <td class="px-6 py-4 text-sm text-gray-900">₹ {product.price?.toFixed(2) ?? '0.00'}</td>
-                                  <td class="px-6 py-4 text-sm text-gray-900">{product.approved ? 'Yes' : 'No'}</td>
-                                  <td class="px-6 py-4 text-sm font-medium">
-                                    <a href={`/admin/inventory/add-product?product_id=${product.product_id}&edit_step=1`}>
-                                      <button class="text-blue-600 hover:text-blue-900">Edit</button>
-                                    </a>
-                                    <button class="text-red-600 hover:text-red-900 ml-4">Delete</button>
-                                  </td>
-                                </tr>
-                              {/if}
+                          {#if products && products.length > 0}
+                            {#each products as product (product.id)}
+                              <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                  <a href={`/admin/inventory/${product.id}`} class="text-blue-600 hover:underline">{product.name}</a>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{product.category?.name ?? '-'}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{product.brand?.name ?? '-'}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{product.unit_size ?? '-'}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{product.size_unit ?? '-'}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{product.created ? new Date(product.created).toLocaleDateString() : '-'}</td>
+                                <td class="px-6 py-4 text-sm font-medium">
+                                  <a href={`/admin/inventory/add-product?product_id=${product.id}&edit_step=1`}>
+                                    <button class="text-blue-600 hover:text-blue-900">Edit</button>
+                                  </a>
+                                  <button class="text-red-600 hover:text-red-900 ml-4" on:click={() => deleteProduct(product.id)}>Delete</button>
+                                </td>
+                              </tr>
                             {/each}
                           {:else}
                             <tr>
-                              <td colspan="5" class="text-center text-gray-400 py-8">No products found.</td>
+                              <td colspan="7" class="text-center text-gray-400 py-8">No products found.</td>
                             </tr>
                           {/if}
 
@@ -171,7 +184,7 @@
                     </div>
             
                     <div class="text-sm text-gray-500">
-                        Showing {product_listings.length} of {count} results
+                        Showing {products.length} of {count} results
                     </div>
                     
                 </div>
