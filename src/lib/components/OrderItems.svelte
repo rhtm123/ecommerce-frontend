@@ -50,10 +50,11 @@
     <div class="p-4 sm:p-4 border-b border-gray-200">
         <div class="flex flex-wrap gap-3 items-center">
             <span class="text-sm font-semibold text-gray-700">Order Status:</span>
+
             {#each orderStatuses as status}
-                <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium {statusConfig[status].color} shadow-sm hover:shadow-md transition-all">
-                    <Icon icon={statusConfig[status].icon} class="w-4 h-4" />
-                    <span>{statusConfig[status].label}</span>
+                <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium {statusConfig[status]?.color} shadow-sm hover:shadow-md transition-all">
+                    <Icon icon={statusConfig[status]?.icon} class="w-4 h-4" />
+                    <span>{statusConfig[status]?.label}</span>
                     <span class="ml-1 bg-white/70 px-2 py-0.5 rounded-full text-xs">
                         {orderItems.filter(item => item.status === status).length}
                     </span>
@@ -64,6 +65,7 @@
 {/if}
 
 <!-- Order Items -->
+
 <div class="divide-y divide-gray-200">
     {#each orderItems as item}
         <div class="p-4 sm:p-4">
@@ -83,9 +85,9 @@
                                 {item.product_listing_name}
                             </a>
                             <!-- Status badge beside name on mobile -->
-                            <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm sm:hidden">
-                                <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
-                                <span class="hidden sm:inline">{statusConfig[item.status].label}</span>
+                            <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status]?.color} shadow-sm sm:hidden">
+                                <Icon icon={statusConfig[item.status]?.icon} class="w-3 h-3" />
+                                <span class="hidden sm:inline">{statusConfig[item.status]?.label}</span>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-gray-600">
@@ -125,15 +127,17 @@
                 </div>
                 <!-- Remove right column on mobile, keep only on desktop -->
                 <div class="hidden sm:flex w-full sm:w-auto flex-col items-end justify-end gap-2">
-                    <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status].color} shadow-sm mb-2 sm:mb-0">
-                        <Icon icon={statusConfig[item.status].icon} class="w-3 h-3" />
-                        <span class="hidden md:inline">{statusConfig[item.status].label}</span>
+                    <div class="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium {statusConfig[item.status]?.color} shadow-sm mb-2 sm:mb-0">
+                        <Icon icon={statusConfig[item.status]?.icon} class="w-3 h-3" />
+                        <span class="hidden md:inline">{statusConfig[item.status]?.label}</span>
                     </div>
                 </div>
             </div>
         </div>
     {/each}
 </div>
+
+
 
 <style>
     /* Smooth transitions */

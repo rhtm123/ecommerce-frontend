@@ -18,8 +18,11 @@
 
   // Search State
   let searchQuery = '';
+  let showSearchResults = false;
 
   let isSearching = false;
+  let isSuggesting = false;
+
   let searchResults = {
     categories: [],
     products: [],
@@ -40,11 +43,19 @@
 
   async function fetchSuggestions(query) {
   if (!query.trim()) {
+    searchResults = {
+        categories: [],
+        products: [],
+        services: [],
+        totalProducts: 0,
+        totalServices: 0
+    };
     suggestions = { products: [], categories: [], brands: [] };
     return;
   }
 
   try {
+    isSuggesting = true;
     const [productRes, catRes, brandRes] = await Promise.all([
       fetch(PUBLIC_API_URL + `/search/autocomplete/products?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
       fetch(PUBLIC_API_URL +`/search/autocomplete/categories?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
@@ -61,6 +72,8 @@
   } catch (err) {
     console.error("Autocomplete failed:", err);
     suggestions = { products: [], categories: [], brands: [] };
+  } finally{
+    isSuggesting = false;
   }
 }
 
@@ -126,12 +139,7 @@
       // fetch(PUBLIC_API_URL+ `/search/brands?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json())
     ]);
 
-
-
-
     try {
-      
-    
       searchResults = {
         categories: catRes.hits || [],
         products: productRes.hits || [],
@@ -140,7 +148,9 @@
         totalServices: 0
       };
 
-      console.log("search Results",searchResults);
+      showSearchResults = true;
+
+      // console.log("search Results",searchResults);
 
       saveToHistory(query);
       // Update URL
@@ -162,20 +172,17 @@
   }
 
   function handleSearchInput(e) {
+    showSearchResults = false;
     searchQuery = e.target.value;
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       fetchSuggestions(searchQuery);
-      // performSearch(searchQuery);
     }, 300);
   }
 
   function handleSearchSubmit(e) {
     e.preventDefault();
-
     suggestions = { products: [], categories: [], brands: [] };
-
-    
     if (searchQuery.trim()) {
       performSearch(searchQuery);
     }
@@ -234,14 +241,26 @@
     onkeydown={(e) => { if (e.key === 'Enter') { handleSearchSubmit(e); } }}
   />
 
-  {#if suggestions.products.length || suggestions.categories.length || suggestions.brands.length}
-    <div class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 shadow-lg rounded-lg z-50 max-h-72 overflow-y-auto">
+  {#if (searchQuery && !showSearchResults)}
+
+    <div class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 shadow-lg rounded-2xl z-50 max-h-72s overflow-y-auto">
+
+      {#if isSuggesting}
+        <div class="p-4">Suggesting...</div>
+      {/if}
+
+      {#if (!isSuggesting) && (suggestions.products.length==0 && suggestions.brands.length==0 && suggestions.categories.length==0)}
+      <div class="p-4">No Suggestion Found</div>
+      {/if}
+
       <ul class="divide-y divide-gray-100">
         {#each suggestions.products as product}
           <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick={() => handleSuggestionClick(product)}>
             🔍 {product}
           </li>
         {/each}
+
+
         {#each suggestions.categories as category}
           <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick={() => handleSuggestionClick(category)}>
             📂 {category}
@@ -254,7 +273,9 @@
         {/each}
       </ul>
     </div>
+
   {/if}
+
 </div>
 
 
@@ -275,11 +296,11 @@
 </div>
 
 <!-- Recent Searches (below navbar, only on empty state) -->
-{#if !searchQuery && !isSearching && searchHistory.length > 0}
-  <div class="max-w-7xl mx-auto pt-8 px-4 pb-2 flex flex-col md:flex-row md:items-center md:justify-between">
+{#if !showSearchResults && searchHistory.length > 0}
+  <div class="max-w-7xl mx-auto pt-6 px-4 pb-2 flex flex-col md:flex-row md:items-center md:justify-between">
     <div>
       <h3 class="text-base font-semibold text-gray-900 mb-2 md:mb-0">Recent Searches</h3>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2 py-4">
         {#each searchHistory.slice(0, 8) as query}
           <button 
             onclick={() => handleHistoryClick(query)}
@@ -300,7 +321,7 @@
 
 <!-- Main Content -->
 <div class="max-w-7xl mx-auto md:pt-10  px-4 lg:pt-12 pb-16">
-  {#if searchQuery && !isSearching}
+  {#if searchQuery && !isSearching && showSearchResults }
     <!-- Results Summary -->
     <div class="mb-6" in:fade={{ duration: 200 }}>
       <h1 class="text-xl font-bold text-gray-900 mb-2">
@@ -419,12 +440,7 @@
           >
             Browse Products
           </a>
-          <!-- <a 
-            href="/services"
-            class="bg-white hover:bg-gray-50 text-blue-600 border border-blue-600 px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            Browse Services
-          </a> -->
+      
         </div>
       </div>
     {/if}
@@ -442,7 +458,7 @@
       <Icon icon="mdi:magnify" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
       <h2 class="text-xl font-medium text-gray-900 mb-2">Start your search</h2>
       <p class="text-gray-600 mb-6">
-        Search for products, services, or categories to get started
+        Search for products, brands, or categories to get started
       </p>
     </div>
   {/if}
