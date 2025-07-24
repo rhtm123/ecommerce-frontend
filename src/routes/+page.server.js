@@ -41,7 +41,7 @@ export async function load() {
 
 
     try {
-        let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand`);
+        let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand&featured=true`);
         brands = data.results;
       } catch (e) {
         
