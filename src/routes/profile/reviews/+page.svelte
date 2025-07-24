@@ -4,6 +4,7 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
   import { addAlert } from "$lib/stores/alert";
+    import SkeltonReviews from "$lib/components/skeltons/SkeltonReviews.svelte";
 
   let authUser;
   
@@ -135,7 +136,7 @@
       {/each}
 
       {#if loading}
-        <div class="loading loading-spinner loading-sm"></div>
+        <SkeltonReviews />
       {/if}
 
 

@@ -5,6 +5,7 @@
   import { user } from "$lib/stores/auth";
   import OrderItems from "$lib/components/OrderItems.svelte";
   import Icon from '@iconify/svelte';
+  import SkeltonOrders from "$lib/components/skeltons/SkeltonOrders.svelte";
 
   let authUser;
   $: authUser = $user;
@@ -146,9 +147,7 @@
 
 <div class="space-y-2 md:space-y-4">
   {#if loading}
-    <div class="p-4 flex justify-center">
-      <span class="loading loading-spinner loading-sm"></span>
-    </div>
+    <SkeltonOrders />
   {/if}
 
   {#if orders.length > 0}
@@ -217,9 +216,7 @@
       {/each}
 
       {#if loadingMore}
-        <div class="p-2 sm:p-4 flex justify-center">
-          <span class="loading loading-spinner loading-sm"></span>
-        </div>
+        <SkeltonOrders />
       {/if}
 
       {#if (next && !loadingMore && !loading)}

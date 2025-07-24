@@ -7,6 +7,7 @@
   import { shipaddresses } from "$lib/stores/address";
   import AddressAddEdit from "$lib/components/AddressAddEdit.svelte";
   import { addAlert } from "$lib/stores/alert";
+    import SkeltonAddresses from "$lib/components/skeltons/SkeltonAddresses.svelte";
 
   let authUser;
   let loading = false;
@@ -144,9 +145,7 @@ let modalEdits = {}; // Store modal references
     {/each}
 
     {#if loading}
-      <div class="p-4">
-          <div class="loading loading-spinner loading-sm"></div>
-      </div>
+      <SkeltonAddresses />
     {/if}
 
 
