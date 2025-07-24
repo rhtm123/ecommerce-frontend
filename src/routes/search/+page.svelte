@@ -51,14 +51,13 @@
 
   try {
     isSuggesting = true;
-    const [productRes, catRes, brandRes] = await Promise.all([
-      fetch(PUBLIC_API_URL + `/search/autocomplete/products?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
+    const [catRes, brandRes] = await Promise.all([
+      // fetch(PUBLIC_API_URL + `/search/autocomplete/products?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
       fetch(PUBLIC_API_URL +`/search/autocomplete/categories?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json()),
       fetch(PUBLIC_API_URL+ `/search/autocomplete/brands?q=${encodeURIComponent(query)}&estore_id=${PUBLIC_ESTORE_ID}`).then(r => r.json())
     ]);
 
     suggestions = {
-      products: productRes || [],
       categories: catRes || [],
       brands: brandRes || []
     };
@@ -138,6 +137,7 @@
         totalServices: 0
       };
 
+      console.log(searchResults);
       showSearchResults = true;
 
       // console.log("search Results",searchResults);
@@ -306,23 +306,30 @@
   {/if}
   
   <ul class="">
-    {#each suggestions.products as product}
-      <li class="py-2 cursor-pointer" onclick={() => handleSuggestionClick(product)}>
-        🔍 {product}
-      </li>
-    {/each}
+
+    <!-- Categories Suggestions -->
+{#each suggestions.categories as category}
+<li
+  class="py-2 flex items-center cursor-pointer"
+  onclick={() => handleSuggestionClick(category)}
+>
+  
+  <span>📂 {category}</span>
+</li>
+{/each}
+
+<!-- Brands Suggestions -->
+{#each suggestions.brands as brand}
+<li
+  class="py-2 flex items-center cursor-pointer"
+  onclick={() => handleSuggestionClick(brand)}
+>
+  
+  <span>🏷️ {brand}</span>
+</li>
+{/each}
 
 
-    {#each suggestions.categories as category}
-      <li class="py-2 cursor-pointer" onclick={() => handleSuggestionClick(category)}>
-        📂 {category}
-      </li>
-    {/each}
-    {#each suggestions.brands as brand}
-      <li class="py-2 cursor-pointer" onclick={() => handleSuggestionClick(brand)}>
-        🏷️ {brand}
-      </li>
-    {/each}
   </ul>
 </div>
 
