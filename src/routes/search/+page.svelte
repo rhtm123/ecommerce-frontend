@@ -12,6 +12,8 @@
   import { cart } from '$lib/stores/cart';
   import { page } from '$app/stores';
   import CartSidebar from '$lib/components/CartSidebar.svelte';
+    import SkeltonSuggestions from '$lib/components/skeltons/SkeltonSuggestions.svelte';
+    import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
   let cartCount = 0;
   $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
   let isCartOpen = false;
@@ -39,20 +41,13 @@
       products: [],
       categories: [],
       brands: []
-    };
+  };
 
   async function fetchSuggestions(query) {
-  if (!query.trim()) {
-    searchResults = {
-        categories: [],
-        products: [],
-        services: [],
-        totalProducts: 0,
-        totalServices: 0
-    };
-    suggestions = { products: [], categories: [], brands: [] };
-    return;
-  }
+
+    if (!query.trim()) {
+      return;
+    }
 
   try {
     isSuggesting = true;
@@ -121,14 +116,9 @@
   }
 
   async function performSearch(query) {
+    
+
     if (!query.trim()) {
-      searchResults = {
-        categories: [],
-        products: [],
-        services: [],
-        totalProducts: 0,
-        totalServices: 0
-      };
       return;
     }
     isSearching = true;
@@ -170,8 +160,18 @@
   function handleSearchInput(e) {
     showSearchResults = false;
     isSuggesting = true;
+    isSearching = true;
     searchQuery = e.target.value;
     clearTimeout(searchTimeout);
+    searchResults = {
+        categories: [],
+        products: [],
+        services: [],
+        totalProducts: 0,
+        totalServices: 0
+    };
+    suggestions = { products: [], categories: [], brands: [] };
+
     searchTimeout = setTimeout(() => {
       fetchSuggestions(searchQuery);
       performSearch(searchQuery);
@@ -302,10 +302,7 @@
 <div class="max-w-7xl mx-auto max-h-72 pt-6 px-4 overflow-y-auto">
 
   {#if isSuggesting}
-  <div class="animate-pulse space-y-2">
-    <div class="h-8 bg-gray-300 rounded-lg w-full"></div>
-    <div class="h-8 bg-gray-300 rounded-lg w-full"></div>
-  </div>
+   <SkeltonSuggestions />
   {/if}
   
   <ul class="">
@@ -369,15 +366,7 @@
     {/if}
 
     {#if isSearching}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {#each Array(4) as _}
-          <div class="animate-pulse bg-white p-4 rounded-lg border border-gray-200">
-            <div class="h-40 bg-gray-300 rounded mb-4"></div>
-            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-            <div class="h-4 bg-gray-300 rounded w-1/2"></div>
-          </div>
-        {/each}
-      </div>
+      <SkeltonProducts />
     {/if}
 
 

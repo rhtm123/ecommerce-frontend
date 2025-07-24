@@ -8,6 +8,9 @@
   import Product from './product/Product.svelte';
   import { fade, fly } from 'svelte/transition';
 
+  import SkeltonCategories from './skeltons/SkeltonCategories.svelte';
+    import SkeltonProducts from './skeltons/SkeltonProducts.svelte';
+
 
   export let currentCategory = null;
 
@@ -306,9 +309,7 @@
           <!-- End header above categories -->
           <div class="p-2">
             {#if loadingCategories}
-              <div class="flex justify-center py-10">
-                <div class="loading loading-spinner loading-md text-blue-500"></div>
-              </div>
+              <SkeltonCategories />
             {:else}
               {#each allCategories as category (category.id)}
                 <div class="relative">
@@ -376,9 +377,7 @@
               </div>
               
               {#if loading}
-                <div class="flex justify-center py-10">
-                  <div class="loading loading-spinner loading-md text-blue-500"></div>
-                </div>
+                <SkeltonProducts />
               {:else if error}
                 <div class="text-center py-10 text-sm text-red-600">{error}</div>
               {:else if products.length === 0}
@@ -394,7 +393,7 @@
                 </div>
                 <div class="flex justify-center items-center py-4">
                   {#if loadingMore}
-                    <div class="loading loading-spinner loading-sm"></div>
+                    <SkeltonProducts />
                   {/if}
                   {#if next && !loadingMore && !loading}
                     <button class="btn btn-outline btn-sm" on:click={loadMore}>Load More</button>
