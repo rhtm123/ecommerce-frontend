@@ -58,7 +58,7 @@
 
   <!-- Arrow Buttons: Extreme left/right, vertically centered -->
   <button 
-    class="absolute left-0 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/80 hover:bg-gray-100 shadow transition-all "
+    class="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 hover:bg-gray-100 shadow transition-all "
     on:click={prevSlide}
     aria-label="Previous Slide"
   >
@@ -67,7 +67,7 @@
     </svg>
   </button>
   <button 
-    class="absolute right-0 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/80 hover:bg-gray-100 shadow transition-all"
+    class="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 hover:bg-gray-100 shadow transition-all"
     on:click={nextSlide}
     aria-label="Next Slide"
   >
