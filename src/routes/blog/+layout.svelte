@@ -7,10 +7,7 @@ let tags = data.tags;
 let recentBlogs = data.recentBlogs;
 let blogCategories = data.blogCategories;
 
-// import BlogCard from '$lib/components/blog/BlogCard.svelte';
-import Blogs from '$lib/components/blog/Blogs.svelte';
 import Sidebar from '$lib/components/blog/Sidebar.svelte';
-
 
 </script>
 

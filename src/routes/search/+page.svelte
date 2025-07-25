@@ -11,12 +11,10 @@
   import Icon from '@iconify/svelte';
   import { cart } from '$lib/stores/cart';
   import { page } from '$app/stores';
-  import CartSidebar from '$lib/components/CartSidebar.svelte';
-    import SkeltonSuggestions from '$lib/components/skeltons/SkeltonSuggestions.svelte';
-    import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
-  let cartCount = 0;
-  $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
-  let isCartOpen = false;
+
+  import SkeltonSuggestions from '$lib/components/skeltons/SkeltonSuggestions.svelte';
+  import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
+  import CartBar from '$lib/components/CartBar.svelte';
 
   // Search State
   let searchQuery = '';
@@ -208,9 +206,7 @@
       goto('/');
     }
   }
-  function handleCart() {
-    isCartOpen = true;
-  }
+
 
   async function handleSuggestionClick(query) {
     searchQuery = query;
@@ -226,8 +222,9 @@
   let totalResults = () => searchResults.totalProducts + searchResults.totalServices + searchResults.categories.length;
 </script>
 
+<!-- Navbar -->
 <div class="bg-white border-b border-gray-200 fixed w-full left-0 top-0 z-30 shadow">
-  <div class="max-w-7xl mx-auto px-2 py-2 flex items-center gap-2 md:gap-4">
+  <div class="max-w-7xl mx-auto px-2 py-2 flex items-center gap-0 md:gap-4">
     <!-- Back Button -->
     <button onclick={handleBack} class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Go back">
       <Icon icon="mdi:arrow-left" class="w-6 h-6 text-gray-600" />
@@ -242,7 +239,7 @@
   <input
     bind:this={searchInput}
     type="text"
-    class="w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-lg"
+    class="w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-md"
     placeholder="Search products and services..."
     value={searchQuery}
     oninput={handleSearchInput}
@@ -256,13 +253,8 @@
 
 
     <!-- Cart Icon (hidden on mobile) -->
-    <button onclick={handleCart} class="hidden md:flex p-2 hover:bg-gray-100 rounded-full flex transition-colors relative" aria-label="Cart">
-      <Icon icon="mdi:cart-outline" class="w-6 h-6 text-gray-600" />
-      <span class="font-medium ml-1 hidden md:inline">Cart</span>
-      {#if cartCount > 0}
-        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{cartCount}</span>
-      {/if}
-    </button>
+    
+    <CartBar />
 
     
 
@@ -270,12 +262,14 @@
   </div>
 </div>
 
+<div class="min-h-[50vh]">
+
 <!-- Recent Searches (below navbar, only on empty state) -->
 {#if (!showSearchResults && searchHistory.length > 0 && searchQuery.length==0)}
-  <div class="max-w-7xl mx-auto pt-6 px-4 pb-2 flex flex-col md:flex-row md:items-center md:justify-between">
+  <div class="max-w-7xl mx-auto pt-4 px-4 flex flex-col md:flex-row md:items-center md:justify-between">
     <div>
       <h3 class="text-base font-semibold text-gray-900 mb-2 md:mb-0">Recent Searches</h3>
-      <div class="flex flex-wrap gap-2 py-4">
+      <div class="flex flex-wrap gap-2 py-2">
         {#each searchHistory.slice(0, 8) as query}
           <button 
             onclick={() => handleHistoryClick(query)}
@@ -293,8 +287,6 @@
     >clear</button>
   </div>
 {/if}
-
-
 
 
 {#if (searchQuery)}
@@ -336,11 +328,11 @@
 {/if}
 
 <!-- Main Content -->
-<div class="max-w-7xl mx-auto md:pt-4  px-4 pb-16">
+<div class="max-w-7xl mx-auto md:pt-4  px-4 pb-16 pt-4">
   {#if searchQuery }
     <!-- Results Summary -->
-    <div class="mb-6" in:fade={{ duration: 200 }}>
-      <h1 class="text-xl font-bold text-gray-900 mb-2">
+    <div class="mb-4" in:fade={{ duration: 200 }}>
+      <h1 class="text-xl font-semibold text-gray-900 mb-2">
         Search results for "{searchQuery}"
       </h1>
     </div>
@@ -451,4 +443,5 @@
 
 </div>
 
-<CartSidebar bind:isOpen={isCartOpen} />
+</div>
+

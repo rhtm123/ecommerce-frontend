@@ -12,6 +12,7 @@
     let next;
 
     import BlogCard from "./BlogCard.svelte";
+    import SkeltonBlogs from "../skeltons/SkeltonBlogs.svelte";
 
     async function fetchBlogs() {
         try{
@@ -47,7 +48,7 @@
 
   
 
-  <div class="grid  grid-cols-1 md:grid-cols-2 gap-8 mb-12 py-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
 
     {#each blogs as blog (blog.id)}
 
@@ -62,14 +63,6 @@
       </div>
     {/if}
 
-
-    {#if loading}
-        <div class="p-4">
-            <span class="loading loading-spinner loading-sm"></span>
-        </div>
-    {/if}
-
-
     <div class="flex space-x-2">
         {#if (next && !loading)}
         <button on:click={loadMore} class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
@@ -78,6 +71,10 @@
         {/if}
     </div>
   </div>
+
+  {#if loading}
+      <SkeltonBlogs />
+  {/if}
 
 
 

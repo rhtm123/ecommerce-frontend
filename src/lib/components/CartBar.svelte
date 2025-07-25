@@ -105,7 +105,29 @@
       document.body.style.overflow = isOpen ? 'hidden' : '';
     }
   }
+
+
+  function toggleCart(event) {
+    event.stopPropagation();
+    isOpen = !isOpen;
+  }
+
 </script>
+
+
+<button
+    onclick={toggleCart}
+    class="cart-button relative flex items-center p-2 rounded-full text-gray-700 hover:text-blue-600 transition-colors"
+  >
+  <Icon icon="mdi:cart-outline" width="28" height="28" />
+  {#if cartCount > 0}
+    <span class="absolute -top-1 -right-4 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -translate-x-1/2">
+      {cartCount}
+    </span>
+  {/if}
+  <span class="font-medium ml-1 hidden md:inline">Cart</span>
+  </button>
+
 
 
 
