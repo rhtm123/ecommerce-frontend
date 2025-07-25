@@ -4,6 +4,7 @@
   import { myFetch } from "$lib/utils/myFetch";
   import { PUBLIC_API_URL } from "$env/static/public";
   import Product from "./Product.svelte";
+    import SkeltonProducts from "../skeltons/SkeltonProducts.svelte";
 
   export let product_listing;
   let relatedProducts = [];
@@ -30,13 +31,11 @@
   
 </script>
 
-<div class="mx-4 md:mx-8 lg:mx-16 mt-12 mb-8">
+<div class="md:mx-8 lg:mx-16 mt-8 mb-8">
     <h2 class="text-2xl font-bold text-primary mb-6">Related Products</h2>
     
     {#if loadingRelatedProducts}
-      <div class="flex justify-center items-center py-8">
-        <div class="loading loading-spinner loading-sm"></div>
-      </div>
+      <SkeltonProducts />
     {:else if relatedProducts.length > 0}
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {#each relatedProducts as product (product.id)}

@@ -9,7 +9,7 @@
   import { fade, fly } from 'svelte/transition';
 
   import SkeltonCategories from './skeltons/SkeltonCategories.svelte';
-    import SkeltonProducts from './skeltons/SkeltonProducts.svelte';
+  import SkeltonProducts from './skeltons/SkeltonProducts.svelte';
 
 
   export let currentCategory = null;

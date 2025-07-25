@@ -9,6 +9,7 @@
     export let product_listing;
     // console.log(product_listing)
     import { onMount } from "svelte";
+    import SkeltonReviews from "../skeltons/SkeltonReviews.svelte";
 
     let reviews = [];
     let loading = false;
@@ -131,9 +132,7 @@
     {/each}
 
     {#if loading}
-        <div class="p-3 md:p-4">
-            <div class="loading loading-spinner loading-sm"></div>
-        </div>
+        <SkeltonReviews />
     {/if}
 
     {#if (next && !loading)}

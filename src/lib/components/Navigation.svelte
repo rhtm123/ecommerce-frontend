@@ -7,23 +7,18 @@
   import { user } from '$lib/stores/auth';
   import { logoutUser } from '$lib/stores/auth';
   import Icon from '@iconify/svelte';
-  import CartSidebar from '$lib/components/CartSidebar.svelte';
   import { page } from '$app/stores';
+  import CartBar from '$lib/components/CartBar.svelte';
 
   let authUser = null;
   let isMenuOpen = false;
   let isProfileDropdownOpen = false;
-  let isSearchOpen = false;
-  let isCartOpen = false;
 
   const menuItems = [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
     { label: 'Blog', href: '/blog' }
   ];
-
-  let cartCount = 0;
-  $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
 
   $: authUser = $user;
 
@@ -44,40 +39,25 @@
   afterNavigate(() => {
     isMenuOpen = false;
     isProfileDropdownOpen = false;
-    isSearchOpen = false;
-    isCartOpen = false;
   });
 
   onMount(() => {
     isMenuOpen = false;
     isProfileDropdownOpen = false;
-    isSearchOpen = false;
-    isCartOpen = false;
   });
 
   function toggleProfileDropdown(event) {
     event.stopPropagation();
     isProfileDropdownOpen = !isProfileDropdownOpen;
     isMenuOpen = false;
-    isSearchOpen = false;
-    isCartOpen = false;
   }
 
   function toggleMenuDropdown(event) {
     event.stopPropagation();
     isMenuOpen = !isMenuOpen;
     isProfileDropdownOpen = false;
-    isSearchOpen = false;
-    isCartOpen = false;
   }
 
-  function toggleCart(event) {
-    event.stopPropagation();
-    isCartOpen = !isCartOpen;
-    isProfileDropdownOpen = false;
-    isMenuOpen = false;
-    isSearchOpen = false;
-  }
 
   function handleLogout() {
     logoutUser();
@@ -87,7 +67,6 @@
   function handleNavClickOutside() {
     isMenuOpen = false;
     isProfileDropdownOpen = false;
-    isSearchOpen = false;
   }
 
   function handleSearchClick() {
@@ -100,40 +79,12 @@
   on:outclick={handleNavClickOutside}
   class="bg-white border-b border-gray-200 fixed top-0 w-full z-20"
 >
-  {#if $page.url.pathname === '/search'}
-    <!-- Minimal Navbar for Search Page -->
-    <div class="mx-auto px-4 md:px-8 lg:px-16">
-      <div class="flex items-center justify-between h-16">
-        <!-- Back Button -->
-        <button on:click={() => window.history.length > 1 ? window.history.back() : goto('/')} class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Go back">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <!-- Logo -->
-        <a href="/" class="flex-shrink-0 flex items-center justify-center">
-          <img src="/img/naigaonmarketlogo1.png" alt="Logo" class="h-10" />
-        </a>
-        <!-- Cart -->
-        <button
-          on:click={toggleCart}
-          class="cart-button relative flex items-center p-2 rounded-full text-gray-700 hover:text-blue-600 transition-colors"
-        >
-          <Icon icon="mdi:cart-outline" width="28" height="28" />
-          {#if cartCount > 0}
-            <span class="absolute -top-1 -right-4 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -translate-x-1/2">
-              {cartCount}
-            </span>
-          {/if}
-        </button>
-      </div>
-    </div>
-  {:else}
+
     <!-- Full Navbar for all other pages -->
     <div class="mx-auto px-4 md:px-8 lg:px-16">
       <div class="flex items-center justify-between h-16">
         <!-- Left Section -->
-        <div class="flex items-center {isSearchOpen ? 'hidden' : ''}">
+        <div class="flex items-center">
           <a href="/" class="md:hidden flex-shrink-0">
             <img src="/img/logo.png" alt="Logo" class="h-12" />
           </a>
@@ -148,13 +99,13 @@
         </div>
 
         <!-- Right Section -->
-        <div class="flex items-center space-x-2 md:space-x-4 {isSearchOpen ? 'hidden' : ''}">
+        <div class="flex items-center space-x-2 md:space-x-4">
           <!-- Mobile Search Button -->
           <button
             class="md:hidden p-2 rounded-full hover:bg-gray-100"
             on:click={handleSearchClick}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
@@ -217,19 +168,9 @@
           {/if}
 
           <!-- Cart -->
-          <button
-            on:click={toggleCart}
-            class="cart-button relative flex items-center p-2 rounded-full text-gray-700 hover:text-blue-600 transition-colors"
-          >
-            <Icon icon="mdi:cart-outline" width="28" height="28" />
-            {#if cartCount > 0}
-              <span class="absolute -top-1 -right-4 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -translate-x-1/2">
-                {cartCount}
-              </span>
-            {/if}
-            <span class="font-medium ml-1 hidden md:inline">Cart</span>
-          </button>
 
+          <CartBar />
+          
           <!-- Mobile Menu Button -->
           <button 
             class="p-2 rounded-full hover:bg-gray-100 md:hidden"
@@ -259,11 +200,8 @@
         </div>
       </div>
     {/if}
-  {/if}
 </nav>
 
-<!-- Cart Sidebar -->
-<CartSidebar bind:isOpen={isCartOpen} />
 
 <style>
   /* Ensure dropdown is fully visible in mobile view */
@@ -281,10 +219,6 @@
       margin: 0;
       border-radius: 0;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .cart-button {
-      position: relative !important; /* Explicitly set for mobile with !important for overriding */
     }
   }
 </style>

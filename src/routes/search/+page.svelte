@@ -11,12 +11,10 @@
   import Icon from '@iconify/svelte';
   import { cart } from '$lib/stores/cart';
   import { page } from '$app/stores';
-  import CartSidebar from '$lib/components/CartSidebar.svelte';
-    import SkeltonSuggestions from '$lib/components/skeltons/SkeltonSuggestions.svelte';
-    import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
-  let cartCount = 0;
-  $: cartCount = $cart.reduce((total, item) => total + item.quantity, 0);
-  let isCartOpen = false;
+
+  import SkeltonSuggestions from '$lib/components/skeltons/SkeltonSuggestions.svelte';
+  import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
+  import CartBar from '$lib/components/CartBar.svelte';
 
   // Search State
   let searchQuery = '';
@@ -208,9 +206,7 @@
       goto('/');
     }
   }
-  function handleCart() {
-    isCartOpen = true;
-  }
+
 
   async function handleSuggestionClick(query) {
     searchQuery = query;
@@ -226,6 +222,7 @@
   let totalResults = () => searchResults.totalProducts + searchResults.totalServices + searchResults.categories.length;
 </script>
 
+<!-- Navbar -->
 <div class="bg-white border-b border-gray-200 fixed w-full left-0 top-0 z-30 shadow">
   <div class="max-w-7xl mx-auto px-2 py-2 flex items-center gap-0 md:gap-4">
     <!-- Back Button -->
@@ -242,7 +239,7 @@
   <input
     bind:this={searchInput}
     type="text"
-    class="w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-lg"
+    class="w-full px-4 py-2 md:py-3 bg-gray-100 rounded-full border border-blue-200 focus:border-blue-500 focus:outline-none text-base md:text-md"
     placeholder="Search products and services..."
     value={searchQuery}
     oninput={handleSearchInput}
@@ -256,19 +253,16 @@
 
 
     <!-- Cart Icon (hidden on mobile) -->
-    <button onclick={handleCart} class="hidden md:flex p-2 hover:bg-gray-100 rounded-full flex transition-colors relative" aria-label="Cart">
-      <Icon icon="mdi:cart-outline" class="w-6 h-6 text-gray-600" />
-      <span class="font-medium ml-1 hidden md:inline">Cart</span>
-      {#if cartCount > 0}
-        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{cartCount}</span>
-      {/if}
-    </button>
+    
+    <CartBar />
 
     
 
 
   </div>
 </div>
+
+<div class="min-h-[50vh]">
 
 <!-- Recent Searches (below navbar, only on empty state) -->
 {#if (!showSearchResults && searchHistory.length > 0 && searchQuery.length==0)}
@@ -295,13 +289,11 @@
 {/if}
 
 
-
-
 {#if (searchQuery)}
 
 <div class="max-w-7xl mx-auto max-h-72 pt-6 px-4 overflow-y-auto">
 
-  {#if !isSuggesting}
+  {#if isSuggesting}
    <SkeltonSuggestions />
   {/if}
   
@@ -451,4 +443,5 @@
 
 </div>
 
-<CartSidebar bind:isOpen={isCartOpen} />
+</div>
+
