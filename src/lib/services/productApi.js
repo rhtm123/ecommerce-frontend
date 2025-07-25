@@ -21,7 +21,7 @@ export const productApi = {
           ...(params.feature_filters && { feature_filters: JSON.stringify(params.feature_filters) })
         });
         let url = `${API_BASE_URL}/product/product-listings/?approved=true&${queryParams}`
-        console.log(url);
+        // console.log(url);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();

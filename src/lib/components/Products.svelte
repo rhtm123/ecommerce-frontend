@@ -86,21 +86,21 @@
         let url = `${PUBLIC_API_URL}/product/categories/parents-children/${currentCategory.id}/`;
         let data = await myFetch(url);
         parentsCategories = data;
-        console.log("parentsCategories",data);
+        // console.log("parentsCategories",data);
 
         if (data.children.length === 0) {
           let urlsib = `${PUBLIC_API_URL}/product/categories/siblings/${currentCategory.id}/`;
           let datasib = await myFetch(urlsib);
           allCategories = datasib;
-          console.log("allCategories",allCategories);
+          // console.log("allCategories",allCategories);
         } else {
           allCategories = data.children;
-          console.log("allCategories 2",allCategories);
+          // console.log("allCategories 2",allCategories);
         }
       } else {
         let data = await myFetch(`${PUBLIC_API_URL}/product/categories/?level=1&estore_id=${PUBLIC_ESTORE_ID}`);
         allCategories = data.results;
-        console.log("allCategories 3",allCategories);
+        // console.log("allCategories 3",allCategories);
       }
     } catch (err) {
        console.error('Failed to fetch categories:', err);
@@ -241,9 +241,12 @@
 
 <!-- Main container -->
 <div class="mt-4">
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen">
     <!-- {/*-- Mobile Header --*/} -->
-    <div class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 p-3 flex items-center justify-between">
+
+    <div class="md:hidden rounded-lg">
+    
+    <div class="sticky top-0 rounded-t-lg bg-white border-b border-gray-200 p-2 flex items-center justify-between">
       <h2 class="text-sm font-medium truncate max-w-[50vw]">
         {#if currentCategory}
           {currentCategory.name}
@@ -266,7 +269,7 @@
     </div>
 
     <!-- {/*-- Mobile Categories Bar (Visible on mobile) --*/} -->
-    <div class="md:hidden sticky top-12 z-20 bg-white border-b border-gray-200 overflow-x-auto">
+    <div class="sticky rounded-b-lg top-12 bg-white border-b border-gray-200 overflow-x-auto">
       <div class="flex space-x-2 p-2 min-w-max">
         {#each allCategories as category (category.id)}
         <a 
@@ -278,6 +281,8 @@
         </a>
       {/each}
       </div>
+    </div>
+
     </div>
 
     <!-- {/*-- Desktop Title --*/} -->
@@ -372,7 +377,7 @@
           <div class="flex h-full">
             <div class="flex-1 overflow-y-auto p-0 md:p-4">
               <!-- {/*-- Mobile product count --*/} -->
-              <div class="md:hidden px-3 py-2 text-sm text-gray-500">
+              <div class="md:hidden py-2 text-sm text-gray-500">
                 {totalProducts} products
               </div>
               
@@ -386,7 +391,7 @@
                   <p class="text-sm">Try adjusting your filters or search query</p>
                 </div>
               {:else}
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 px-2 md:px-0">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 md:px-0">
                   {#each products as product (product.id)}
                     <Product {product} />
                   {/each}

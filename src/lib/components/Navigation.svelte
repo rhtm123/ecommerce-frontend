@@ -177,7 +177,7 @@
                 />
               </button>
               {#if isProfileDropdownOpen}
-                <div class="absolute profile-dropdown-content right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-[100] md:w-48 max-w-[90vw] md:max-w-none">
+                <div class="absolute profile-dropdown-content right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-100 md:w-48 max-w-[90vw] md:max-w-none">
                   <a 
                     on:click={() => isProfileDropdownOpen = false} 
                     href="/profile/orders" 

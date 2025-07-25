@@ -227,7 +227,7 @@
 </script>
 
 <div class="bg-white border-b border-gray-200 fixed w-full left-0 top-0 z-30 shadow">
-  <div class="max-w-7xl mx-auto px-2 py-2 flex items-center gap-2 md:gap-4">
+  <div class="max-w-7xl mx-auto px-2 py-2 flex items-center gap-0 md:gap-4">
     <!-- Back Button -->
     <button onclick={handleBack} class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Go back">
       <Icon icon="mdi:arrow-left" class="w-6 h-6 text-gray-600" />
@@ -272,10 +272,10 @@
 
 <!-- Recent Searches (below navbar, only on empty state) -->
 {#if (!showSearchResults && searchHistory.length > 0 && searchQuery.length==0)}
-  <div class="max-w-7xl mx-auto pt-6 px-4 pb-2 flex flex-col md:flex-row md:items-center md:justify-between">
+  <div class="max-w-7xl mx-auto pt-4 px-4 flex flex-col md:flex-row md:items-center md:justify-between">
     <div>
       <h3 class="text-base font-semibold text-gray-900 mb-2 md:mb-0">Recent Searches</h3>
-      <div class="flex flex-wrap gap-2 py-4">
+      <div class="flex flex-wrap gap-2 py-2">
         {#each searchHistory.slice(0, 8) as query}
           <button 
             onclick={() => handleHistoryClick(query)}
@@ -301,7 +301,7 @@
 
 <div class="max-w-7xl mx-auto max-h-72 pt-6 px-4 overflow-y-auto">
 
-  {#if isSuggesting}
+  {#if !isSuggesting}
    <SkeltonSuggestions />
   {/if}
   
@@ -336,11 +336,11 @@
 {/if}
 
 <!-- Main Content -->
-<div class="max-w-7xl mx-auto md:pt-4  px-4 pb-16">
+<div class="max-w-7xl mx-auto md:pt-4  px-4 pb-16 pt-4">
   {#if searchQuery }
     <!-- Results Summary -->
-    <div class="mb-6" in:fade={{ duration: 200 }}>
-      <h1 class="text-xl font-bold text-gray-900 mb-2">
+    <div class="mb-4" in:fade={{ duration: 200 }}>
+      <h1 class="text-xl font-semibold text-gray-900 mb-2">
         Search results for "{searchQuery}"
       </h1>
     </div>
