@@ -76,7 +76,7 @@
     </svg>
   </button>
 
-  <div class="mx-auto px-4 md:px-8 lg:px-16 py-4 md:py-6 relative z-10 mb-2">
+  <div class="mx-auto px-4 md:px-8 lg:px-16 py-4 md:py-6 relative mb-2">
     {#if slides.length > 0}
       <div class="flex flex-col py-4 md:py-0 md:flex-row items-center justify-between gap-4 md:gap-8">
         <!-- Product Details -->
@@ -178,7 +178,7 @@
       </div>
 
       <!-- Enhanced Navigation -->
-      <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20">
+      <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-10">
         <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg">
           <div class="flex gap-2 ">
             {#each slides as _, i}
