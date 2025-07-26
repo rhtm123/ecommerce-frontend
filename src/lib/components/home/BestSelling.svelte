@@ -37,15 +37,15 @@
   <div class="relative mb-8">
     <div class="flex items-center justify-between">
       <div class="relative">
-      <h2 class="text-lg md:text-xl text-gray-700 font-medium mb-2">
-        Discover our 
+      <h2 class="text-md md:text-lg text-gray-700 font-medium mb-2">
+        Discover Our 
         <span class="relative inline-block align-middle">
           <span class="text-primary z-10 relative">Best Selling</span>
         </span>
         <span class="absolute bottom-px rounded-full left-0 w-full h-0.5 bg-primary"></span>
       </h2>
       </div>
-      <a href="/shop" class="text-primary text-sm hover:underline flex items-center gap-1">
+      <a href="/shop" class="text-primary text-md md:text-lg font-medium hover:underline flex items-center gap-1">
         View All
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -65,18 +65,3 @@
     </Slider>
   </div>
 </section>
-
-<style>
-  /* Ensure slider navigation is visible */
-  :global(.slider-nav) {
-    @apply absolute top-1/2 -translate-y-1/2;
-  }
-  
-  :global(.slider-nav.prev) {
-    @apply -left-4;
-  }
-  
-  :global(.slider-nav.next) {
-    @apply -right-4;
-  }
-</style>

@@ -194,7 +194,7 @@
 
   <!-- Sort Modal -->
   {#if showSortModal}
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-50" transition:fade>
+    <div class="fixed inset-0 bg-black/50 z-50" transition:fade>
       <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl" transition:slide={{ duration: 300 }}>
         <div class="p-4 border-b">
           <h2 class="text-lg font-medium">Sort By</h2>

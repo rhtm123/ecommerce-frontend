@@ -194,10 +194,10 @@
 <!-- Keep the global style tag -->
 
 {#if showBulkUploadModal}
-  <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" on:click={() => closeBulkUploadModal()}>
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" on:click={() => closeBulkUploadModal()}>
     <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative" on:click|stopPropagation>
       {#if uploading}
-        <div class="absolute inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-10 rounded-2xl">
+        <div class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-10 rounded-2xl">
           <span class="loading loading-spinner loading-lg text-green-600 mb-2"></span>
           <span class="text-green-700 font-semibold">Uploading...</span>
         </div>
