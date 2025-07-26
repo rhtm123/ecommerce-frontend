@@ -479,7 +479,7 @@
 
     <!-- Listing Modal -->
     {#if showModal}
-      <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" on:click={handleModalClick} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" on:click={handleModalClick} role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" on:click|stopPropagation>
           <!-- Modal Header -->
           <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">

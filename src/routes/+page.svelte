@@ -13,7 +13,7 @@
   import Hero from '$lib/components/home/Hero.svelte';
   import HomeCategories from '$lib/components/home/HomeCategories.svelte';
 
-  import ProductSection from '$lib/components/ProductSection.svelte';
+  import BestDeals from '$lib/components/home/BestDeals.svelte';
   import CompanySection from '$lib/components/CompanySection.svelte';
   import BestSelling from '$lib/components/home/BestSelling.svelte';
   import Testimonials from '$lib/components/home/Testimonials.svelte';
@@ -36,12 +36,10 @@
 
 
 <div class="bg-base-100">
-  <!-- <Login /> -->
   <Hero slides={heroProducts} />
   <!-- <Ads /> -->
-  <!-- <Navigation /> -->
   <HomeCategories categories={mainCategories} />
-  <ProductSection products={newProducts} />
+  <BestDeals products={newProducts} />
 
   <ShopByBrands brands={brands} />
   <!-- <CompanySection /> -->

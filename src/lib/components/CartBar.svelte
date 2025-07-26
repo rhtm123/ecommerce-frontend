@@ -134,7 +134,7 @@
 <!-- Backdrop -->
 {#if isOpen}
 <div 
-  class="fixed inset-0 bg-black bg-opacity-50 z-40"
+  class="fixed inset-0 bg-black/50 z-40"
   onclick={handleClose}
   onkeydown={() => {}}
   role="button"

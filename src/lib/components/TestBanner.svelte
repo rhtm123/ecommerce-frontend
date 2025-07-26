@@ -35,7 +35,7 @@
 </script>
 
 {#if showBanner}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
         <div class="bg-red-600 text-white p-4 rounded-lg shadow-lg w-96 text-center">
             <p class="font-semibold">
                 🚧 Our website is in beta testing. Orders placed now will not be delivered. 🚧

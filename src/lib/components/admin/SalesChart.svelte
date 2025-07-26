@@ -152,7 +152,7 @@
     <!-- Chart container - ensure canvas elements always exist in DOM -->
     <div class="h-96 bg-gray-50 rounded-lg p-4 relative">
         {#if loading}
-            <div class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center">
+            <div class="absolute inset-0 bg-white/50 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         {/if}

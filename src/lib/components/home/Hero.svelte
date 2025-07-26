@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import { addToCart } from '../../stores/cart';
   import { fade, fly } from 'svelte/transition';
 
   export let slides;

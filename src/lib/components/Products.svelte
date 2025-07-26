@@ -501,7 +501,7 @@
 
 <!-- Mobile Sort Modal -->
 {#if showSortModal}
-  <div class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end md:hidden" 
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-end md:hidden" 
        on:click={() => showSortModal = false}>
     <div role="button" tabindex="0" class="bg-white w-full rounded-t-2xl p-4 max-h-[80vh] overflow-y-auto"
          on:click|stopPropagation>
