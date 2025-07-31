@@ -43,27 +43,28 @@ function clearUser() {
   }
 }
 
-async function refreshAccessToken(userData) {
-  const currentUser = userData;
+async function refreshAccessToken() {
   try {
-    const response = await fetch(`${PUBLIC_API_URL}/token/refresh`, {
+    const response = await fetch(`${PUBLIC_API_URL}/user/token/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh: currentUser.refresh_token }),
+      credentials: 'include', // 🔥 Send cookie!,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+
+    console.log(response);
 
     if (!response.ok) {
       throw new Error('Failed to refresh access token');
     }
 
     const data = await response.json();
-    const updatedUser = { ...currentUser, access_token: data.access };
-    saveUserToLocalStorage(updatedUser);
-    user.set(updatedUser);
-    return updatedUser.access_token;
+    updateUser({ access_token: data.access_token });
+    return data.access_token;
   } catch (error) {
-    console.error('Error refreshing access token:', error);
-    clearUser();
+    console.error('Token refresh failed', error);
+    logoutUser();
     return null;
   }
 }

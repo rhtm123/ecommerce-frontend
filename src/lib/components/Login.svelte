@@ -23,6 +23,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: googleToken }),
+            credentials: 'include' 
         })
         .then((res) => res.json())
         .then((data) => {
@@ -55,13 +56,18 @@
 
         try{
 
-        let res = await fetch(`${PUBLIC_API_URL}/user/auth/login/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("http://localhost:8000/api/user/auth/login/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({ username, password }),
-        })
+            credentials: "include", // 🔥 This is essential!
+        });
+
 
         let data = await res.json();
+        
 
         if (data.access_token) {
             loginUser(data);

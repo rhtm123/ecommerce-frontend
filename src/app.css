@@ -6,8 +6,7 @@
   --serif: 'ui-serif', 'Georgia';
   --mono: 'ui-monospace', 'SFMono-Regular', 'monospace';
   --display: 'Oswald';
-
-
+  
 }
 
 @layer base {
