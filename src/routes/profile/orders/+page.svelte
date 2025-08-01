@@ -26,7 +26,7 @@
     let url = `${PUBLIC_API_URL}/order/orders/?items_needed=true&user_id=${authUser.user_id}&ordering=-id`;
     let data = await myFetch(url);
     orders = data.results;
-    console.log("orders",orders);
+    // console.log("orders",orders);
     next = data.next;
     loading = false;
 
