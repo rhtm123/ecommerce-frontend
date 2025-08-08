@@ -198,9 +198,9 @@
                 <div>
                   <h3 class="text-lg font-medium text-gray-900">Location</h3>
                   <p class="mt-1 text-gray-600">
-                    {estore?.address.line1}<br />
-                    {estore?.address.city},<br />
-                    {estore?.address.state}, India
+                    {estore?.address?.line1}<br />
+                    {estore?.address?.city},<br />
+                    {estore?.address?.state}, India
                   </p>
                 </div>
               </div>
