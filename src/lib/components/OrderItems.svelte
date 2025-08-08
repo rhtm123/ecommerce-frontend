@@ -6,7 +6,7 @@
     export let items;
     export let order_id;
     let orderItems = items;
-    console.log(orderItems);
+    // console.log(orderItems);
 
     const mrp = orderItems.reduce((total, item) => {
         return total + (item.mrp * item.quantity);

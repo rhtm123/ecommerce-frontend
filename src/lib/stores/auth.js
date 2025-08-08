@@ -1,26 +1,25 @@
-// src/lib/stores/user.js
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import { PUBLIC_API_URL } from '$env/static/public';
 
-let defaultValue = null;
+let cachedUser = null;
 
 const initialValue = browser && typeof window !== 'undefined'
-  ? window.localStorage.getItem('user') ?? defaultValue
-  : defaultValue;
+  ? JSON.parse(window.localStorage.getItem('user')) ?? null
+  : null;
 
-const storedUser = initialValue ? JSON.parse(initialValue) : null;
+export const user = writable(initialValue);
+cachedUser = initialValue;
 
-export const user = writable(storedUser);
-let cachedUser = storedUser;
-
+// Save only safe fields to localStorage (no tokens)
 function saveUserToLocalStorage(userData) {
   if (browser && typeof window !== 'undefined') {
-    localStorage.setItem('user', JSON.stringify(userData));
-    cachedUser = userData;
+    const { access_token, ...userWithoutToken } = userData || {};
+    localStorage.setItem('user', JSON.stringify(userWithoutToken));
   }
 }
 
+// Clear both store and localStorage
 function clearUser() {
   user.set(null);
   cachedUser = null;
@@ -29,39 +28,53 @@ function clearUser() {
   }
 }
 
-export function updateUser(userData) {
+// Update in-memory store with access_token, but only save safe fields
+export function loginUser(userData) {
+  const { access_token, ...userWithoutToken } = userData;
+  cachedUser = { ...userWithoutToken, access_token };
+  user.set(cachedUser);
+  saveUserToLocalStorage(userWithoutToken);
+  initializeTokenRefresh();
+}
+
+export function updateUser(newData) {
   user.update(currentUser => {
-    const updatedUser = { ...currentUser, ...userData };
-    saveUserToLocalStorage(updatedUser);
+    const updatedUser = { ...currentUser, ...newData };
+    const { access_token, ...userWithoutToken } = updatedUser;
+    cachedUser = updatedUser;
+    saveUserToLocalStorage(userWithoutToken);
     return updatedUser;
   });
 }
 
 export function logoutUser() {
   clearUser();
-  // Optional: Call logout endpoint if needed
   fetch(`${PUBLIC_API_URL}/user/logout`, {
     method: 'POST',
     credentials: 'include'
   });
 }
 
+// Token refresh logic
 async function refreshAccessToken() {
   try {
-    const response = await fetch(`${PUBLIC_API_URL}/user/token/refresh`, {
+    const res = await fetch(`${PUBLIC_API_URL}/user/token/refresh`, {
       method: 'POST',
-      credentials: 'include', // Send refresh_token via cookie
-      headers: { 'Content-Type': 'application/json' }
+      credentials: 'include'
     });
 
-    if (!response.ok) throw new Error('Failed to refresh access token');
+    if (!res.ok) throw new Error('Failed to refresh access token');
 
-    const data = await response.json();
-    updateUser({ access_token: data.access_token });
+    const data = await res.json();
+    user.update(u => {
+      const newUser = { ...u, access_token: data.access_token };
+      cachedUser = newUser;
+      return newUser;
+    });
     console.log('Access token refreshed');
     return data.access_token;
-  } catch (error) {
-    console.error('Token refresh failed:', error);
+  } catch (err) {
+    console.error('Token refresh failed:', err);
     logoutUser();
     return null;
   }
@@ -70,30 +83,23 @@ async function refreshAccessToken() {
 let refreshInterval = null;
 
 function initializeTokenRefresh() {
-  if (refreshInterval) return; // prevent multiple intervals
-  // First refresh right away
+  if (refreshInterval) return;
   refreshAccessToken();
-
-  // Then repeat every 9 minutes (before 10 min expiry)
-  const interval = 9 * 60 * 1000;
-
-  refreshInterval = setInterval(async () => {
-    await refreshAccessToken();
-  }, interval);
-}
-
-export function loginUser(userData) {
-  saveUserToLocalStorage(userData);
-  user.set(userData);
-  initializeTokenRefresh();
+  refreshInterval = setInterval(refreshAccessToken, 9 * 60 * 1000);
 }
 
 export function checkUser() {
   if (cachedUser) {
     user.set(cachedUser);
     initializeTokenRefresh();
-  } else {
-    clearUser();
+  } else if (browser && typeof window !== 'undefined') {
+    const localUser = localStorage.getItem('user');
+    if (localUser) {
+      const parsed = JSON.parse(localUser);
+      cachedUser = parsed;
+      user.set(parsed);
+      initializeTokenRefresh();
+    }
   }
 }
 
