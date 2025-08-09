@@ -11,7 +11,7 @@ export async function load() {
   let blogCategories = [];
 
   try{
-    let url = `${PUBLIC_API_URL}/blog/tags?ordering=-id`;
+    let url = `${PUBLIC_API_URL}/blog/tags?ordering=-id&estore_id=${PUBLIC_ESTORE_ID}`;
     let data = await myFetch(url);
     tags = data.results;
     } catch (e) {
@@ -19,14 +19,14 @@ export async function load() {
 
 
     try{
-        let url = `${PUBLIC_API_URL}/blog/blogs?page_size=5&ordering=-id`;
+        let url = `${PUBLIC_API_URL}/blog/blogs?page_size=5&ordering=-id&estore_id=${PUBLIC_ESTORE_ID}`;
         let data = await myFetch(url);
         recentBlogs = data.results;
         } catch (e) {
         }
 
     try{
-        let url = `${PUBLIC_API_URL}/product/categories/?has_blogs=true`;
+        let url = `${PUBLIC_API_URL}/product/categories/?has_blogs=true&estore_id=${PUBLIC_ESTORE_ID}`;
         let data = await myFetch(url);
         blogCategories = data.results;
         } catch (e) {

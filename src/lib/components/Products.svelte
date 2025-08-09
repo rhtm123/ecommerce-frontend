@@ -83,19 +83,19 @@
       allCategories = [];
 
       if (currentCategory?.id) {
-        let url = `${PUBLIC_API_URL}/product/categories/parents-children/${currentCategory.id}/`;
+        let url = `${PUBLIC_API_URL}/product/categories/parents-children/${currentCategory.id}/`+ `?estore_id=${PUBLIC_ESTORE_ID}`;
         let data = await myFetch(url);
         parentsCategories = data;
-        // console.log("parentsCategories",data);
+        console.log("parentsCategories",data);
 
         if (data.children.length === 0) {
-          let urlsib = `${PUBLIC_API_URL}/product/categories/siblings/${currentCategory.id}/`;
+          let urlsib = `${PUBLIC_API_URL}/product/categories/siblings/${currentCategory.id}/` + `?estore_id=${PUBLIC_ESTORE_ID}`;
           let datasib = await myFetch(urlsib);
           allCategories = datasib;
-          // console.log("allCategories",allCategories);
+          console.log("siblings",allCategories);
         } else {
           allCategories = data.children;
-          // console.log("allCategories 2",allCategories);
+          console.log("children",allCategories);
         }
       } else {
         let data = await myFetch(`${PUBLIC_API_URL}/product/categories/?level=1&estore_id=${PUBLIC_ESTORE_ID}`);

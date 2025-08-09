@@ -1,6 +1,10 @@
 <script>
   import  Icon  from "@iconify/svelte";
   import { fly } from "svelte/transition";
+
+  export let estore;
+
+//   console.log("Footer estore", estore);
 </script>
 
 <footer class="bg-base-200 py-12 relative overflow-hidden">
@@ -20,27 +24,29 @@
           <!-- Company Info -->
           <div class="space-y-4">
               <img 
-                  src="/img/naigaonmarketlogo1.png" 
-                  alt="Naigaon Market Logo" 
+                
+                  src={estore?.logo || "/img/naigaonmarketlogo1.png" }
+                  alt={estore?.name || "Naigaon Market Logo"}
                   class="h-16"
               />
               <p class="text-sm opacity-85">
-                  Naigaon Market promotes a circular economy where money spent stays within the community. It helps small businesses embrace digital tools, preparing them for larger markets, and fosters local pride.
+                  {estore?.description || ""}
               </p>
-              <div class="text-lg font-semibold">+91-93703-94747</div>
+              <div class="text-lg font-semibold">{estore?.name}</div>
               <address class="not-italic text-sm">
-                  Address: 005, Jay Vijay Building 3, Naigaon East<br />
-                  Maharashtra, India
+                  {estore?.address?.line1}<br />
+                  {estore?.address?.city},
+                  {estore?.address?.state}, India
               </address>
               <a href="mailto:support@naigaonmarket.com" class="block text-primary hover:underline">
-                  naigaonmarket@gmail.com
+                  {estore?.email || "support@naigaonmarket.com"}
               </a>
               <div class="flex space-x-4 mt-6">
                   {#each [
-                      { name: "facebook", icon: "mdi:facebook", url:"https://www.facebook.com/profile.php?id=61573791421210" },
+                      { name: "facebook", icon: "mdi:facebook", url:estore?.social_accounts?.facebook || "https://www.facebook.com/profile.php?id=100088926467895" },
                     //   { name: "twitter", icon: "mdi:twitter" },
-                      { name: "instagram", icon: "mdi:instagram", url:"https://www.instagram.com/naigaonmarket/" },
-                      { name: "whatsapp", icon: "mdi:whatsapp", url:"https://whatsapp.com/channel/0029Vb7g3Q21Hsq2NLrtZX28 " }
+                      { name: "instagram", icon: "mdi:instagram", url:estore?.social_accounts?.instagram || "https://www.instagram.com/naigaonmarket/" },
+                      { name: "whatsapp", icon: "mdi:whatsapp", url:estore?.social_accounts?.whatsapp || "https://whatsapp.com/channel/0029Vb7g3Q21Hsq2NLrtZX28" }
                   ] as social}
                       <a href="{social?.url}" target="_blank" class="text-primary hover:text-primary-focus transition-colors">
                           <Icon icon={social.icon} class="w-6 h-6" />
@@ -71,7 +77,7 @@
       </div>
       
       <div class="mt-12 text-center text-xs border-t opacity-75">
-          &copy; {new Date().getFullYear()} Naigaon Market. All rights reserved.
+          &copy; {new Date().getFullYear()} {estore?.name}. All rights reserved.
       </div>
   </div>
 </footer>

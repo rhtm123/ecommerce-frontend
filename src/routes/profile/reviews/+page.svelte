@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { user } from "$lib/stores/auth";
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
   import { addAlert } from "$lib/stores/alert";
     import SkeltonReviews from "$lib/components/skeltons/SkeltonReviews.svelte";
@@ -16,8 +16,8 @@
   let next; 
 
   async function fetchReviews(){
-    
-    let url = `${PUBLIC_API_URL}/review/reviews/?user_id=${authUser.user_id}`;
+
+    let url = `${PUBLIC_API_URL}/review/reviews/?user_id=${authUser.user_id}&estore_id=${PUBLIC_ESTORE_ID}`;
     let data = await myFetch(url);
     // console.log(data);
 
