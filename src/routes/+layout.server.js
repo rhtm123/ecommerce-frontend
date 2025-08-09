@@ -9,8 +9,6 @@ import { categoryApi } from '$lib/services/categoryApi';
 
 // export const hydrate = false;
 
-export const prerender = true;
-
 
 export async function load() {
   
@@ -22,7 +20,7 @@ export async function load() {
     //   console.log("Estore data:", data1);
       estore = data1;
     } catch (e) {
-      console.error("Error fetching estore data:", e);
+      console.error("Error fetching estore data 1:", e);
   }
 
 

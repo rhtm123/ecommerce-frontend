@@ -14,7 +14,7 @@ const estoreData = writable({});
     let data1 = await myFetch(url);
     estoreData.set(data1 || {});
   } catch (e) {
-    console.error("Error fetching estore data:", e);
+    console.error("Error fetching estore data store:", e);
   }
 })();
 

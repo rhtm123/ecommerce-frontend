@@ -13,7 +13,7 @@ export async function load() {
       let data1 = await myFetch(url);
       estore = data1 || {};
     } catch (e) {
-      console.error("Error fetching estore data:", e);
+      console.error("Error fetching estore data 2:", e);
     }
 
 
