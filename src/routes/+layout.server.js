@@ -5,11 +5,6 @@ import { categoryApi } from '$lib/services/categoryApi';
 
 
 
-
-
-// export const hydrate = false;
-
-
 export async function load() {
   
   let estore;
