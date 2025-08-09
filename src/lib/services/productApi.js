@@ -1,6 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { myFetch } from '$lib/utils/myFetch';
-
+import { PUBLIC_ESTORE_ID } from '$env/static/public';
 const API_BASE_URL = PUBLIC_API_URL.endsWith('/') ? PUBLIC_API_URL.slice(0, -1) : PUBLIC_API_URL;
 
 
@@ -10,6 +10,7 @@ export const productApi = {
       try {
         const queryParams = new URLSearchParams({
           page: params.page || '1',
+          estore_id: PUBLIC_ESTORE_ID,
           is_service: "false",
           page_size: params.pageSize || '12',
           ...(params.category_id && { category_id: params.category_id.toString() }),
@@ -43,6 +44,7 @@ export const productApi = {
     // Get filter options
     getFilters: async (params = {}) => {
       const queryParams = new URLSearchParams({
+        estore_id: PUBLIC_ESTORE_ID,
         is_service: "false",
         ...(params.category_id && { category_id: params.category_id }),
         ...(params.brand_ids && { brand_ids: params.brand_ids }),

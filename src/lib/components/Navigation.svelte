@@ -14,6 +14,10 @@
   let isMenuOpen = false;
   let isProfileDropdownOpen = false;
 
+  export let estore;
+
+
+
   const menuItems = [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
@@ -86,10 +90,10 @@
         <!-- Left Section -->
         <div class="flex items-center">
           <a href="/" class="md:hidden flex-shrink-0">
-            <img src="/img/logo.png" alt="Logo" class="h-12" />
+            <img src={estore?.icon || "/img/logo.png"} alt="Logo" class="h-12" />
           </a>
           <a href="/" class="hidden md:block flex-shrink-0">
-            <img src="/img/naigaonmarketlogo1.png" alt="Logo" class="h-12" />
+            <img src= {estore?.logo || "/img/naigaonmarketlogo1.png"} alt="Logo" class="h-12" />
           </a>
         </div>
 

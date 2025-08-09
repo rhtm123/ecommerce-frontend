@@ -4,6 +4,9 @@ import { myFetch } from '$lib/utils/myFetch';
 import { categoryApi } from '$lib/services/categoryApi';
 
 
+
+
+
 // export const hydrate = false;
 
 export const prerender = true;
@@ -19,7 +22,6 @@ export async function load() {
 
 
 
-
   try{
     let url = `${PUBLIC_API_URL}/review/reviews/?page_size=6&estore_id=${PUBLIC_ESTORE_ID}&approved=true&ordering=-id`;
     let data1 = await myFetch(url);
@@ -30,7 +32,7 @@ export async function load() {
   }
 
 
-  let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity&approved=true";
+  let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
     // console.log(url);
     try {
       let data = await myFetch(url1);
@@ -41,7 +43,7 @@ export async function load() {
 
 
     try {
-        let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand&featured=true`);
+        let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand&featured=true&estore_id=${PUBLIC_ESTORE_ID}`);
         brands = data.results;
       } catch (e) {
         
@@ -49,7 +51,7 @@ export async function load() {
 
       
       try {
-        let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id&approved=true";
+        let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
         // console.log(url);
         let data = await myFetch(url2);
         // console.log(data);
@@ -69,7 +71,7 @@ export async function load() {
 
     let heroProducts = []
 
-    let url3 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=5&featured=true&ordering=-popularity";
+    let url3 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=5&featured=true&ordering=-popularity&estore_id=" + PUBLIC_ESTORE_ID;
     try {
       let data = await myFetch(url3);
       heroProducts = data.results;
@@ -83,6 +85,6 @@ export async function load() {
     brands: brands,
     newProducts: newProducts,
     mainCategories: mainCategories,
-    heroProducts: heroProducts
+    heroProducts: heroProducts,
   };
 }

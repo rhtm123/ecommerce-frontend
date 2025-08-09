@@ -1,6 +1,6 @@
 <script>
   import { onDestroy, onMount } from "svelte";
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from "$env/static/public";
   import { myFetch } from "$lib/utils/myFetch";
   import { user } from "$lib/stores/auth";
   import OrderItems from "$lib/components/OrderItems.svelte";
@@ -23,7 +23,7 @@
 
   onMount(async ()=>{
 
-    let url = `${PUBLIC_API_URL}/order/orders/?items_needed=true&user_id=${authUser.user_id}&ordering=-id`;
+    let url = `${PUBLIC_API_URL}/order/orders/?items_needed=true&user_id=${authUser.user_id}&ordering=-id&estore_id=${PUBLIC_ESTORE_ID}`;
     let data = await myFetch(url);
     orders = data.results;
     // console.log("orders",orders);

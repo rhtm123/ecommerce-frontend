@@ -15,6 +15,11 @@
   import { PUBLIC_NM_ENV } from '$env/static/public';
   // import TestBanner from "$lib/components/TestBanner.svelte";
   import { myFetch } from "$lib/utils/myFetch";
+  export let data;
+  
+   let estore = data?.estore || {};
+
+
 
 
 
@@ -71,6 +76,12 @@
   // });
 </script>
 
+<svelte:head>
+  <link rel="icon" href={estore?.favicon || "/favicon.ico"} />
+</svelte:head>
+
+
+
 <div class="bg-base-100">
   {#if AlertContainer}
     <AlertContainer />
@@ -81,7 +92,7 @@
   {/if} -->
 
   {#if !isAdmin && !isSearch}
-    <Navigation />
+    <Navigation estore={estore} />
   {/if}
   
   <div class={isAdmin ? "" : "pt-16"}>
@@ -94,6 +105,6 @@
   {/if} -->
 
   {#if !isAdmin && Footer}
-    <Footer />
+    <Footer estore={estore} />
   {/if}
 </div>
