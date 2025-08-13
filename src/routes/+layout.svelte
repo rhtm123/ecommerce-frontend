@@ -73,7 +73,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={estore?.favicon || "/favicon.ico"} />
+  <link rel="icon" href={estore?.favicon || "/favicon.png"} />
 </svelte:head>
 
 
