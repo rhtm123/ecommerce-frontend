@@ -2,7 +2,10 @@
   import  Icon  from "@iconify/svelte";
   import { fly } from "svelte/transition";
 
-  export let estore;
+  import estoreData from "$lib/stores/estore";
+  let estore = $estoreData;
+//   export let estore;
+
 
 //   console.log("Footer estore", estore);
 </script>
@@ -26,7 +29,7 @@
               <img 
                 
                   src={estore?.logo || "/img/naigaonmarketlogo1.png" }
-                  alt={estore?.name || "Naigaon Market Logo"}
+                  alt={estore?.name || " Logo"}
                   class="h-16"
               />
               <p class="text-sm opacity-85">

@@ -10,12 +10,12 @@ export async function load() {
 //   console.log("Loading Terms of Service Page");
   let staticPage = "";
   try{
-    let url = `${PUBLIC_API_URL}/estore/web-pages?estore_id=${PUBLIC_ESTORE_ID}&name=contact`;
+    let url = `${PUBLIC_API_URL}/estore/web-pages?estore_id=${PUBLIC_ESTORE_ID}&name=blog`;
     let data1 = await myFetch(url);
     // console.log("Terms of Service Data:", data1);
     staticPage =  data1.results[0] || ""; // Ensure this matches the API response structure
   } catch(e) {
-    console.error("Error fetching terms of service:", e);
+    console.error("Error fetching shop page:", e);
   }
 
   return {

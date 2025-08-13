@@ -229,11 +229,7 @@
     <button onclick={handleBack} class="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Go back">
       <Icon icon="mdi:arrow-left" class="w-6 h-6 text-gray-600" />
     </button>
-    <!-- Logo (hidden on mobile) -->
-    <!-- <a href="/" class="hidden md:flex flex-shrink-0 items-center">
-      <img src="/img/naigaonmarketlogo1.png" alt="Naigaon Market" class="h-10" />
-    </a>
-     -->
+   
     <!-- Search Bar and Suggestions (wrapped in relative container) -->
 <div class="relative flex-1 w-full">
   <input

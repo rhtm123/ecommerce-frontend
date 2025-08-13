@@ -14,7 +14,8 @@
   let isMenuOpen = false;
   let isProfileDropdownOpen = false;
 
-  export let estore;
+  import estoreData from "$lib/stores/estore";
+  let estore = $estoreData;
 
 
 

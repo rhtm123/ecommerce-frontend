@@ -19,6 +19,7 @@ export async function load() {
   let brands = [];
   let newProducts = [];
   let mainCategories = [];
+  let estore = {};
 
 
 
@@ -79,6 +80,30 @@ export async function load() {
       console.log(e, "Error fetching data");
     }
 
+
+    
+      try {
+        let url = `${PUBLIC_API_URL}/estore/estores/${PUBLIC_ESTORE_ID}`;
+        estore = await myFetch(url);
+        
+      } catch (e) {
+        console.error("Error fetching estore data store:", e);
+    }
+
+
+  let homePage = {};
+  try{
+    let url = `${PUBLIC_API_URL}/estore/web-pages?estore_id=${PUBLIC_ESTORE_ID}&name=home`;
+    let data1 = await myFetch(url);
+
+    // console.log("Terms of Service Data:", data1);
+    homePage =  data1.results[0] || {}; // Ensure this matches the API response structure
+    // console.log(homePage);
+  } catch(e) {
+    console.error("Error fetching terms of service:", e);
+  }
+    
+
   return {
     recentReviews: recentReviews,
     bestProducts:bestProducts,
@@ -86,5 +111,7 @@ export async function load() {
     newProducts: newProducts,
     mainCategories: mainCategories,
     heroProducts: heroProducts,
+    estore: estore,
+    homePage: homePage,
   };
 }

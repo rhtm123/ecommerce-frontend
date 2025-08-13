@@ -5,6 +5,11 @@
   import { PUBLIC_API_URL } from '$env/static/public';
   import { myFetch } from '$lib/utils/myFetch';
 
+  import estoreData from '$lib/stores/estore';
+
+  let estore;
+  $: estore = $estoreData;
+
   export let orderId;
   let isLoading = false;
 
@@ -25,7 +30,7 @@
       doc.setProperties({
         title: `Invoice KB-${orderId}`,
         subject: 'Invoice',
-        author: 'Naigaon Market',
+        author: estore?.name || '',
         creator: 'Invoice Generator'
       });
       
@@ -45,14 +50,18 @@
           
           doc.setFontSize(10);
           doc.setTextColor(0, 0, 0);
-          doc.text('Naigaon Market', 20, 40);
-          
-          const address = '005, Jay Vijay Nagar Building 3, Opposite Seven Square Academy School, Naigaon East, Maharashtra | GSTIN: 27AAECA000000000';
+          doc.text(estore?.name || '', 20, 40);
+
+          const address = (estore?.address.line1 || '') + '\n' +
+                          (estore?.address.line2 || '') + '\n' +
+                          (estore?.address.city || '') + ', ' +
+                          (estore?.address.state || '') + ' ' +
+                          (estore?.address.pine || '');
           const addressLines = doc.splitTextToSize(address, pageWidth - 40);
           doc.text(addressLines, 20, 45);
           
           const contactY = 45 + (addressLines.length * 5);
-          doc.text('Phone: +91 9876543210 | Email: hello@khilonabuddy.com', 20, contactY);
+          doc.text(`Phone: ${estore?.mobile || ''} | Email: ${estore?.email || ''}`, 20, contactY);
           
           return contactY;
         }

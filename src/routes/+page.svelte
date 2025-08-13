@@ -7,7 +7,8 @@
   let newProducts = data.newProducts;
   let mainCategories = data.mainCategories;
   let heroProducts = data.heroProducts;
-
+  let homePage = data.homePage;
+  console.log(homePage);
   // console.log(recentReviews)
   // console.log(data)
   import Hero from '$lib/components/home/Hero.svelte';
@@ -24,12 +25,11 @@
 
 
 <svelte:head>
-  <title>Naigaon Market – Your Local Online Shopping Hub | Fresh Deals Daily</title>
-  <meta name="description" content="Shop locally in Naigaon with Naigaon Bazaar! Find fresh groceries, fashion, electronics, and more at the best prices. Fast delivery, secure payments & exclusive deals!" />
-  <meta name="keywords" content="Naigaon online shopping, Naigaon Market, buy online Naigaon, local e-commerce Naigaon, Naigaon grocery store, Naigaon fashion, Naigaon electronics, Naigaon delivery service, best deals Naigaon" />
-
-  <meta property="og:title" content="Naigaon Market – Your Local Online Shopping Hub" />
-  <meta property="og:description" content="Shop locally in Naigaon! Get fresh groceries, fashion, electronics, and more with fast delivery and secure payments." />
+  <title>{homePage?.meta_title}</title>
+  <meta name="description" content={homePage?.meta_description} />
+  
+  <meta property="og:title" content={homePage?.meta_title} />
+  <meta property="og:description" content={homePage?.meta_description} />
 
   <meta property="og:type" content="website" />
 </svelte:head>

@@ -1,29 +1,24 @@
 <script>
 import Products from "$lib/components/Products.svelte";
+
+export let data;
+
+let page = data?.staticPage;
+
 </script>
 
 <svelte:head>
-  <title>Shop Online in Naigaon Market | Best Deals on Groceries, Toys & More</title>
-  
-  <meta name="description" content="Discover amazing deals on groceries, toys, electronics, and more at Naigaon Market. Shop from trusted local sellers with fast delivery and secure payments." />
-  
-  <meta name="keywords" content="Naigaon online shopping, local marketplace Naigaon, best deals Naigaon, grocery shopping Naigaon, toys Naigaon, electronics Naigaon, home essentials, daily needs, fast delivery Naigaon" />
-
+  <title>{page?.meta_title}</title>
+  <meta name="description" content="{page?.meta_description}" />
+  <meta name="keywords" content="{page?.meta_keywords}" />
   <!-- Open Graph Tags -->
-  <meta property="og:title" content="Shop Online in Naigaon Market | Best Deals on Groceries, Toys & More" />
-  <meta property="og:description" content="Discover amazing deals on groceries, toys, electronics, and more. Shop from trusted local sellers with fast delivery!" />
+  <meta property="og:title" content="{page?.meta_title}" />
+  <meta property="og:description" content="{page?.meta_description}" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Naigaon Market" />
-
-  <!-- Twitter Card Tags -->
-  <!-- <meta name="twitter:card" content="summary_large_image" /> -->
-  <meta name="twitter:title" content="Shop Online in Naigaon Market | Best Local Deals" />
-  <meta name="twitter:description" content="Discover amazing deals on groceries, toys, electronics, and more. Fast delivery in Naigaon!" />
 
   <!-- Additional SEO Meta Tags -->
   <meta name="robots" content="index, follow" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="canonical" href="https://naigaonmarket.com/shop" />
 
 </svelte:head>
 
