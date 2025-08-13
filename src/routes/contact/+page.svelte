@@ -2,11 +2,14 @@
     import { onMount } from "svelte";
     import Icon from '@iconify/svelte';
 
-    export let data;
 
-    let estore = data?.estore || {};
+    export let data; 
 
-  
+    let staticPage = data?.staticPage;
+    import estoreData from "$lib/stores/estore.js";
+
+    let estore = $estoreData;
+
     // Set SEO meta tags
   
     
@@ -69,23 +72,18 @@
   </script>
   
   <svelte:head>
-    <title>Contact Us - Naigaon Market</title>
+    <title>{staticPage?.meta_title || `Contact Us - ${estore?.name}`} </title>
     <meta
       name="description"
-      content="Get in touch with Naigaon Market. Contact us for support, business inquiries, or feedback."
+      content={staticPage?.meta_description || `${estore?.name} - Contact us for support, business inquiries, or feedback.`}
     />
-    <meta
-      name="keywords"
-      content="Naigaon Market, contact us, customer support, business inquiries, feedback"
-    />
-    <meta name="author" content="Naigaon Market" />
-    <meta property="og:title" content="Contact Us - Naigaon Market" />
+
+    <meta property="og:title" content={staticPage?.meta_title || ""} />
     <meta
       property="og:description"
-      content="Get in touch with Naigaon Market. Contact us for support, business inquiries, or feedback."
+      content={staticPage?.meta_description || `Get in touch with ${estore?.name}. Contact us for support, business inquiries, or feedback.`}
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://naigaonmarket.com/contact" />
   </svelte:head>
   
   <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

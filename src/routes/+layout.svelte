@@ -15,14 +15,10 @@
   import { PUBLIC_NM_ENV } from '$env/static/public';
   // import TestBanner from "$lib/components/TestBanner.svelte";
   import { myFetch } from "$lib/utils/myFetch";
-  export let data;
   
-   let estore = data?.estore || {};
+  import  estoreData  from "$lib/stores/estore";
 
-
-
-
-
+  let estore = $estoreData;
   // Add this to your existing layout file
   
   $: isAdmin = $page.url.pathname.includes("admin");
@@ -77,7 +73,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={estore?.favicon || "/favicon.ico"} />
+  <link rel="icon" href={estore?.favicon || "/favicon.png"} />
 </svelte:head>
 
 
@@ -92,7 +88,7 @@
   {/if} -->
 
   {#if !isAdmin && !isSearch}
-    <Navigation estore={estore} />
+    <Navigation />
   {/if}
   
   <div class={isAdmin ? "" : "pt-16"}>
@@ -105,6 +101,6 @@
   {/if} -->
 
   {#if !isAdmin && Footer}
-    <Footer estore={estore} />
+    <Footer  />
   {/if}
 </div>

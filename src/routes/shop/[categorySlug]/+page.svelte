@@ -2,6 +2,10 @@
   export let data;
   let currentCategory;
 
+  import estoreData from '$lib/stores/estore.js';
+
+  let estore = $estoreData;
+
   $: if (data) {
     currentCategory = data.category;
   }
@@ -15,19 +19,19 @@
 <svelte:head>
   <title>Buy {currentCategory?.name} Online in Naigaon | Best Prices & Fast Delivery</title>
 
-  <meta name="description" content="Shop {currentCategory?.name} at best prices in Naigaon. ✓Wide Selection ✓Trusted Sellers ✓Fast Delivery ✓Secure Payments. Order now from Naigaon Market!" />
-  
+  <meta name="description" content="Shop {currentCategory?.name} at best prices in Naigaon. ✓Wide Selection ✓Trusted Sellers ✓Fast Delivery ✓Secure Payments. Order now from {estore?.name}!" />
+
   <meta name="keywords" content="{currentCategory?.name} Naigaon, buy {currentCategory?.name} online, best {currentCategory?.name} prices, {currentCategory?.name} shopping Naigaon, local {currentCategory?.name} store, {currentCategory?.name} delivery Naigaon" />
 
   <!-- Open Graph Tags -->
   <meta property="og:title" content="Buy {currentCategory?.name} Online in Naigaon | Best Prices & Fast Delivery" />
   <meta property="og:description" content="Shop {currentCategory?.name} at best prices in Naigaon. Wide Selection, Trusted Sellers & Fast Delivery!" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Naigaon Market" />
+  <meta property="og:site_name" content="{estore?.name}" />
 
   <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{currentCategory?.name} - Naigaon Market" />
+  <meta name="twitter:title" content="{currentCategory?.name} - {estore?.name}" />
   <meta name="twitter:description" content="Shop {currentCategory?.name} at best prices in Naigaon. Fast & reliable delivery!" />
 
   <!-- Additional SEO Meta Tags -->

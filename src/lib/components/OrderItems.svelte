@@ -74,7 +74,7 @@
                     <a href={`/product/${item.product_slug}`}>
                         <!-- Product Image -->
                         <img 
-                            src={item.product_main_image || `https://placehold.co/200x200?text=Naigaon Market`} 
+                            src={item.product_main_image || `https://placehold.co/200x200`} 
                             alt={item.product_listing_name} 
                             class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border border-gray-200 shadow-sm"
                         />

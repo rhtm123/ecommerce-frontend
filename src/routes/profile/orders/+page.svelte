@@ -171,7 +171,7 @@
           <!-- Order Footer -->
           <div class="p-2 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t bg-gray-50">
             <div class="w-full sm:w-auto">
-              {#if order.status === 'delivered'}
+              {#if order.payment_status === 'completed'}
 
                   {#if InvoiceGenerator}
                     {#await InvoiceGenerator then { default: InvoiceGenerator }}
