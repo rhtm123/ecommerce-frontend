@@ -2,8 +2,7 @@
   import  Icon  from "@iconify/svelte";
   import { fly } from "svelte/transition";
 
-  import estoreData from "$lib/stores/estore";
-  let estore = $estoreData;
+  export let estore;
 //   export let estore;
 
 

@@ -9,6 +9,17 @@ import { myFetch } from '$lib/utils/myFetch';
 export async function load() {
 //   console.log("Loading Terms of Service Page");
   let staticPage = "";
+
+  let estore = {};
+
+    try {
+      let url = `${PUBLIC_API_URL}/estore/estores/${PUBLIC_ESTORE_ID}`;
+      estore = await myFetch(url);
+      
+    } catch (e) {
+      console.error("Error fetching estore data store:", e);
+  }
+
   try{
     let url = `${PUBLIC_API_URL}/estore/web-pages?estore_id=${PUBLIC_ESTORE_ID}&name=contact`;
     let data1 = await myFetch(url);
@@ -19,7 +30,8 @@ export async function load() {
   }
 
   return {
-    staticPage
+    staticPage,
+    estore
   };
 }
 

@@ -16,9 +16,9 @@
   // import TestBanner from "$lib/components/TestBanner.svelte";
   import { myFetch } from "$lib/utils/myFetch";
   
-  import  estoreData  from "$lib/stores/estore";
+  export let data; 
 
-  let estore = $estoreData;
+  let estoreData = data.estore;
   // Add this to your existing layout file
   
   $: isAdmin = $page.url.pathname.includes("admin");
@@ -73,7 +73,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={estore?.favicon || "/favicon.png"} />
+  <link rel="icon" href={estoreData?.favicon || "/favicon.png"} />
 </svelte:head>
 
 
@@ -88,7 +88,7 @@
   {/if} -->
 
   {#if !isAdmin && !isSearch}
-    <Navigation />
+    <Navigation estore={estoreData} />
   {/if}
   
   <div class={isAdmin ? "" : "pt-16"}>
@@ -101,6 +101,6 @@
   {/if} -->
 
   {#if !isAdmin && Footer}
-    <Footer  />
+    <Footer estore={estoreData} />
   {/if}
 </div>
