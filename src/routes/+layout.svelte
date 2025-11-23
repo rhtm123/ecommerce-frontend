@@ -12,7 +12,7 @@
   import { user } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
 
-  import { PUBLIC_NM_ENV } from '$env/static/public';
+  // import { PUBLIC_NM_ENV } from '$env/static/public';
   // import TestBanner from "$lib/components/TestBanner.svelte";
   import { myFetch } from "$lib/utils/myFetch";
   
