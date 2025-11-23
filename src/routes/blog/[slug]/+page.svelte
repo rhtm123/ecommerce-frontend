@@ -15,6 +15,14 @@
 
 </script>
 
+<svelte:head>
+  <title>{post?.seo_title || 'Blog Post'}</title>
+  <meta name="description" content={post?.seo_description || 'Read our latest blog post'} />
+  <meta property="og:title" content={post?.seo_title || 'Blog Post'} />
+  <meta property="og:description" content={post?.seo_description || 'Read our latest blog post'} />
+  <meta property="og:type" content="article" />
+</svelte:head>
+
 {#if post}
 
 <div class="text-sm breadcrumbs text-gray-600">
@@ -22,7 +30,6 @@
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/blog">Blog</a></li>
-    <li><a href={"/blog/category/"+category?.slug}>{category?.name} </a></li>
     <li>Blog: {post.title}</li>
   </ul>
 

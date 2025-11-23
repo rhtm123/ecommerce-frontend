@@ -18,6 +18,11 @@
   // $: posts = blogData.posts.filter(post => post.category === $page.params.slug);
 </script>
 
+<svelte.head>
+  <title>Category: {category?.name} - Blogs</title>
+  <meta property="og:type" content="website" />
+</svelte.head>
+
 
 {#if data?.error}
   <NotFound />

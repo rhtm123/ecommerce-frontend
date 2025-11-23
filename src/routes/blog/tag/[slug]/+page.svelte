@@ -12,6 +12,11 @@
 
 </script>
 
+<svelte:head>
+  <title>Blogs related to {tag?.name}</title>
+  <meta property="og:type" content="website" />
+</svelte:head>
+
 {#if data?.error}
   <NotFound />
 {:else}

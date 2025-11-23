@@ -6,9 +6,8 @@
     export let data; 
 
     let staticPage = data?.staticPage;
-    import estoreData from "$lib/stores/estore.js";
 
-    let estore = $estoreData;
+    let estore = data?.estore;
 
     // Set SEO meta tags
   
