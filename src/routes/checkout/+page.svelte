@@ -73,7 +73,7 @@
     $: exactTotal = subtotal - totalDiscount;
     $: finalTotal = Math.round(exactTotal);
     $: roundingAdjustment = finalTotal - exactTotal;
-    console.log("finalTotal",finalTotal);
+    // console.log("finalTotal",finalTotal);
   
     // Add exact discount calculations
     $: exactOfferDiscount = $cartDiscounts.exactOfferDiscount || $cartDiscounts.offerDiscount;
@@ -117,12 +117,12 @@
 
     async function handleSubmit() {
         orderPlacing = true;
-        // First check if mobile is verified
-        if (!authUser.mobile_verified) {
-            // Save current path for redirect after verification
-            goto('/verify-mobile?next=/checkout');
-            return;
-        }
+        // First check if mobile is verified 
+        // if (!authUser.mobile_verified) {
+        //     // Save current path for redirect after verification
+        //     goto('/verify-mobile?next=/checkout');
+        //     return;
+        // }
 
         const dailyOrderCount = await checkDailyOrderLimit();
 
@@ -526,7 +526,7 @@
                   />
                   Cash on Delivery
               </label>
-              <label>
+              <!-- <label>
                   <input 
                       type="radio" 
                       name="paymentMethod" 
@@ -534,7 +534,7 @@
                       bind:group={selectedPaymentMethod} 
                   />
                   Pay Online
-              </label>
+              </label> -->
           </div>
 
           <button 
