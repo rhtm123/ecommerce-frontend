@@ -18,7 +18,12 @@
       <h2 class="text-3xl md:text-4xl font-bold text-center text-[#2D3748]">WHAT OUR CUSTOMERS SAY</h2>
     </div>
 
+    <!-- Testimonials Slider -->
 
+    {#if recentReviews.length === 0}
+      <p class="text-center text-gray-500">No testimonials available at the moment.</p>
+    
+    {:else}
     <Slider items={recentReviews}>
       {#each recentReviews as review}
         <div class="item snap-start bg-white rounded-lg p-6  transform hover:-translate-y-2 transition-transform duration-300 w-[300px] flex-shrink-0">
@@ -42,5 +47,7 @@
         </div>
       {/each}
     </Slider>
+
+    {/if}
   </div>
 </section>

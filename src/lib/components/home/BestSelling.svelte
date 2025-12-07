@@ -45,14 +45,13 @@
         <span class="absolute bottom-px rounded-full left-0 w-full h-0.5 bg-primary"></span>
       </h2>
       </div>
-      <a href="/shop" class="text-primary text-md md:text-lg font-medium hover:underline flex items-center gap-1">
-        View All
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-        </svg>
-      </a>
+      
+      <a href="/shop" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow border border-secondary/30 text-primary font-medium hover:bg-base-100">
+      <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
+      View All
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
     </div>
-    <div class="absolute bottom-0 left-0 w-full h-px bg-gray-200 z-0"></div>
   </div>
 
   <div class="relative">

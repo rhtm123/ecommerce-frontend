@@ -58,10 +58,10 @@
       return;
     }
     
-    if (!currentUser.mobile_verified) {
-      goto('/verify-mobile?next=/checkout');
-      return;
-    }
+    // if (!currentUser.mobile_verified) {
+    //   goto('/verify-mobile?next=/checkout');
+    //   return;
+    // }
     
     // If all checks pass, proceed to checkout
     goto('/checkout');

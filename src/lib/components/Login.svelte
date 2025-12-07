@@ -71,11 +71,12 @@
 
         if (data.access_token) {
             loginUser(data);
-            if (!data.user.mobile_verified) {
-                goto('/verify-mobile?next=' + encodeURIComponent(redirectAfterLogin));
-            } else {
-                redirectAfterLogin(); // Only redirect if mobile is verified
-            }
+            redirectAfterLogin();
+            // if (!data.user.mobile_verified) {
+            //     goto('/verify-mobile?next=' + encodeURIComponent(redirectAfterLogin));
+            // } else {
+            //     redirectAfterLogin(); // Only redirect if mobile is verified
+            // }
         } else {
             errorMessage = 'Login failed: ' + data.error;
         }

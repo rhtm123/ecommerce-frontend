@@ -8,6 +8,7 @@
 
   export let data;
   $: payment = data?.payment;
+  console.log(data);
 
   let authUser;
   $: authUser = $user;
