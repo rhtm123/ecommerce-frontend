@@ -90,10 +90,10 @@
         <!-- Left Section -->
         <div class="flex items-center">
           <a href="/" class="md:hidden flex-shrink-0">
-            <img src={estore?.icon || "/img/logo.png"} alt="Logo" class="h-12" />
+            <img src={estore?.icon || "/img/logo.png"} alt="Logo" class="h-10" />
           </a>
-          <a href="/" class="hidden md:block flex-shrink-0">
-            <img src= {estore?.logo || "/img/naigaonmarketlogo1.png"} alt="Logo" class="h-12" />
+          <a href="/" class="hidden md:block flex-shrink-0 py-4">
+            <img src= {estore?.logo || "/img/naigaonmarketlogo1.png"} alt="Logo" class="h-10" />
           </a>
         </div>
 
