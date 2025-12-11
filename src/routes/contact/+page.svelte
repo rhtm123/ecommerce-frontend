@@ -20,7 +20,10 @@
     let error = "";
     let success = false;
   
+
+
     async function submitForm(event) {
+
       event.preventDefault();
       if (!name || !email || !mobile || !message) {
         error = "All fields are required.";

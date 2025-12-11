@@ -115,6 +115,49 @@
     //     return true;
     // }
 
+
+    async function sendConfirmationEmail(order){
+      const totalItems = cartItems.length;
+        await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+                "to": authUser.email,
+                "subject": "Khilona Buddy : Order Confirmation",
+                "template": "order_confirmation",
+                "variables": {
+                  "estore_name": "Khilona Buddy",
+                  "order_number": order.order_number || "",
+                  "name": authUser.first_name || "Customer",
+                  "total_items": totalItems,
+                  "tracking_url":"https://www.khilonabuddy.com/profile/orders",
+                  "unsubscribe_url":`https://www.khilonabuddy.com/profile/unsubscribe-email?email=${authUser.email}`
+                }
+          })
+      });
+
+      setTimeout(() => {
+        fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+                "to": "khilonabuddy@gmail.com",
+                "subject": "Khilona Buddy : Order Recieved",
+                "template": "notify_seller",
+                "variables": {
+                  "estore_name": "Khilona Buddy",
+                  "order_number": order.order_number || "",
+                  "name": authUser.first_name || "Customer",
+                  "total_items": totalItems
+                }
+          })
+      });
+
+      }, 3000);
+
+
+    }
+
     async function handleSubmit() {
         orderPlacing = true;
         // First check if mobile is verified 
@@ -202,6 +245,7 @@
                 window.location = payment.payment_url;
             } else {
                 addAlert("Order placed successfully", "success");
+                sendConfirmationEmail(orderData);
                 goto("/checkout/" + payment.transaction_id);
             }
             
