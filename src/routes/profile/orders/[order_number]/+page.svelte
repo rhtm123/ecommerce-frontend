@@ -432,7 +432,7 @@
     </div>
     
     <div class="flex flex-wrap gap-2 mt-4">
-      {#if order.payment_status === 'pending'}
+      <!-- {#if order.payment_status === 'pending'}
         <button 
           on:click={handlePayment}
           class="btn btn-primary"
@@ -445,7 +445,7 @@
             Pay Now via PhonePe
           {/if}
         </button>
-      {/if}
+      {/if} -->
 
       {#if canCancelOrder() && !hasPendingCancelRequest() && !hasApprovedCancelRequest()}
         <button 
