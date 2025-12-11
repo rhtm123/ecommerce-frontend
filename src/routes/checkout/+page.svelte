@@ -123,7 +123,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
                 "to": authUser.email,
-                "subject": "Khilona Buddy : Order Confirmation",
+                "subject": "An Order #" + order.order_number + " has been placed successfully",
                 "template": "order_confirmation",
                 "variables": {
                   "estore_name": "Khilona Buddy",
