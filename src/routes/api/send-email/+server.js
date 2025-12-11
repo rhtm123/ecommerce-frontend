@@ -2,46 +2,38 @@ import nodemailer from "nodemailer";
 import { json } from "@sveltejs/kit";
 import { GMAIL_USER, GMAIL_APP_PASSWORD, ALLOWED_ORIGIN } from "$env/static/private";
 
-import { readFile } from "fs/promises";
-import path from "path";
 
 // Helper: escape for RegExp
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-
 // ...existing code...
 
-// Helper function to load and render HTML template (read from disk)
-// Tries common candidate paths and reports which were attempted when missing.
+const templateModules = import.meta.glob("$lib/htmls/*.html", { as: "raw" });
+
 async function loadHtmlTemplate(templateName, variables) {
-    const candidates = [
-        path.join(process.cwd(), "lib", "htmls", `${templateName}.html`),
-        path.join(process.cwd(), "src", "lib", "htmls", `${templateName}.html`)
-    ];
+    const filename = `${templateName}.html`;
+    const match = Object.keys(templateModules).find((k) => k.endsWith(`/${filename}`) || k.endsWith(`\\${filename}`));
 
-    let lastErr;
-    for (const candidatePath of candidates) {
-        try {
-            const html = await readFile(candidatePath, "utf8");
-
-            let rendered = html;
-            Object.entries(variables || {}).forEach(([key, value]) => {
-                const safeKey = escapeRegExp(key);
-                const re = new RegExp(`\\{${safeKey}\\}`, "g");
-                rendered = rendered.replace(re, String(value ?? ""));
-            });
-
-            return rendered;
-        } catch (err) {
-            lastErr = err;
-        }
+    if (!match) {
+        console.error("Template loading error: no template found. Tried keys:", Object.keys(templateModules));
+        throw new Error(`Template not found: ${filename}`);
     }
 
-    console.error("Template loading error: no template found. Tried paths:", candidates, "last error:", lastErr);
-    throw new Error(`Template not found. Tried paths:\n${candidates.join("\n")}`);
+    const getRaw = templateModules[match];
+    const html = await getRaw();
+
+    let rendered = html;
+    Object.entries(variables || {}).forEach(([key, value]) => {
+        const safeKey = escapeRegExp(key);
+        const re = new RegExp(`\\{${safeKey}\\}`, "g");
+        rendered = rendered.replace(re, String(value ?? ""));
+    });
+
+    return rendered;
 }
+
 
 export async function POST({ request, url }) {
     // --- CORS PROTECTION ---
