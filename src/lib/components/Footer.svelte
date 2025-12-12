@@ -40,8 +40,8 @@
                   {estore?.address?.city},
                   {estore?.address?.state}, India
               </address>
-              <a href="mailto:support@naigaonmarket.com" class="block text-primary hover:underline">
-                  {estore?.email || "support@naigaonmarket.com"}
+              <a href="mailto:khilonabuddy@gmail.com" class="block text-primary hover:underline">
+                  {estore?.email || "khilonabuddy@gmail.com"}
               </a>
               <div class="flex space-x-4 mt-6">
                   {#each [

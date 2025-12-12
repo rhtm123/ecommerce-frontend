@@ -33,16 +33,6 @@ export async function load() {
   }
 
 
-  let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
-    // console.log(url);
-    try {
-      let data = await myFetch(url1);
-      bestProducts = data.results;
-    } catch (e) {
-      console.log(e, "Error fetching data");
-    }
-
-
     try {
         let data = await myFetch(`${PUBLIC_API_URL}/user/entities/?entity_type=brand&featured=true&estore_id=${PUBLIC_ESTORE_ID}`);
         brands = data.results;
@@ -51,17 +41,6 @@ export async function load() {
       } 
 
       
-      try {
-        let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
-        // console.log(url);
-        let data = await myFetch(url2);
-        // console.log(data);
-        newProducts = data.results;
-        
-      } catch (e) {
-        console.log(e, "Error fetching data");
-      }
-
       try {
         let data = await categoryApi.getMainCategories();
         mainCategories = data.results;
@@ -106,9 +85,7 @@ export async function load() {
 
   return {
     recentReviews: recentReviews,
-    bestProducts:bestProducts,
     brands: brands,
-    newProducts: newProducts,
     mainCategories: mainCategories,
     heroProducts: heroProducts,
     estore: estore,

@@ -1,7 +1,10 @@
 <script>
   import Product from "../product/Product.svelte";
   import Slider from "../Slider.svelte";
+  import SkeltonSliderProducts from "../skeltons/SkeltonSliderProducts.svelte";
+  
   export let products;
+  export let loading;
 
 </script>
 
@@ -24,6 +27,10 @@
     </a>
     </div>
   </div>
+  
+  {#if loading}
+    <SkeltonSliderProducts />
+  {:else}
 
   <div class="relative">
     <Slider items={products} let:items>
@@ -34,6 +41,7 @@
       {/each}
     </Slider>
   </div>
+  {/if}
 
 </section>
 
