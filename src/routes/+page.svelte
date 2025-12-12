@@ -1,16 +1,47 @@
 <script>
+  import { onMount } from 'svelte';
+  import { PUBLIC_API_URL } from '$env/static/public';
+  import { PUBLIC_ESTORE_ID } from '$env/static/public';
+  import { myFetch } from '$lib/utils/myFetch';
 
   export let data; 
   let recentReviews = data.recentReviews;
-  let bestProducts = data.bestProducts;
+  let bestProducts = [];
   let brands = data.brands; 
-  let newProducts = data.newProducts;
+  let newProducts = [];
   let mainCategories = data.mainCategories;
   let heroProducts = data.heroProducts;
   let homePage = data.homePage;
-  console.log(homePage);
+  let loadingBestProducts = true;
+  let loadingNewProducts = true;
+  // console.log(homePage);
   // console.log(recentReviews)
   // console.log(data)
+
+  onMount(async () => {
+    // Fetch bestProducts
+    try {
+      let url1 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-popularity&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
+      let data = await myFetch(url1);
+      bestProducts = data.results;
+    } catch (e) {
+      console.log(e, "Error fetching bestProducts");
+    } finally {
+      loadingBestProducts = false;
+    }
+
+    // Fetch newProducts
+    try {
+      let url2 = PUBLIC_API_URL + "/product/product-listings/?page=1&page_size=12&ordering=-id&approved=true&estore_id=" + PUBLIC_ESTORE_ID;
+      let data = await myFetch(url2);
+      newProducts = data.results;
+    } catch (e) {
+      console.log(e, "Error fetching newProducts");
+    } finally {
+      loadingNewProducts = false;
+    }
+  });
+
   import Hero from '$lib/components/home/Hero.svelte';
   import HomeCategories from '$lib/components/home/HomeCategories.svelte';
 
@@ -18,6 +49,7 @@
   import CompanySection from '$lib/components/CompanySection.svelte';
   import BestSelling from '$lib/components/home/BestSelling.svelte';
   import Testimonials from '$lib/components/home/Testimonials.svelte';
+  import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
   // import ShopByBrands from '$lib/components/home/ShopByBrands.svelte';
   // import Ads from '$lib/components/Ads.svelte';
 
@@ -39,11 +71,10 @@
   <Hero slides={heroProducts} />
   <!-- <Ads /> -->
   <HomeCategories categories={mainCategories} />
-  <BestDeals products={newProducts} />
 
-  <!-- <ShopByBrands brands={brands} /> -->
-  <!-- <CompanySection /> -->
-  <BestSelling products={bestProducts} />
+  <BestDeals products={newProducts} loading={loadingNewProducts} />
+
+  <BestSelling products={bestProducts} loading={loadingBestProducts} />
   <!-- <Carousel /> -->
   <Testimonials recentReviews={recentReviews} />
 

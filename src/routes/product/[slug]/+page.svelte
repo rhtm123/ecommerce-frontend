@@ -71,9 +71,15 @@
   }
 
   function handleIncrement() {
+
     if (quantity < 10) {
+      if (quantity >= product_listing.stock) {
+        addAlert("No more stock available", "error");
+        return;
+      }
       cart.update(items => items.map(item => item.id === product_listing.id ? { ...item, quantity: item.quantity + 1 } : item));
     }
+
   }
   
   function handleDecrement() {
