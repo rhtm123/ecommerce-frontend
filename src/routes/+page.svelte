@@ -50,6 +50,7 @@
   import BestSelling from '$lib/components/home/BestSelling.svelte';
   import Testimonials from '$lib/components/home/Testimonials.svelte';
   import SkeltonProducts from '$lib/components/skeltons/SkeltonProducts.svelte';
+  import Christmas from '$lib/components/temp/Christmas.svelte';
   // import ShopByBrands from '$lib/components/home/ShopByBrands.svelte';
   // import Ads from '$lib/components/Ads.svelte';
 
@@ -69,6 +70,7 @@
 
 <div class="bg-base-100">
   <Hero slides={heroProducts} />
+  <Christmas />
   <!-- <Ads /> -->
   <HomeCategories categories={mainCategories} />
 
