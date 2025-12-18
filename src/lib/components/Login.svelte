@@ -109,46 +109,87 @@
     });
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-base-100">
-    <div class="card w-96 bg-base-100 shadow-xl">
-        <div class="card-body">
-            <!-- <h2 class="card-title">Login</h2> -->
-            {#if errorMessage}
-                <div class="alert alert-error">
-                    <div class="flex-1">
-                        <label>{errorMessage}</label>
-                    </div>
-                </div>
-            {/if}
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card w-full max-w-sm bg-base-100 ">
+    <div class="card-body space-y-4">
 
-            <div id="googleSignInDiv"></div>
+      <!-- Header -->
+      <div class="text-center">
+        <h2 class="text-2xl font-bold">Welcome Back</h2>
+        <p class="text-sm text-base-content/70">
+          Sign in to continue
+        </p>
+      </div>
 
-            <div class="divider">OR</div>
-
-            <form on:submit={handleLogin}>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Username</span>
-                    </label>
-                    <input type="text" placeholder="Username" bind:value={username} class="input input-bordered" required />
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Password</span>
-                    </label>
-                    <input type="password" placeholder="Password" bind:value={password} class="input input-bordered" required />
-                </div>
-                <div class="form-control mt-6">
-                    <button type="submit" class="btn btn-primary" disabled={isLoading}>
-                        {#if isLoading}
-                            <span class="loading loading-spinner"></span> <!-- Loading spinner -->
-                        {:else}
-                            Login
-                        {/if}
-                    </button>
-                </div>
-            </form>
-            
+      <!-- Error -->
+      {#if errorMessage}
+        <div class="alert alert-error text-sm">
+          <span>{errorMessage}</span>
         </div>
+      {/if}
+
+      <!-- Google Sign In -->
+      <div id="googleSignInDiv" class="justify-center w-full"></div>
+
+      <div class="divider text-xs">OR CONTINUE WITH</div>
+
+      <!-- Login Form -->
+      <form on:submit={handleLogin} class="space-y-3">
+
+        <!-- Username -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Username</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your username"
+            bind:value={username}
+            class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Password</span>
+            <a href="/forgot-password" class="label-text-alt link link-hover">
+              Forgot?
+            </a>
+          </label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            bind:value={password}
+            class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+          />
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-primary w-full mt-4"
+          disabled={isLoading}
+        >
+          {#if isLoading}
+            <span class="loading loading-spinner loading-sm"></span>
+            Logging in...
+          {:else}
+            Login
+          {/if}
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <p class="text-center text-sm text-base-content/70">
+        {`Don’t have an account?`}
+        <a href="/register" class="link link-primary font-medium">
+          Sign up
+        </a>
+      </p>
+
     </div>
+  </div>
 </div>

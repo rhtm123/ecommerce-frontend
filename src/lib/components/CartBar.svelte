@@ -343,6 +343,9 @@
             <span class="font-bold">{formatPrice(grandTotal)}</span>
           </div>
         </div>
+
+
+
       </div>
     {/if}
   </div>
@@ -351,18 +354,21 @@
   {#if cartItems.length > 0}
     <div class="sticky bottom-0 left-0 right-0 bg-white z-10 border-t border-gray-200 px-4 pt-2 pb-4">
       <!-- Total Savings Banner -->
+
       {#if totalSavings > 0}
-        <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg px-2 py-1 mb-2">
+        <div class="opacity-70 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg px-2 py-1 mb-2">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <Icon icon="mdi:tag-multiple" class="w-4 h-4 text-blue-600" />
-              <span class="text-blue-800 font-semibold text-base">Your total savings</span>
+              <span class="text-blue-800 font-semibold">Your total savings</span>
             </div>
-            <span class="text-green-700 font-bold">{formatPrice(totalSavings)}</span>
+            <span class="text-blue-800 font-base font-bold">{formatPrice(totalSavings)}</span>
           </div>
           <p class="text-xs text-blue-700 mt-1">🎉 You're saving big on this order!</p>
         </div>
       {/if}
+
+      
       <!-- Checkout Button -->
       <button 
         onclick={handleProceedToCheckout}
