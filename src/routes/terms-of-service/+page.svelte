@@ -19,7 +19,7 @@ let staticPage = data.staticPage;
   <meta property="og:type" content="website" />
 </svelte:head>
 
- <div class="max-w-4xl py-8 mx-auto prose prose-neutral dark:prose-invert">
+ <div class="max-w-4xl py-8 px-4 mx-auto prose prose-neutral dark:prose-invert">
     {@html staticPage.content}
   </div>
 
