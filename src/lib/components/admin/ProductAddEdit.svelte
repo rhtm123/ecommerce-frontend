@@ -737,19 +737,19 @@
 
     let showProductForm = step === 1;
 
-    function handleProductFormChange(event) {
-        product = event.detail.product;
+    function handleProductFormChange(data) {
+        product = data.product;
     }
 
-    async function handleProductFormSubmit(event) {
-        // event.detail contains { product, editorContent }
-        if (!validateProductForm(event.detail.product)) return;
+    async function handleProductFormSubmit(data) {
+        // data contains { product, editorContent }
+        if (!validateProductForm(data.product)) return;
 
         isSubmitting = true;
         try {
             const formData = {
-                ...event.detail.product,
-                description: event.detail.editorContent || null
+                ...data.product,
+                description: data.editorContent || null
             };
 
             const method = editMode ? 'PUT' : 'POST';
@@ -1220,7 +1220,7 @@
                                         ></textarea>
                     </div>
                     <div>
-                                        <label for="tax_category" class="block text-sm font-semibold text-gray-700 mb-2">Tax Category</label>
+                                        <!-- <label for="tax_category" class="block text-sm font-semibold text-gray-700 mb-2">Tax Category</label>
                                             <select 
                                             id="tax_category"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
@@ -1231,7 +1231,7 @@
                                             {#each taxCategories as t}
                                                 <option value={t.id}>{t.name}</option>
                                 {/each}
-                            </select>
+                            </select> -->
                         </div>
                     </div>
 
