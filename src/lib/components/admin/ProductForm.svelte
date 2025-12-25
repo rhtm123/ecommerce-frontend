@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import TiptapEditor from '$lib/components/wyswyg/TiptapEditor.svelte';
 
   export let product = {
@@ -22,7 +22,10 @@
   export let isSubmitting = false;
   export let errors = {};
 
-  const dispatch = createEventDispatcher();
+  // Svelte 5 callback props
+  export let onchange = () => {};
+  export let onsubmit = () => {};
+
   let editorContent = typeof product.description === 'string' ? product.description : '<p></p>';
 
   $: if (product.description !== editorContent) {
@@ -30,23 +33,25 @@
   }
 
   function handleEditorChange(event) {
-    editorContent = event.detail;
-    console.log('Description',product.description)
+    // TiptapEditor uses dispatch, so event.detail contains the HTML content
+    const content = event.detail;
+    editorContent = content;
     product.description = editorContent;
-    dispatch('change', { product });
+    onchange({ product });
   }
 
   function handleInputChange() {
-    dispatch('change', { product });
+    onchange({ product });
   }
 
   function submitForm(event) {
     event.preventDefault();
-    dispatch('submit', { product, editorContent });
+    console.log('Submitting product');
+    onsubmit({ product, editorContent });
   }
 </script>
 
-<form on:submit={submitForm} class="space-y-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+<form onsubmit={submitForm} class="space-y-10 bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
   <!-- Header -->
   <div class="mb-8">
     <h1 class="text-2xl font-bold text-gray-900 mb-1 flex items-center">
@@ -78,7 +83,7 @@
           id="product-name"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors {errors.name ? 'border-red-500' : ''}"
           placeholder="Enter a descriptive product name"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         />
         {#if errors.name}
           <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -98,7 +103,7 @@
           bind:value={product.category_id}
           id="product-category"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors {errors.category_id ? 'border-red-500' : ''}"
-          on:change={handleInputChange}
+          onchange={handleInputChange}
         >
           <option value="">Select a category</option>
           {#each categories as category}
@@ -123,7 +128,7 @@
           bind:value={product.brand_id}
           id="product-brand"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors {errors.brand_id ? 'border-red-500' : ''}"
-          on:change={handleInputChange}
+          onchange={handleInputChange}
         >
           <option value="">Select a brand</option>
           {#each brands as brand}
@@ -146,7 +151,7 @@
           bind:value={product.tax_category_id}
           id="product-tax"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          on:change={handleInputChange}
+          onchange={handleInputChange}
         >
           <option value="">Select tax category</option>
           {#each taxCategories as tax}
@@ -163,7 +168,7 @@
           id="product-country"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           placeholder="e.g., India"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         />
       </div>
       <!-- Unit Size -->
@@ -178,7 +183,7 @@
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           placeholder="e.g., 200.5"
           step="0.01"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         />
         <p class="mt-1 text-xs text-gray-500">Specify the size of a single unit (e.g., 200.5 for 200.5ml or 1 for 1 piece).</p>
       </div>
@@ -193,7 +198,7 @@
           id="product-size-unit"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           placeholder="e.g., ml, g, pcs"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         />
         <p class="mt-1 text-xs text-gray-500">Unit of measurement for the product (e.g., ml, g, pcs).</p>
       </div>
@@ -203,7 +208,7 @@
           type="checkbox" 
           bind:checked={product.is_service} 
           class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          on:change={handleInputChange}
+          onchange={handleInputChange}
           id="is-service-checkbox"
         />
         <label for="is-service-checkbox" class="ml-3 text-sm font-medium text-gray-700">This is a service</label>
@@ -230,7 +235,7 @@
           rows="3"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
           placeholder="Brief description about the product"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         ></textarea>
         <p class="mt-1 text-xs text-gray-500">A short summary or highlight about the product.</p>
       </div>
@@ -243,7 +248,7 @@
           rows="3"
           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
           placeholder="Important information customers should know"
-          on:input={handleInputChange}
+          oninput={handleInputChange}
         ></textarea>
         <p class="mt-1 text-xs text-gray-500">Any critical information or warnings for the customer.</p>
       </div>
