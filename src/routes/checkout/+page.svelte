@@ -572,7 +572,7 @@
                   />
                   Cash on Delivery
               </label>
-              <label>
+              <!-- <label>
                   <input 
                       type="radio" 
                       name="paymentMethod" 
@@ -580,7 +580,7 @@
                       bind:group={selectedPaymentMethod} 
                   />
                   Pay Online
-              </label>
+              </label> -->
           </div>
 
           <button 
