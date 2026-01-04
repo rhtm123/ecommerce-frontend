@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import { json } from "@sveltejs/kit";
 import { GMAIL_USER, GMAIL_APP_PASSWORD, ALLOWED_ORIGIN } from "$env/static/private";
 
+import { PUBLIC_ENV } from "$env/static/public";
 
 // Helper: escape for RegExp
 function escapeRegExp(string) {
@@ -75,12 +76,16 @@ export async function POST({ request, url }) {
     });
 
     try {
-        // await transporter.sendMail({
-        //     from: GMAIL_USER,
-        //     to,
-        //     subject,
-        //     html
-        // });
+        if (PUBLIC_ENV === "production") {
+            await transporter.sendMail({
+                from: GMAIL_USER,
+                to,
+                subject,
+                html
+            });
+        } else {
+            console.log("Email not sent in production environment");
+        }
 
         return json({ success: true });
     } catch (err) {
