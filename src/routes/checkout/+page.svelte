@@ -241,6 +241,8 @@
                 payment_method: selectedPaymentMethod,
             }, authUser.access_token);
 
+            console.log(payment);
+
             if (payment.payment_method == "pg") {
                 window.location = payment.payment_url;
             } else {
@@ -570,7 +572,7 @@
                   />
                   Cash on Delivery
               </label>
-              <!-- <label>
+              <label>
                   <input 
                       type="radio" 
                       name="paymentMethod" 
@@ -578,7 +580,7 @@
                       bind:group={selectedPaymentMethod} 
                   />
                   Pay Online
-              </label> -->
+              </label>
           </div>
 
           <button 

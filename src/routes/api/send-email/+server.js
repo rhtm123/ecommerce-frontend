@@ -75,12 +75,12 @@ export async function POST({ request, url }) {
     });
 
     try {
-        await transporter.sendMail({
-            from: GMAIL_USER,
-            to,
-            subject,
-            html
-        });
+        // await transporter.sendMail({
+        //     from: GMAIL_USER,
+        //     to,
+        //     subject,
+        //     html
+        // });
 
         return json({ success: true });
     } catch (err) {
