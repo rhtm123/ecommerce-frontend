@@ -50,6 +50,7 @@ let pincode = '';
       type="text"
       placeholder="Enter Pincode"
       bind:value={pincode}
+      on:input={clearResult}
       class="w-32 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
       maxlength="6"
     />
