@@ -238,10 +238,11 @@
                 "order_id": order.id,
                 "amount": finalTotal,
                 "estore_id": PUBLIC_ESTORE_ID,
-                payment_method: selectedPaymentMethod,
+                "payment_method": selectedPaymentMethod,
+                "payment_gateway": "Cashfree",
             }, authUser.access_token);
 
-            console.log(payment);
+            // console.log(payment);
 
             if (payment.payment_method == "pg") {
                 window.location = payment.payment_url;
