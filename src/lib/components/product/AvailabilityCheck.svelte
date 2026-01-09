@@ -4,6 +4,7 @@
 let pincode = '';
   let pincodeResult = '';
   let pinData = null;
+  let loading = false;
   import { PUBLIC_API_URL } from "$env/static/public";
   import  Icon  from '@iconify/svelte';
 
@@ -12,6 +13,9 @@ let pincode = '';
     if (!pincode) return; // Don't do anything if pincode is empty
     
     if (pincode.length === 6) {
+      loading = true;
+      pincodeResult = '';
+      pinData = null;
       try {
         const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?pin_code=${pincode}&page=1&page_size=1`);
         const data = await response.json();
@@ -28,6 +32,8 @@ let pincode = '';
         console.error('Error checking pincode availability:', error);
         pincodeResult = 'Error checking pincode availability. Please try again.';
         pinData = null;
+      } finally {
+        loading = false;
       }
     } else if (pincode.length > 0) {
       pincodeResult = 'Please enter a valid 6-digit pincode.';
@@ -48,13 +54,29 @@ let pincode = '';
       maxlength="6"
     />
     <button
-      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       on:click={checkPincodeAvailability}
+      disabled={loading}
     >
-      Check
+      {#if loading}
+        <span class="flex items-center gap-2">
+          <Icon icon="mdi:loading" class="w-4 h-4 animate-spin" />
+          Checking...
+        </span>
+      {:else}
+        Check
+      {/if}
     </button>
   </div>
-  {#if pincode && pincodeResult}
+  {#if loading}
+    <div class="flex items-start gap-2 mt-2">
+      <Icon
+        icon="mdi:loading"
+        class="w-5 h-5 mt-0.5 text-blue-600 animate-spin"
+      />
+      <p class="text-sm text-gray-600">Checking availability...</p>
+    </div>
+  {:else if pincode && pincodeResult}
     <div class="flex items-start gap-2 mt-2">
       <Icon
         icon={pinData ? "mdi:check-circle" : "mdi:alert-circle"}
