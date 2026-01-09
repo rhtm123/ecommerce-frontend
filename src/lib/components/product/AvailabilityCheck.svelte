@@ -12,16 +12,22 @@ let pincode = '';
     if (!pincode) return; // Don't do anything if pincode is empty
     
     if (pincode.length === 6) {
-      const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?page=1&page_size=10`);
-      const data = await response.json();
-      const foundPinData = data.results.find(pin => pin.pin_code === pincode);
-      
-      pinData = foundPinData;
-      
-      if (foundPinData) {
-        pincodeResult = `Delivery is available in ${foundPinData.city}, ${foundPinData.state}. COD is ${foundPinData.cod_available ? 'available' : 'not available'}.`;
-      } else {
-        pincodeResult = 'Delivery is not available for this pincode.';
+      try {
+        const response = await fetch(`${PUBLIC_API_URL}/estore/delivery-pins/?pin_code=${pincode}&page=1&page_size=1`);
+        const data = await response.json();
+        const foundPinData = data.results && data.results.length > 0 ? data.results[0] : null;
+        
+        pinData = foundPinData;
+        
+        if (foundPinData) {
+          pincodeResult = `Delivery is available in ${foundPinData.city}, ${foundPinData.state}. COD is ${foundPinData.cod_available ? 'available' : 'not available'}.`;
+        } else {
+          pincodeResult = 'Delivery is not available for this pincode.';
+        }
+      } catch (error) {
+        console.error('Error checking pincode availability:', error);
+        pincodeResult = 'Error checking pincode availability. Please try again.';
+        pinData = null;
       }
     } else if (pincode.length > 0) {
       pincodeResult = 'Please enter a valid 6-digit pincode.';
