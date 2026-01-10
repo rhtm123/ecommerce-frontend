@@ -396,10 +396,13 @@
                     <Product {product} />
                   {/each}
                 </div>
-                <div class="flex justify-center items-center py-4">
-                  {#if loadingMore}
+
+                {#if loadingMore}
                     <SkeltonProducts />
-                  {/if}
+                {/if}
+                
+                <div class="flex justify-center items-center py-4">
+                  
                   {#if next && !loadingMore && !loading}
                     <button class="btn btn-outline btn-sm" on:click={loadMore}>Load More</button>
                   {/if}
