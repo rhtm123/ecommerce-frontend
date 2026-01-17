@@ -245,6 +245,7 @@
             // console.log(payment);
 
             if (payment.payment_method == "pg") {
+                sendConfirmationEmail(orderData);
                 window.location = payment.payment_url;
             } else {
                 addAlert("Order placed successfully", "success");

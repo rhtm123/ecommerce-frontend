@@ -571,7 +571,7 @@
                 <tr>
 
                   <td class="font-medium text-gray-600 w-1/3 border-l">SKU</td>
-                  <td class="italic text-gray-500 border-l border-r">NM_{product_listing.id}</td>
+                  <td class="italic text-gray-500 border-l border-r">KB_{product_listing.id}</td>
 
                 </tr>
 
