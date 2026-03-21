@@ -4,6 +4,7 @@
     import { myFetch } from "$lib/utils/myFetch";
     import { onDestroy } from "svelte";
     import { addAlert } from "$lib/stores/alert";
+    import Icon from "@iconify/svelte";
     import OrdersTable from "$lib/components/admin/orders/OrdersTable.svelte";
 
     let authUser;
@@ -144,6 +145,14 @@
             }
         }
     }
+
+    function handleOrderDeleted(e) {
+        const orderId = e.detail;
+        orders = orders.filter((o) => o.id !== orderId);
+        expandedOrderIds = new Set(expandedOrderIds);
+        expandedOrderIds.delete(orderId);
+        expandedOrderIds = expandedOrderIds;
+    }
 </script>
 
 <svelte:window
@@ -159,9 +168,17 @@
 />
 
 <div class="max-w-[1600px] mx-auto">
-    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
-        <div class="flex items-center gap-4">
-            <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
+        <div class="flex items-center gap-2">
+            <button
+                on:click={fetchOrders}
+                disabled={loading}
+                class="p-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="Refresh orders"
+            >
+                <Icon icon="mdi:refresh" class="w-5 h-5 {loading ? 'animate-spin' : ''}" />
+            </button>
             <button
                 on:click={openAddOrderModal}
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -169,43 +186,43 @@
                 Add New Order
             </button>
         </div>
-        <div class="flex flex-wrap gap-3 items-center">
-            <input
-                type="text"
-                bind:value={searchQuery}
-                placeholder="Search by order # or external ID..."
-                class="pl-3 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
-            />
-            <select
-                bind:value={selectedSource}
-                on:change={fetchOrders}
-                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">All Sources</option>
-                <option value="direct">Direct</option>
-                <option value="amazon">Amazon</option>
-                <option value="flipkart">Flipkart</option>
-            </select>
-            <select
-                bind:value={selectedOrderType}
-                on:change={fetchOrders}
-                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">All Order Types</option>
-                <option value="new">New</option>
-                <option value="replacement">Replacement</option>
-            </select>
-            <select
-                bind:value={selectedPaymentStatus}
-                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">All Payment Status</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="failed">Failed</option>
-                <option value="refunded">Refunded</option>
-            </select>
-        </div>
+    </div>
+    <div class="flex flex-wrap gap-3 items-center mb-6">
+        <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search by order # or external ID..."
+            class="pl-3 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+        />
+        <select
+            bind:value={selectedSource}
+            on:change={fetchOrders}
+            class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+            <option value="">All Sources</option>
+            <option value="direct">Direct</option>
+            <option value="amazon">Amazon</option>
+            <option value="flipkart">Flipkart</option>
+        </select>
+        <select
+            bind:value={selectedOrderType}
+            on:change={fetchOrders}
+            class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+            <option value="">All Order Types</option>
+            <option value="new">New</option>
+            <option value="replacement">Replacement</option>
+        </select>
+        <select
+            bind:value={selectedPaymentStatus}
+            class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+            <option value="">All Payment Status</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
+        </select>
     </div>
 
     <OrdersTable
@@ -225,6 +242,7 @@
         on:addItem={handleAddItem}
         on:orderUpdated={handleOrderUpdated}
         on:itemStatusUpdated={handleItemStatusUpdated}
+        on:orderDeleted={handleOrderDeleted}
     />
 </div>
 
