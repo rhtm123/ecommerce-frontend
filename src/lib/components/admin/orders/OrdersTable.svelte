@@ -71,6 +71,18 @@
     function openAddItem(orderId) {
         dispatch("addItem", orderId);
     }
+
+    async function deleteOrder(order) {
+        if (!confirm(`Delete order #${order.order_number}? This cannot be undone.`)) return;
+        try {
+            await myFetch(`${PUBLIC_API_URL}/order/orders/${order.id}/`, "DELETE", {}, token);
+            addAlert(`Order #${order.order_number} deleted`, "info");
+            dispatch("orderDeleted", order.id);
+        } catch (err) {
+            console.error("Error deleting order:", err);
+            addAlert("Failed to delete order", "error");
+        }
+    }
 </script>
 
 <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
@@ -89,6 +101,7 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Platform Cost</th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Received</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16"></th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -183,10 +196,19 @@
                             {/each}
                         </select>
                     </td>
+                    <td class="px-4 py-3">
+                        <button
+                            on:click={() => deleteOrder(order)}
+                            class="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                            title="Delete order"
+                        >
+                            Delete
+                        </button>
+                    </td>
                 </tr>
                 {#if expandedOrderIds.has(order.id)}
                     <tr class="bg-gray-50">
-                        <td colspan="12" class="px-4 py-3">
+                        <td colspan="13" class="px-4 py-3">
                             <div class="ml-8 border-l-2 border-gray-200 pl-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <p class="text-xs font-medium text-gray-500 uppercase">Order Items ({order.items?.length ?? 0})</p>
@@ -256,7 +278,7 @@
 
             {#if loading && orders.length === 0}
                 <tr>
-                    <td colspan="12" class="px-6 py-12 text-center text-gray-500">
+                    <td colspan="13" class="px-6 py-12 text-center text-gray-500">
                         <span class="loading loading-spinner loading-md"></span>
                         <p class="mt-2">Loading orders...</p>
                     </td>
@@ -264,7 +286,7 @@
             {/if}
             {#if !loading && filteredOrders.length === 0}
                 <tr>
-                    <td colspan="12" class="px-6 py-12 text-center text-gray-500">No orders found</td>
+                    <td colspan="13" class="px-6 py-12 text-center text-gray-500">No orders found</td>
                 </tr>
             {/if}
         </tbody>
