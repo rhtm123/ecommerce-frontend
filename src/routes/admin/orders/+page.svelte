@@ -1,163 +1,251 @@
 <script>
-    import { PUBLIC_API_URL } from "$env/static/public";
-
+    import { PUBLIC_API_URL, PUBLIC_ESTORE_ID } from "$env/static/public";
     import { user } from "$lib/stores/auth";
     import { myFetch } from "$lib/utils/myFetch";
-    import { onMount, onDestroy } from "svelte";
-
+    import { onDestroy } from "svelte";
     import { addAlert } from "$lib/stores/alert";
+    import OrdersTable from "$lib/components/admin/orders/OrdersTable.svelte";
 
     let authUser;
-    const unsubscribe = user.subscribe(value => {
+    const unsubscribe = user.subscribe((value) => {
         authUser = value;
     });
 
     onDestroy(() => {
-        unsubscribe(); // Cleanup to avoid memory leaks
+        unsubscribe();
     });
 
-    $: if (authUser || selectedStatus) {
-        fetchOrderItems();
+    $: if (authUser) {
+        fetchOrders();
     }
 
     let loading = true;
-    let orderItems = [];
+    let orders = [];
     let next;
     let count = 0;
+    let expandedOrderIds = new Set();
+    let selectedSource = "";
+    let selectedOrderType = "";
+    let selectedPaymentStatus = "";
+    let searchQuery = "";
 
-    let selectedStatus = '';
+    let showAddOrderModal = false;
+    let showAddItemModal = false;
+    let addItemOrderId = null;
 
-    async function fetchOrderItems() {
+    let AddOrderModalComponent = null;
+    let AddItemModalComponent = null;
+
+    $: filteredOrders = orders.filter((o) => {
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const matchSearch =
+                (o.order_number && o.order_number.toLowerCase().includes(q)) ||
+                (o.external_order_id && o.external_order_id.toLowerCase().includes(q));
+            if (!matchSearch) return false;
+        }
+        if (selectedPaymentStatus && o.payment_status !== selectedPaymentStatus) return false;
+        return true;
+    });
+
+    function buildOrdersUrl() {
+        let url = `${PUBLIC_API_URL}/order/orders/?estore_id=${PUBLIC_ESTORE_ID}&items_needed=true&ordering=-id&page_size=20`;
+        if (selectedSource) url += `&source=${selectedSource}`;
+        if (selectedOrderType) url += `&order_type=${selectedOrderType}`;
+        return url;
+    }
+
+    async function fetchOrders() {
+        if (!authUser) return;
         loading = true;
-        orderItems = [];
-        let url = `${PUBLIC_API_URL}/order/order-items/?page_size=6&ordering=-id&seller_id=${authUser?.entity.id}&status=${selectedStatus}`;
-        let data = await myFetch(url);
-        orderItems = data.results;
-        next = data.next;
-        count = data.count;
+        orders = [];
+        try {
+            const data = await myFetch(buildOrdersUrl(), "GET", {}, authUser.access_token);
+            orders = data.results || [];
+            next = data.next;
+            count = data.count || orders.length;
+        } catch (err) {
+            console.error("Error fetching orders:", err);
+            addAlert("Failed to load orders", "error");
+        }
         loading = false;
     }
 
     async function loadMore() {
+        if (!next || loading) return;
         loading = true;
-        const dataNew = await myFetch(next);
-        orderItems = [...orderItems, ...dataNew.results];
-        next = dataNew.next;
+        try {
+            const data = await myFetch(next, "GET", {}, authUser.access_token);
+            orders = [...orders, ...(data.results || [])];
+            next = data.next;
+        } catch (err) {
+            console.error("Error loading more:", err);
+            addAlert("Failed to load more orders", "error");
+        }
         loading = false;
     }
 
-    async function updateStatus(orderId, newStatus) {
-        const url = `${PUBLIC_API_URL}/order/order-items/${orderId}/`;
-        const payload = { status: newStatus };
-        orderItems = orderItems.map(order =>
-                order.id === orderId ? { ...order, status: newStatus } : order
-        );
+    function toggleExpand(orderId) {
+        expandedOrderIds = new Set(expandedOrderIds);
+        if (expandedOrderIds.has(orderId)) {
+            expandedOrderIds.delete(orderId);
+        } else {
+            expandedOrderIds.add(orderId);
+        }
+        expandedOrderIds = expandedOrderIds;
+    }
 
-        addAlert(`#OrderId:${orderId} | Status Changed to ${newStatus}`)
-        try {
-            let data = await myFetch(url, "PUT", payload, authUser.access_token);            
-            
-        } catch (error) {
-            console.error("Error updating status:", error);
+    async function openAddOrderModal() {
+        if (!AddOrderModalComponent) {
+            const mod = await import("$lib/components/admin/orders/AddOrderModal.svelte");
+            AddOrderModalComponent = mod.default;
+        }
+        showAddOrderModal = true;
+    }
+
+    async function openAddItemModal(orderId) {
+        if (!AddItemModalComponent) {
+            const mod = await import("$lib/components/admin/orders/AddItemModal.svelte");
+            AddItemModalComponent = mod.default;
+        }
+        addItemOrderId = orderId;
+        showAddItemModal = true;
+    }
+
+    function handleAddItem(e) {
+        openAddItemModal(e.detail);
+    }
+
+    function handleOrderCreated() {
+        fetchOrders();
+    }
+
+    function handleItemAdded() {
+        fetchOrders();
+    }
+
+    function handleOrderUpdated(e) {
+        const { orderId, field, value } = e.detail;
+        const order = orders.find((o) => o.id === orderId);
+        if (order) {
+            order[field] = value;
+            orders = [...orders];
+        }
+    }
+
+    function handleItemStatusUpdated(e) {
+        const { orderId, itemId, newStatus } = e.detail;
+        const order = orders.find((o) => o.id === orderId);
+        if (order?.items) {
+            const item = order.items.find((i) => i.id === itemId);
+            if (item) {
+                item.status = newStatus;
+                orders = [...orders];
+            }
         }
     }
 </script>
 
+<svelte:window
+    on:keydown={(e) => {
+        if (e.key !== "Escape") return;
+        if (showAddItemModal) {
+            showAddItemModal = false;
+            addItemOrderId = null;
+        } else if (showAddOrderModal) {
+            showAddOrderModal = false;
+        }
+    }}
+/>
 
-    <!-- Main Content -->
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
-                <div class="flex space-x-4">
-                    <!-- <div class="relative">
-                        <input 
-                            type="text" 
-                            placeholder="Search orders..." 
-                            class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                        <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div> -->
-                    <select bind:value={selectedStatus} class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Statuses</option>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order Item ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="divide-y divide-gray-200">
-                        {#each orderItems as orderItem (orderItem.id)}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-blue-600">Order#{orderItem.id}</td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">{orderItem.product_listing.name}</div>
-                                <div class="text-sm text-gray-500">Quantity: {orderItem.quantity}</div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{orderItem.created}</td>
-                            <td class="px-6 py-4">
-                                <select 
-                                bind:value={orderItem.status}
-                                on:change={(e) => updateStatus(orderItem.id, e.target.value)}
-                                class={`border rounded-lg px-2 py-1 text-sm 
-                                    ${orderItem.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : ''}
-                                    ${orderItem.status === 'processing' ? 'bg-blue-100 text-blue-800 border-blue-300' : ''}
-                                    ${orderItem.status === 'shipped' ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : ''}
-                                    ${orderItem.status === 'delivered' ? 'bg-green-100 text-green-800 border-green-300' : ''}
-                                    ${orderItem.status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-300' : ''}
-                                `}
-                            >
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option disabled value="delivered">Completed</option>
-                                <option disabled value="cancelled">Cancelled</option>
-                            </select>
-
-
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 text-right">₹ {orderItem.subtotal.toFixed(2)}</td>
-                        </tr>
-                        {/each}
-
-                        {#if loading}
-                        <div class="p-4">
-                            <span class="loading loading-spinner loading-sm"></span>
-                        </div>
-                        {/if}
-
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="mt-2 flex justify-between items-center px-6 py-3 bg-white rounded-b-xl shadow-sm">
-                <div class="flex space-x-2">
-                    {#if (next && !loading)}
-                    <button on:click={loadMore} class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                        Load More
-                    </button>
-                    {/if}
-                </div>
-
-                <div class="text-sm text-gray-500">
-                    Showing {orderItems.length} of {count} results
-                </div>
-            </div>
+<div class="max-w-[1600px] mx-auto">
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+        <div class="flex items-center gap-4">
+            <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
+            <button
+                on:click={openAddOrderModal}
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                Add New Order
+            </button>
         </div>
+        <div class="flex flex-wrap gap-3 items-center">
+            <input
+                type="text"
+                bind:value={searchQuery}
+                placeholder="Search by order # or external ID..."
+                class="pl-3 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+            />
+            <select
+                bind:value={selectedSource}
+                on:change={fetchOrders}
+                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="">All Sources</option>
+                <option value="direct">Direct</option>
+                <option value="amazon">Amazon</option>
+                <option value="flipkart">Flipkart</option>
+            </select>
+            <select
+                bind:value={selectedOrderType}
+                on:change={fetchOrders}
+                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="">All Order Types</option>
+                <option value="new">New</option>
+                <option value="replacement">Replacement</option>
+            </select>
+            <select
+                bind:value={selectedPaymentStatus}
+                class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="">All Payment Status</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+            </select>
+        </div>
+    </div>
+
+    <OrdersTable
+        {orders}
+        {filteredOrders}
+        {loading}
+        {next}
+        {count}
+        {expandedOrderIds}
+        {searchQuery}
+        {selectedSource}
+        {selectedOrderType}
+        {selectedPaymentStatus}
+        token={authUser?.access_token ?? ""}
+        on:toggleExpand={(e) => toggleExpand(e.detail)}
+        on:loadMore={loadMore}
+        on:addItem={handleAddItem}
+        on:orderUpdated={handleOrderUpdated}
+        on:itemStatusUpdated={handleItemStatusUpdated}
+    />
+</div>
+
+{#if showAddOrderModal && AddOrderModalComponent}
+    <svelte:component
+        this={AddOrderModalComponent}
+        token={authUser?.access_token ?? ""}
+        on:created={handleOrderCreated}
+        on:close={() => (showAddOrderModal = false)}
+    />
+{/if}
+
+{#if showAddItemModal && AddItemModalComponent && addItemOrderId}
+    <svelte:component
+        this={AddItemModalComponent}
+        orderId={addItemOrderId}
+        token={authUser?.access_token ?? ""}
+        on:added={handleItemAdded}
+        on:close={() => {
+            showAddItemModal = false;
+            addItemOrderId = null;
+        }}
+    />
+{/if}

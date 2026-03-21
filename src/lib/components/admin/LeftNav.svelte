@@ -57,17 +57,6 @@
             </li>
             <li>
                 <button
-                    class={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg ${activePage === '/admin/inventory' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
-                    on:click={() => goto("/admin/inventory")}
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                    <span>Inventory</span>
-                </button>
-            </li>
-            <li>
-                <button
                     class={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg ${activePage === '/admin/orders' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
                     on:click={() => goto("/admin/orders")}
                 >
@@ -77,6 +66,19 @@
                     <span>Orders</span>
                 </button>
             </li>
+            
+            <li>
+                <button
+                    class={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg ${activePage === '/admin/inventory' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                    on:click={() => goto("/admin/inventory")}
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>Inventory</span>
+                </button>
+            </li>
+            
         </ul>
     </nav>
 
